@@ -1,0 +1,17 @@
+# https://physics.raushansync.com
+User-agent: *
+Allow: /
+Disallow: /.github/
+Disallow: /CNAME
+Disallow: /LICENSE
+Disallow: /README.md
+
+# Block Common Bots
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: ChatGPT-User
+Disallow: /
+
+Sitemap: https://physics.raushansync.com/sitemap.xml
