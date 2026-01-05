@@ -362,6 +362,29 @@
     </footer>
 
     <script src="../assets/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.card').forEach(function (card) {
+                if (card.querySelector('.btn-row')) return;
+                var main = card.querySelector('.btn');
+                if (!main) return;
+                var isDisabled = main.classList.contains('disabled');
+                var row = document.createElement('div');
+                row.className = 'btn-row';
+                var a1 = document.createElement('a');
+                a1.className = 'btn' + (isDisabled ? ' disabled' : '');
+                a1.href = '#';
+                a1.textContent = 'Notes';
+                var a2 = document.createElement('a');
+                a2.className = 'btn' + (isDisabled ? ' disabled' : '');
+                a2.href = '#';
+                a2.textContent = 'Practice';
+                row.appendChild(a1);
+                row.appendChild(a2);
+                main.insertAdjacentElement('afterend', row);
+            });
+        });
+    </script>
 </body>
 
 </html>

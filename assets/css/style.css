@@ -276,3 +276,18 @@ main { padding: calc(var(--header-height) + 40px) 0 4rem; }
         gap: 1rem 1.5rem;
     }
 }
+
+/* --- Button Row Styling (for Notes/Practice buttons) --- */
+.card .btn-row { 
+    margin-top: 0.5rem; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.5rem; 
+}
+
+.card .btn-row .btn { 
+    margin: 0; 
+    width: 100%; 
+}
+
+
