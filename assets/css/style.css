@@ -291,3 +291,6 @@ main { padding: calc(var(--header-height) + 40px) 0 4rem; }
 }
 
 
+.welcome-section p + p {
+    margin-top: 1rem;
+}
