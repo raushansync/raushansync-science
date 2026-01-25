@@ -310,3 +310,227 @@ main { padding: calc(var(--header-height) + 40px) 0 4rem; }
   color: #9ca3af;
   line-height: 1.4;
 }
+
+/* ---------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
+/* =========================================================
+   WATERMARK SYSTEM — Educational Attribution (Refined)
+   ========================================================= */
+
+/* Subtle background watermark */
+.notes-page::before {
+  content: "RaushanSYNC · Educational Content";
+  position: fixed;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-28deg);
+
+  /* Smaller and safer sizing */
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+
+  color: var(--text-color);
+  opacity: 0.05;
+
+  pointer-events: none;
+  z-index: 0;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Ensure content stays above watermark */
+.notes-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Footer watermark line */
+.notes-watermark {
+  margin-top: 4rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  opacity: 0.85;
+}
+
+/* Print behavior */
+@media print {
+  .notes-page::before {
+    opacity: 0.06;
+  }
+}
+
+
+
+/* =========================================================
+   NOTES PAGES — RaushanSYNC Knowledge Layout
+   ========================================================= */
+
+.notes-page {
+  padding-top: calc(var(--header-height) + 40px);
+  padding-bottom: 4rem;
+}
+
+.notes-container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Header */
+
+.notes-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.notes-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.4rem;
+}
+
+.notes-header p {
+  color: var(--secondary-text-color);
+  font-size: 1rem;
+}
+
+/* Section Headings */
+
+.notes-container h2 {
+  margin-top: 3.2rem;
+  margin-bottom: 1rem;
+  font-size: 1.7rem;
+  color: var(--primary-color);
+}
+
+.notes-container h3 {
+  margin-top: 1.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 1.2rem;
+}
+
+/* Text */
+
+.notes-container p {
+  margin-bottom: 0.8rem;
+}
+
+.notes-container ul,
+.notes-container ol {
+  padding-left: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.notes-container li {
+  margin-bottom: 0.4rem;
+}
+
+/* Information Blocks */
+
+.notes-box {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-left: 5px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  margin: 1.4rem 0;
+  box-shadow: var(--card-shadow);
+}
+
+.notes-box.example {
+  border-left-color: #7dd3fc;
+}
+
+.notes-box.summary {
+  border-left-color: #22c55e;
+}
+
+/* Tables */
+
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: var(--card-background);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.notes-table th,
+.notes-table td {
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 0.8rem;
+  text-align: left;
+}
+
+.notes-table th {
+  font-weight: 600;
+  background-color: rgba(0,0,0,0.04);
+}
+
+.dark-mode .notes-table th {
+  background-color: rgba(255,255,255,0.05);
+}
+
+/* Diagrams */
+
+.notes-diagram {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.notes-diagram img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+
+.notes-diagram figcaption {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  margin-top: 0.4rem;
+}
+
+/* Print */
+
+@media print {
+  .header,
+  .footer,
+  .theme-toggle-btn,
+  .hamburger {
+    display: none !important;
+  }
+
+  .notes-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .notes-box,
+  .notes-table,
+  .notes-diagram img {
+    box-shadow: none;
+  }
+}
+
+.subscribe-card {
+  margin: 3rem 0;
+  padding: 1.5rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  background: var(--card-background);
+  text-align: center;
+}
+
+.subscribe-card p {
+  margin-bottom: 1rem;
+  color: var(--secondary-text-color);
+  font-size: 0.95rem;
+}
+
+
