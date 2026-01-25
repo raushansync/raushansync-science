@@ -581,3 +581,36 @@ main { padding: calc(var(--header-height) + 40px) 0 4rem; }
   margin-bottom: 0.6rem;
 }
 
+/* =========================================================
+   ADVANCED PRACTICE PAGE EXTENSIONS (additional css) 
+   ========================================================= */
+
+/* Highlight instructional palettes */
+.palette.note {
+  background: rgba(125,211,252,0.08);
+  border-left: 6px solid #7dd3fc;
+}
+
+/* Blockquote styling for quoted text */
+.notes-container blockquote {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  border-left: 4px solid var(--primary-color);
+  background: rgba(0,0,0,0.03);
+  font-style: italic;
+  border-radius: 6px;
+}
+
+.dark-mode .notes-container blockquote {
+  background: rgba(255,255,255,0.04);
+}
+
+/* Improve answer readability */
+.notes-box p {
+  margin-bottom: 0.6rem;
+}
+
+/* Tighter list spacing inside answers */
+.notes-box ul li {
+  margin-bottom: 0.3rem;
+}
