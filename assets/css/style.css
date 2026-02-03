@@ -398,6 +398,17 @@ main {
   color: var(--secondary-text-color);
 }
 
+.about-container a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.about-container a:hover {
+  color: var(--primary-color-dark);
+  text-decoration: none;
+}
+
 /* --- Media Queries (Unchanged, Mobile Nav/Layout) --- */
 @media (max-width: 768px) {
   .nav-links {
@@ -494,6 +505,10 @@ main {
   margin-top: 1rem;
   font-size: 0.9rem;
   color: #374151;
+}
+
+.dark-mode .footer-credit {
+  color: var(--secondary-text-color);
 }
 
 .footer-usage {
@@ -913,10 +928,12 @@ main {
 .welcome-section .hero-palette a {
   text-decoration: none;
   font-weight: 600;
+  color: var(--primary-color);
 }
 
 .welcome-section .hero-palette a:hover {
-  text-decoration: underline; /* optional, subtle affordance */
+  text-decoration: none;
+  color: var(--primary-color-dark);
 }
 
 /* =========================================================
