@@ -667,6 +667,10 @@ main {
   border-left-color: #22c55e;
 }
 
+.notes-box h2 {
+  margin-top: 0;
+}
+
 /* Tables */
 
 .notes-table {
