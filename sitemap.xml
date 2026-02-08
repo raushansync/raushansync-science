@@ -8,7 +8,7 @@
   </url>
 
   <url>
-    <loc>https://science.raushansync.com/about.html</loc>
+    <loc>https://science.raushansync.com/about/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -57,7 +57,11 @@
     <priority>0.6</priority>
   </url>
 
-    <!-- Class 6 Chapter 1 Content Pages -->
+  <!-- class 06 video content -->
+
+
+
+  <!-- Class 6 Chapter 1 Content Pages -->
 
   <url>
     <loc>https://science.raushansync.com/notes/class06/chapter01-the-wonderful-world-of-science/</loc>
