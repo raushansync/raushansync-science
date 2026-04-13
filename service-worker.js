@@ -1,5 +1,5 @@
 /* RaushanSYNC Science PWA Service Worker */
-const CACHE_VERSION = 'science-v1.0.2.2';
+const CACHE_VERSION = 'science-v1.0.2.3';
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
@@ -27,7 +27,28 @@ const CORE_ASSETS = [
   '/class10/',
   '/class11/',
   '/class12/',
-  '/video-lessons/class06/chapter01-the-wonderful-world-of-science/index.html'
+  '/video-lessons/class06/chapter01-the-wonderful-world-of-science/index.html',
+
+  // Newly added Class 07 notes (precache important pages)
+  '/notes/class07/chapter01-nutrition-in-plants/',
+  '/notes/class07/chapter01-nutrition-in-plants/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/congratulations.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/quiz1.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/quiz2.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/quiz3.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/quiz4.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/quiz5.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/quiz6.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/quiz7.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/index.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/quiz8.html'
 ];
 
 self.addEventListener('install', (event) => {
