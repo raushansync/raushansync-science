@@ -1,5 +1,5 @@
 /* RaushanSYNC Science PWA Service Worker */
-const CACHE_VERSION = 'science-v1.0.2.7';
+const CACHE_VERSION = 'science-v1.0.2.8';
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
