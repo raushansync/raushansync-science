@@ -9,7 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>Login - RaushanSync Science</title>
+    <title>Set New Password - RaushanSync Science</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +59,7 @@
         .auth-header p {
             color: var(--secondary-text-color);
             font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .form-group {
@@ -100,6 +101,10 @@
             cursor: not-allowed;
         }
 
+        .dark-mode input:disabled {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
         .password-input-wrapper {
             position: relative;
             display: flex;
@@ -133,8 +138,10 @@
             background: none;
         }
 
-        .dark-mode input:disabled {
-            background-color: rgba(255, 255, 255, 0.04);
+        .password-hint {
+            font-size: 0.8rem;
+            color: var(--secondary-text-color);
+            margin-top: 0.3rem;
         }
 
         button {
@@ -242,65 +249,20 @@
             display: block;
         }
 
-        .divider {
+        .back-link {
             text-align: center;
-            color: var(--secondary-text-color);
-            font-size: 0.85rem;
-            margin: 1.5rem 0;
-            position: relative;
+            margin-top: 1.5rem;
         }
 
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 100%;
-            height: 1px;
-            background: var(--border-color);
-        }
-
-        .divider span {
-            position: relative;
-            background: var(--card-background);
-            padding: 0 0.75rem;
-        }
-
-        .signup-link {
-            text-align: center;
-            color: var(--secondary-text-color);
-            font-size: 0.9rem;
-        }
-
-        .signup-link a {
+        .back-link a {
             color: var(--primary-color);
             text-decoration: none;
-            font-weight: 600;
+            font-size: 0.9rem;
             transition: color 0.2s;
         }
 
-        .signup-link a:hover {
-            color: var(--primary-color-dark, var(--primary-color));
+        .back-link a:hover {
             text-decoration: underline;
-        }
-
-        .redirect-info {
-            background: rgba(59, 130, 246, 0.1);
-            border-left: 4px solid var(--primary-color);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: var(--secondary-text-color);
-            margin-bottom: 1.25rem;
-            display: none;
-        }
-
-        .dark-mode .redirect-info {
-            background: rgba(96, 165, 250, 0.1);
-        }
-
-        .redirect-info.show {
-            display: block;
         }
 
         @media (max-width: 768px) {
@@ -358,26 +320,20 @@
             <div class="auth-container">
                 <div class="auth-card">
                     <div class="auth-header">
-                        <h1>Welcome Back</h1>
-                        <p>Sign in to your account to continue</p>
+                        <h1>Set New Password</h1>
+                        <p>Enter a new password for your account</p>
                     </div>
 
-                    <div class="redirect-info" id="redirectInfo"></div>
                     <div class="error" id="errorMessage" role="alert" aria-live="polite"></div>
                     <div class="success" id="successMessage" role="status" aria-live="polite"></div>
-                    <div class="loading" id="loading">Please wait...</div>
+                    <div class="loading" id="loading">Updating password...</div>
 
-                    <form id="loginForm">
+                    <form id="resetConfirmForm" style="display: none;">
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="your@example.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password">Password</label>
+                            <label for="newPassword">New Password</label>
                             <div class="password-input-wrapper">
-                                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                                <button type="button" class="password-toggle-btn" id="passwordToggle" aria-label="Toggle password visibility">
+                                <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required>
+                                <button type="button" class="password-toggle-btn" id="newPasswordToggle" aria-label="Toggle password visibility">
                                     <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -387,23 +343,37 @@
                                     </svg>
                                 </button>
                             </div>
+                            <div class="password-hint">Password must be at least 8 characters long</div>
                         </div>
 
-                        <button type="submit" id="loginBtn">Sign In</button>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm Password</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Confirm new password" required>
+                                <button type="button" class="password-toggle-btn" id="confirmNewPasswordToggle" aria-label="Toggle password visibility">
+                                    <svg class="eye-icon-confirm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <svg class="eye-off-icon-confirm" style="display: none; width: 20px; height: 20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
 
-                        <div style="text-align: center; margin-top: 1rem;">
-                            <a href="/password-reset.html" style="color: var(--primary-color); text-decoration: none; font-size: 0.9rem; transition: color 0.2s;">
-                                Forgot your password?
-                            </a>
+                        <button type="submit" id="confirmBtn">Update Password</button>
+
+                        <div class="back-link">
+                            <a href="/login.html">Back to Sign In</a>
                         </div>
                     </form>
 
-                    <div class="divider">
-                        <span>New to RaushanSYNC?</span>
-                    </div>
-
-                    <div class="signup-link">
-                        Don't have an account? <a href="/signup.html">Sign up here</a>
+                    <div id="sessionExpired" style="display: none; text-align: center;">
+                        <p style="color: var(--secondary-text-color); margin-bottom: 1.5rem;">Your password reset link has expired. Please request a new one.</p>
+                        <div class="back-link">
+                            <a href="/password-reset.html">Request New Link</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -416,87 +386,116 @@
     <script src="/assets/js/auth-guard.js"></script>
 
     <script>
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
-            const errorDiv = document.getElementById("errorMessage");
-            const loadingDiv = document.getElementById("loading");
-            const loginBtn = document.getElementById("loginBtn");
+        // Check if user has a valid session from email link
+        async function checkSession() {
+            if (!window.supabaseClient) {
+                document.getElementById("errorMessage").textContent = "Authentication service unavailable.";
+                document.getElementById("errorMessage").classList.add("show");
+                return;
+            }
 
-            if (!email || !password) {
+            const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+
+            if (!session || !session.user) {
+                document.getElementById("sessionExpired").style.display = "block";
+                return;
+            }
+
+            document.getElementById("resetConfirmForm").style.display = "block";
+            setupPasswordToggles();
+        }
+
+        // Password visibility toggles
+        function setupPasswordToggles() {
+            const newPasswordInput = document.getElementById("newPassword");
+            const newPasswordToggle = document.getElementById("newPasswordToggle");
+            const eyeIcon = document.querySelector(".eye-icon");
+            const eyeOffIcon = document.querySelector(".eye-off-icon");
+
+            newPasswordToggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                const isPasswordVisible = newPasswordInput.type === "text";
+                newPasswordInput.type = isPasswordVisible ? "password" : "text";
+                eyeIcon.style.display = isPasswordVisible ? "block" : "none";
+                eyeOffIcon.style.display = isPasswordVisible ? "none" : "block";
+            });
+
+            const confirmNewPasswordInput = document.getElementById("confirmNewPassword");
+            const confirmNewPasswordToggle = document.getElementById("confirmNewPasswordToggle");
+            const eyeIconConfirm = document.querySelector(".eye-icon-confirm");
+            const eyeOffIconConfirm = document.querySelector(".eye-off-icon-confirm");
+
+            confirmNewPasswordToggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                const isPasswordVisible = confirmNewPasswordInput.type === "text";
+                confirmNewPasswordInput.type = isPasswordVisible ? "password" : "text";
+                eyeIconConfirm.style.display = isPasswordVisible ? "block" : "none";
+                eyeOffIconConfirm.style.display = isPasswordVisible ? "none" : "block";
+            });
+        }
+
+        async function handlePasswordUpdate(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById("newPassword").value;
+            const confirmNewPassword = document.getElementById("confirmNewPassword").value;
+            const errorDiv = document.getElementById("errorMessage");
+            const successDiv = document.getElementById("successMessage");
+            const loadingDiv = document.getElementById("loading");
+            const confirmBtn = document.getElementById("confirmBtn");
+
+            if (!newPassword || !confirmNewPassword) {
                 errorDiv.textContent = "Please fill in all fields.";
                 errorDiv.classList.add("show");
                 return;
             }
 
-            if (!window.supabaseClient) {
-                errorDiv.textContent = "Authentication service unavailable.";
+            if (newPassword.length < 8) {
+                errorDiv.textContent = "Password must be at least 8 characters long.";
                 errorDiv.classList.add("show");
                 return;
             }
 
-            loginBtn.disabled = true;
+            if (newPassword !== confirmNewPassword) {
+                errorDiv.textContent = "Passwords do not match.";
+                errorDiv.classList.add("show");
+                return;
+            }
+
+            confirmBtn.disabled = true;
             loadingDiv.classList.add("show");
             errorDiv.classList.remove("show");
+            successDiv.classList.remove("show");
 
             try {
-                const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
+                const { error } = await window.supabaseClient.auth.updateUser({
+                    password: newPassword
                 });
 
                 if (error) {
-                    errorDiv.textContent = error.message || "Login failed. Please try again.";
+                    errorDiv.textContent = error.message || "Failed to update password. Please try again.";
                     errorDiv.classList.add("show");
-                    loginBtn.disabled = false;
+                    confirmBtn.disabled = false;
                     loadingDiv.classList.remove("show");
                     return;
                 }
 
-                if (data.session) {
-                    window.location.replace("/dashboard.html");
-                }
+                successDiv.textContent = "Password updated successfully! Redirecting to login...";
+                successDiv.classList.add("show");
+                loadingDiv.classList.remove("show");
+
+                setTimeout(() => {
+                    window.location.replace("/login.html?message=password-reset-success");
+                }, 2000);
             } catch (err) {
                 errorDiv.textContent = "An error occurred. Please try again.";
                 errorDiv.classList.add("show");
-                loginBtn.disabled = false;
+                confirmBtn.disabled = false;
                 loadingDiv.classList.remove("show");
             }
         }
 
-        // Password visibility toggle
-        const passwordInput = document.getElementById("password");
-        const passwordToggle = document.getElementById("passwordToggle");
-        const eyeIcon = document.querySelector(".eye-icon");
-        const eyeOffIcon = document.querySelector(".eye-off-icon");
-
-        passwordToggle.addEventListener("click", (e) => {
-            e.preventDefault();
-            const isPasswordVisible = passwordInput.type === "text";
-            passwordInput.type = isPasswordVisible ? "password" : "text";
-            eyeIcon.style.display = isPasswordVisible ? "block" : "none";
-            eyeOffIcon.style.display = isPasswordVisible ? "none" : "block";
-        });
-
-        document.getElementById("loginForm").addEventListener("submit", handleLogin);
-
-        window.addEventListener("load", () => {
-            const params = new URLSearchParams(window.location.search);
-            const redirectInfo = document.getElementById("redirectInfo");
-            
-            if (params.get("message") === "signed-out") {
-                redirectInfo.textContent = "You have been signed out successfully.";
-                redirectInfo.classList.add("show");
-            } else if (params.get("message") === "signup-success") {
-                redirectInfo.textContent = "Account created successfully! Please sign in with your credentials.";
-                redirectInfo.classList.add("show");
-            } else if (params.get("message") === "password-reset-success") {
-                redirectInfo.textContent = "Password reset successfully! You can now sign in with your new password.";
-                redirectInfo.classList.add("show");
-            }
-        });
+        document.getElementById("resetConfirmForm").addEventListener("submit", handlePasswordUpdate);
+        window.addEventListener("load", checkSession);
     </script>
 </body>
 </html>
-

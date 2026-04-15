@@ -516,8 +516,25 @@
                 });
 
                 if (error) {
-                    errorDiv.textContent = error.message || "Signup failed. Please try again.";
+                    // Display detailed error information
+                    let errorMessage = error.message || "Signup failed. Please try again.";
+                    
+                    // Add error code/status for debugging
+                    if (error.status) {
+                        errorMessage += ` (Code: ${error.status})`;
+                    }
+                    
+                    errorDiv.textContent = errorMessage;
                     errorDiv.classList.add("show");
+                    
+                    // Log for debugging
+                    console.error("Signup error details:", {
+                        message: error.message,
+                        status: error.status,
+                        code: error.code,
+                        fullError: error
+                    });
+                    
                     signupBtn.disabled = false;
                     loadingDiv.classList.remove("show");
                     return;
