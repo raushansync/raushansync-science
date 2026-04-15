@@ -7,6 +7,14 @@
  *   <script src="/assets/js/auth-config.js"></script>
  */
 
+// Initialize auth-pending state immediately to prevent page flash before auth check
+// This hides all content until auth status is verified
+(function initAuthPending() {
+    if (document.documentElement.classList) {
+        document.documentElement.classList.add('auth-pending');
+    }
+})();
+
 const DEFAULT_SUPABASE_URL = 'https://vqchjavjcfrewulqpjcl.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxY2hqYXZqY2ZyZXd1bHFwamNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjgxMTEsImV4cCI6MjA5MTg0NDExMX0.g_yEVDMl-jiOow8KcOcCyVWCdzVq1yDoGPrmRdEy_4M';
 
@@ -36,7 +44,16 @@ const AUTH_PAGE_PATHS = new Set([
 const PROTECTED_PATH_PREFIXES = [
     AUTH_ROUTE_DASHBOARD,
     '/practice/',
-    '/practice-advanced/'
+    '/practice-advanced/',
+    '/notes/',
+    '/video-lessons/',
+    '/class06/',
+    '/class07/',
+    '/class08/',
+    '/class09/',
+    '/class10/',
+    '/class11/',
+    '/class12/'
 ];
 
 let authState = {
@@ -503,6 +520,10 @@ window.redirectAuthenticatedUser = async function (fallback = AUTH_ROUTE_DASHBOA
 window.isAuthenticated = async function () {
     const session = await window.getCurrentSession();
     return session !== null;
+};
+
+window.isProtectedPath = function (pathname = window.location.pathname) {
+    return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(pathname, prefix));
 };
 
 initializeAuth();
