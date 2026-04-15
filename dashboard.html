@@ -201,6 +201,234 @@
             opacity: 0.9;
         }
 
+        .btn-secondary {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--border-color);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-text-color);
+            opacity: 0.8;
+        }
+
+        .btn-edit {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .profile-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-section-header .section-title {
+            margin-bottom: 0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-text-color);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: "Poppins", sans-serif;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5rem 1.5rem;
+            padding-right: 2.5rem;
+        }
+
+        select.form-input option {
+            background-color: var(--card-background);
+            color: var(--text-color);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .modal-message {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .modal-message.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            display: block;
+        }
+
+        .modal-message.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .profile-section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .btn-edit {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .modal-content {
+                margin: 20% auto;
+                width: 95%;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+        }
+
         @media (max-width: 768px) {
             main {
                 padding-top: calc(var(--header-height) + 20px);
@@ -347,39 +575,42 @@
                 <div class="stats-grid">
                     <div class="stat-card accent-1">
                         <div class="stat-label">Account Status</div>
-                        <div class="stat-value" style="color: var(--primary-color);">?</div>
+                        <div class="stat-value" style="color: var(--primary-color);">✓</div>
                         <div class="stat-meta">Active</div>
                     </div>
                     <div class="stat-card accent-2">
-                        <div class="stat-label">Class/Grade</div>
-                        <div class="stat-value" id="classValue">�</div>
-                        <div class="stat-meta">Level</div>
+                        <div class="stat-label">Learned Hours</div>
+                        <div class="stat-value" id="learnedHours">0h</div>
+                        <div class="stat-meta" id="learnedMeta">Lifetime Total</div>
                     </div>
                     <div class="stat-card accent-3">
                         <div class="stat-label">Profile Status</div>
-                        <div class="stat-value" style="color: #4facfe;">?</div>
-                        <div class="stat-meta">Complete</div>
+                        <div class="stat-value" id="profileStatus" style="color: #4facfe;">–</div>
+                        <div class="stat-meta" id="profileStatusMeta">Checking...</div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <h2 class="section-title">Your Profile</h2>
+                    <div class="profile-section-header">
+                        <h2 class="section-title">Your Profile</h2>
+                        <button class="btn-primary btn-edit" id="editProfileBtn">Edit Profile</button>
+                    </div>
                     <div class="profile-grid">
                         <div class="profile-item">
                             <div class="profile-label">Full Name</div>
-                            <div class="profile-value" id="profileFullName">�</div>
+                            <div class="profile-value" id="profileFullName">–</div>
                         </div>
                         <div class="profile-item">
                             <div class="profile-label">Email</div>
-                            <div class="profile-value" id="profileEmail">�</div>
+                            <div class="profile-value" id="profileEmail">–</div>
                         </div>
                         <div class="profile-item">
                             <div class="profile-label">Class</div>
-                            <div class="profile-value" id="profileClass">�</div>
+                            <div class="profile-value" id="profileClass">–</div>
                         </div>
                         <div class="profile-item">
                             <div class="profile-label">School</div>
-                            <div class="profile-value" id="profileSchool">�</div>
+                            <div class="profile-value" id="profileSchool">–</div>
                         </div>
                     </div>
                 </div>
@@ -393,13 +624,197 @@
         </div>
     </main>
 
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+            </div>
+            <div id="modalMessage" class="modal-message"></div>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="fullNameInput" class="form-label">Full Name</label>
+                    <input type="text" id="fullNameInput" class="form-input" placeholder="Enter your full name" maxlength="120" required>
+                </div>
+                <div class="form-group">
+                    <label for="emailInput" class="form-label">Email</label>
+                    <input type="email" id="emailInput" class="form-input" placeholder="Enter your email" maxlength="255" required>
+                </div>
+                <div class="form-group">
+                    <label for="classInput" class="form-label">Class / Grade</label>
+                    <select id="classInput" class="form-input" required>
+                        <option value="">Select your class</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="schoolInput" class="form-label">School Name</label>
+                    <input type="text" id="schoolInput" class="form-input" placeholder="Enter your school name" maxlength="160">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn-primary" id="saveBtn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/assets/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
     <script src="/assets/js/auth-config.js"></script>
     <script src="/assets/js/auth-guard.js"></script>
 
     <script>
+        let currentUser = null;
+        let activityTracker = {
+            isActive: false,
+            lastActivityTime: Date.now(),
+            inactivityTimeout: 20 * 60 * 1000, // 20 minutes of inactivity pauses timer
+            sessionStartTime: null,
+            totalMilliseconds: 0,
+            updateInterval: null,
+            inactivityTimer: null,
+            syncInterval: null
+        };
+
         document.addEventListener("DOMContentLoaded", initializeDashboard);
+
+        // Modal handlers
+        const modal = document.getElementById("editProfileModal");
+        const editBtn = document.getElementById("editProfileBtn");
+        const closeBtn = document.getElementById("modalClose");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const editForm = document.getElementById("editProfileForm");
+        const modalMessage = document.getElementById("modalMessage");
+
+        editBtn.addEventListener("click", openEditModal);
+        closeBtn.addEventListener("click", closeEditModal);
+        cancelBtn.addEventListener("click", closeEditModal);
+        editForm.addEventListener("submit", handleEditFormSubmit);
+
+        // Close modal when clicking outside of it
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+
+        // Activity detection events
+        const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"];
+        activityEvents.forEach((event) => {
+            document.addEventListener(event, handleActivity, true);
+        });
+
+        function handleActivity() {
+            const now = Date.now();
+            
+            // If there was a long inactivity, start a new session
+            if (activityTracker.isActive && (now - activityTracker.lastActivityTime) > activityTracker.inactivityTimeout) {
+                // User was inactive for too long, end the session but keep total
+                if (activityTracker.sessionStartTime) {
+                    const sessionTime = activityTracker.lastActivityTime - activityTracker.sessionStartTime;
+                    activityTracker.totalMilliseconds += sessionTime;
+                }
+                activityTracker.sessionStartTime = now;
+            } else if (!activityTracker.isActive) {
+                // User is starting a new session
+                activityTracker.isActive = true;
+                activityTracker.sessionStartTime = now;
+            }
+
+            activityTracker.lastActivityTime = now;
+            clearTimeout(activityTracker.inactivityTimer);
+
+            // Set inactivity timeout
+            activityTracker.inactivityTimer = setTimeout(() => {
+                if (activityTracker.isActive && activityTracker.sessionStartTime) {
+                    const sessionTime = Date.now() - activityTracker.sessionStartTime;
+                    activityTracker.totalMilliseconds += sessionTime;
+                    activityTracker.isActive = false;
+                    activityTracker.sessionStartTime = null;
+                    syncLearnedHours();
+                }
+            }, activityTracker.inactivityTimeout);
+        }
+
+        function getLearnedHours() {
+            let totalMs = activityTracker.totalMilliseconds;
+            if (activityTracker.isActive && activityTracker.sessionStartTime) {
+                totalMs += Date.now() - activityTracker.sessionStartTime;
+            }
+            return totalMs / (1000 * 60 * 60); // Convert milliseconds to hours
+        }
+
+        function formatLearnedHours(hours) {
+            const wholeHours = Math.floor(hours);
+            const minutes = Math.floor((hours % 1) * 60);
+            if (wholeHours === 0) {
+                return `${minutes}m`;
+            }
+            return `${wholeHours}h ${minutes}m`;
+        }
+
+        function updateLearnedHoursDisplay() {
+            const hours = getLearnedHours();
+            const formattedHours = formatLearnedHours(hours);
+            document.getElementById("learnedHours").textContent = formattedHours;
+        }
+
+        async function syncLearnedHours() {
+            if (!currentUser || !window.supabaseClient) return;
+
+            try {
+                // Include current active session in the total before syncing
+                let totalMsToSync = activityTracker.totalMilliseconds;
+                if (activityTracker.isActive && activityTracker.sessionStartTime) {
+                    totalMsToSync += Date.now() - activityTracker.sessionStartTime;
+                }
+                
+                const { data, error } = await window.supabaseClient.auth.updateUser({
+                    data: {
+                        learned_milliseconds: totalMsToSync
+                    }
+                });
+                
+                if (error) {
+                    console.error("Error syncing learned hours:", error);
+                    return;
+                }
+                
+                // Update the local currentUser object with the synced value
+                if (data && data.user) {
+                    currentUser = data.user;
+                    console.log("Learned hours synced successfully:", totalMsToSync);
+                }
+            } catch (error) {
+                console.error("Error syncing learned hours:", error);
+            }
+        }
+
+        function startActivityTracking() {
+            // Update display every second
+            if (activityTracker.updateInterval) clearInterval(activityTracker.updateInterval);
+            activityTracker.updateInterval = setInterval(() => {
+                updateLearnedHoursDisplay();
+            }, 1000);
+
+            // Sync with Supabase every 30 seconds
+            if (activityTracker.syncInterval) clearInterval(activityTracker.syncInterval);
+            activityTracker.syncInterval = setInterval(() => {
+                syncLearnedHours();
+            }, 30 * 1000);
+
+            // Trigger initial activity detection
+            activityTracker.lastActivityTime = Date.now();
+            updateLearnedHoursDisplay();
+        }
 
         async function initializeDashboard() {
             if (!window.supabaseClient) {
@@ -415,18 +830,28 @@
                     return;
                 }
 
-                const user = session.user;
-                const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
-                const email = user.email || "�";
-                const gradeClass = user.user_metadata?.grade_class || "Not specified";
-                const schoolName = user.user_metadata?.school_name || "Not provided";
+                currentUser = session.user;
+                
+                // Load existing learned hours from metadata
+                const existingMs = currentUser.user_metadata?.learned_milliseconds || 0;
+                activityTracker.totalMilliseconds = existingMs;
+
+                const fullName = currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "User";
+                const email = currentUser.email || "–";
+                const gradeClass = currentUser.user_metadata?.grade_class || "Not specified";
+                const schoolName = currentUser.user_metadata?.school_name || "Not provided";
 
                 document.getElementById("welcomeTitle").textContent = "Welcome back, " + fullName + "!";
                 document.getElementById("profileFullName").textContent = fullName;
                 document.getElementById("profileEmail").textContent = email;
                 document.getElementById("profileClass").textContent = "Class " + gradeClass;
                 document.getElementById("profileSchool").textContent = schoolName;
-                document.getElementById("classValue").textContent = "Class " + gradeClass;
+                
+                // Update profile status
+                updateProfileStatus();
+                
+                // Start activity tracking and display updates
+                startActivityTracking();
                 
                 document.getElementById("loading").style.display = "none";
                 document.getElementById("dashboardContent").style.display = "block";
@@ -438,6 +863,31 @@
             }
         }
 
+        function updateProfileStatus() {
+            if (!currentUser) return;
+
+            const fullName = currentUser.user_metadata?.full_name || "";
+            const email = currentUser.email || "";
+            const gradeClass = currentUser.user_metadata?.grade_class || "";
+            const schoolName = currentUser.user_metadata?.school_name || "";
+
+            // Check if all required fields are filled
+            const isComplete = fullName && email && gradeClass && schoolName;
+
+            const statusElement = document.getElementById("profileStatus");
+            const statusMetaElement = document.getElementById("profileStatusMeta");
+
+            if (isComplete) {
+                statusElement.textContent = "✓";
+                statusElement.style.color = "#10b981";
+                statusMetaElement.textContent = "Complete";
+            } else {
+                statusElement.textContent = "✗";
+                statusElement.style.color = "#ef4444";
+                statusMetaElement.textContent = "Incomplete";
+            }
+        }
+
         function showError(message) {
             document.getElementById("loading").style.display = "none";
             document.getElementById("dashboardContent").style.display = "none";
@@ -445,6 +895,137 @@
             errorDiv.textContent = message;
             errorDiv.style.display = "block";
             document.documentElement.classList.remove("auth-pending");
+        }
+
+        function openEditModal() {
+            if (!currentUser) return;
+
+            // Populate form with current values
+            document.getElementById("fullNameInput").value = currentUser.user_metadata?.full_name || "";
+            document.getElementById("emailInput").value = currentUser.email || "";
+            document.getElementById("classInput").value = currentUser.user_metadata?.grade_class || "";
+            document.getElementById("schoolInput").value = currentUser.user_metadata?.school_name || "";
+
+            // Clear previous messages
+            clearModalMessage();
+            modal.classList.add("show");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeEditModal() {
+            modal.classList.remove("show");
+            document.body.style.overflow = "auto";
+            editForm.reset();
+            clearModalMessage();
+        }
+
+        function showModalMessage(message, type) {
+            modalMessage.textContent = message;
+            modalMessage.className = "modal-message " + type;
+        }
+
+        function clearModalMessage() {
+            modalMessage.textContent = "";
+            modalMessage.className = "modal-message";
+        }
+
+        async function handleEditFormSubmit(e) {
+            e.preventDefault();
+
+            const saveBtn = document.getElementById("saveBtn");
+            const originalText = saveBtn.textContent;
+            saveBtn.disabled = true;
+            saveBtn.textContent = "Saving...";
+
+            try {
+                const fullName = document.getElementById("fullNameInput").value.trim();
+                const email = document.getElementById("emailInput").value.trim();
+                const gradeClass = parseInt(document.getElementById("classInput").value, 10);
+                const schoolName = document.getElementById("schoolInput").value.trim();
+
+                // Validation
+                if (!fullName) {
+                    showModalMessage("Please enter your full name", "error");
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
+
+                if (!email) {
+                    showModalMessage("Please enter your email", "error");
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
+
+                if (!gradeClass || gradeClass < 6 || gradeClass > 12) {
+                    showModalMessage("Please select a valid class", "error");
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
+
+                // Update user metadata and email
+                const updates = {
+                    email: email,
+                    data: {
+                        full_name: fullName,
+                        grade_class: gradeClass,
+                        school_name: schoolName
+                    }
+                };
+
+                // If email has changed, update it in auth
+                if (email !== currentUser.email) {
+                    const { error: emailError } = await window.supabaseClient.auth.updateUser({ email: email });
+                    if (emailError) {
+                        throw emailError;
+                    }
+                }
+
+                // Update user metadata
+                const { error: metadataError } = await window.supabaseClient.auth.updateUser({
+                    data: {
+                        full_name: fullName,
+                        grade_class: gradeClass,
+                        school_name: schoolName
+                    }
+                });
+
+                if (metadataError) {
+                    throw metadataError;
+                }
+
+                // Update the current user object
+                currentUser.user_metadata.full_name = fullName;
+                currentUser.user_metadata.grade_class = gradeClass;
+                currentUser.user_metadata.school_name = schoolName;
+                if (email !== currentUser.email) {
+                    currentUser.email = email;
+                }
+
+                // Update the display
+                document.getElementById("welcomeTitle").textContent = "Welcome back, " + fullName + "!";
+                document.getElementById("profileFullName").textContent = fullName;
+                document.getElementById("profileEmail").textContent = email;
+                document.getElementById("profileClass").textContent = "Class " + gradeClass;
+                document.getElementById("profileSchool").textContent = schoolName || "Not provided";
+
+                // Update profile status
+                updateProfileStatus();
+
+                showModalMessage("Profile updated successfully!", "success");
+                setTimeout(() => {
+                    closeEditModal();
+                }, 1500);
+
+            } catch (error) {
+                console.error("Update error:", error);
+                showModalMessage(error.message || "Failed to update profile. Please try again.", "error");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            }
         }
     </script>
 </body>
