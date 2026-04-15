@@ -206,5 +206,116 @@ document.addEventListener('DOMContentLoaded', () => {
         setupMobileNav();
         highlightActiveLink();
         setupAutoHideNav();
+
+        // --- Setup New Navbar (Hamburger & Auth) ---
+        setupNewNavbar();
     });
+
+    // --- New Navbar Setup Function ---
+    function setupNewNavbar() {
+        const hamburger = document.getElementById('navbarHamburger');
+        const menu = document.getElementById('navbarMenu');
+        const signoutBtn = document.getElementById('navbarSignoutBtn');
+        const signoutBtnDesktop = document.getElementById('navbarSignoutBtnDesktop');
+
+        if (!hamburger || !menu) return;
+
+        // Toggle menu on hamburger click
+        hamburger.addEventListener('click', () => {
+            const isOpen = menu.classList.toggle('active');
+            hamburger.classList.toggle('active', isOpen);
+            hamburger.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        // Close menu when clicking on menu items
+        const menuItems = menu.querySelectorAll('.navbar-menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                menu.classList.remove('active');
+                hamburger.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!hamburger.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('active');
+                hamburger.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Handle sign out for both menu and desktop buttons
+        function attachSignOut(el) {
+            if (!el) return;
+            el.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await window.signOut?.();
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                }
+            });
+        }
+
+        attachSignOut(signoutBtn);
+        attachSignOut(signoutBtnDesktop);
+
+        // Display user info if logged in
+        displayUserInfo();
+    }
+
+    // --- Display User Info in Navbar ---
+    function displayUserInfo() {
+        const userInfoDisplay = document.getElementById('userInfoDisplay');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const authDivider = document.getElementById('authDivider');
+        const signoutBtn = document.getElementById('navbarSignoutBtn');
+        const signoutBtnDesktop = document.getElementById('navbarSignoutBtnDesktop');
+
+        if (!userInfoDisplay) return;
+
+        // Listen for auth state changes
+        window.addEventListener('rs:auth-state-change', (event) => {
+            const session = event.detail?.session;
+
+            if (session?.user) {
+                const fullName = session.user.user_metadata?.full_name || session.user.email;
+                if (userNameDisplay) {
+                    userNameDisplay.textContent = fullName;
+                }
+
+                // Show user info display on desktop
+                userInfoDisplay.style.display = 'flex';
+
+                // Show sign out buttons
+                if (authDivider) authDivider.style.display = 'block';
+                if (signoutBtn) signoutBtn.style.display = 'flex';
+                if (signoutBtnDesktop) signoutBtnDesktop.style.display = 'inline-flex';
+            } else {
+                // Hide user info and sign out button when not logged in
+                userInfoDisplay.style.display = 'none';
+                if (authDivider) authDivider.style.display = 'none';
+                if (signoutBtn) signoutBtn.style.display = 'none';
+                if (signoutBtnDesktop) signoutBtnDesktop.style.display = 'none';
+            }
+        });
+
+        // Check initial auth state
+        if (window.authState?.session?.user) {
+            const fullName = window.authState.session.user.user_metadata?.full_name || window.authState.session.user.email;
+            if (userNameDisplay) {
+                userNameDisplay.textContent = fullName;
+            }
+
+            // Show user info display on desktop
+            userInfoDisplay.style.display = 'flex';
+
+            // Show sign out buttons
+            if (authDivider) authDivider.style.display = 'block';
+            if (signoutBtn) signoutBtn.style.display = 'flex';
+            if (signoutBtnDesktop) signoutBtnDesktop.style.display = 'inline-flex';
+        }
+    }
 });

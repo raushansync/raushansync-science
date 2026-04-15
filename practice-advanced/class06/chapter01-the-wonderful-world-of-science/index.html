@@ -15,7 +15,10 @@
         content="Advanced Practice Sheet for Class 6 Science Chapter 1 – The Wonderful World of Science. Logical reasoning, assertion & reason, critical thinking, case study questions with explanations by RaushanSYNC.">
 
     <meta name="author" content="Raushan Kumar">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta http-equiv="Cache-Control" content="no-store, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 
     <!-- Canonical -->
     <link rel="canonical"
@@ -28,7 +31,7 @@
     <meta property="og:description"
         content="Advanced conceptual and competitive practice worksheet for Class 6 Science by RaushanSYNC.">
     <meta property="og:url"
-        content="https://science.raushansync.com/practice-advanced/class06/chapter01-the-wonderful-world-of-science-advanced/">
+        content="https://science.raushansync.com/practice-advanced/class06/chapter01-the-wonderful-world-of-science/">
 
     <!-- Fonts & Styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,6 +49,28 @@
             }
         })();
     </script>
+    <script>
+        document.documentElement.classList.add('auth-pending');
+    </script>
+    <style>
+        html.auth-pending body > * {
+            visibility: hidden;
+        }
+
+        html.auth-pending body::before {
+            content: 'Checking your access...';
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            color: #2563eb;
+            font: 600 18px/1.4 'Poppins', sans-serif;
+            visibility: visible;
+            z-index: 9999;
+        }
+    </style>
     <meta property="og:image" content="https://science.raushansync.com/assets/og/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -422,9 +447,29 @@
 
     <div id="footer"></div>
 
+    <!-- Supabase & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
+    <script src="/assets/js/auth-config.js"></script>
+    <script src="/assets/js/progress-tracker.js"></script>
+
     <script src="/assets/js/script.js"></script>
     <script src="/ai-chat.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!window.supabaseClient) {
+                window.location.replace('/login.html');
+                return;
+            }
+
+            const isAuthenticated = await window.requireAuth();
+            if (!isAuthenticated) {
+                return;
+            }
+
+            window.markAuthReady();
+            initializeQuizPage();
+        });
+
         function normalizeAnswer(value) {
             return value.trim().toLowerCase().replace(/\s+/g, ' ');
         }
@@ -434,6 +479,7 @@
             if (!feedback) {
                 return;
             }
+
             feedback.textContent = message;
             feedback.classList.toggle('correct', isCorrect);
             feedback.classList.toggle('incorrect', !isCorrect);
@@ -444,10 +490,12 @@
             if (!correctValue) {
                 return null;
             }
-            const input = card.querySelector('input[value="' + correctValue + '"]');
+
+            const input = card.querySelector(`input[value="${correctValue}"]`);
             if (!input) {
                 return correctValue;
             }
+
             const label = input.closest('label');
             return label ? label.textContent.trim() : correctValue;
         }
@@ -466,43 +514,79 @@
         function buildAIContext(card) {
             const question = card.querySelector('h3')?.textContent.trim() || 'Question unavailable';
             const selected = card.querySelector('input[type="radio"]:checked');
-            const userAnswer = selected ? selected.closest('label').textContent.trim() : 'No option selected yet.';
+            const textInput = card.querySelector('input[type="text"]');
+            const userAnswer = selected
+                ? selected.closest('label').textContent.trim()
+                : textInput?.value.trim() || 'No answer yet.';
             const correctAnswer = getCorrectLabel(card) || 'Correct answer not available.';
             const explanation = getReason(card) || 'No explanation available.';
             const quizTitle = document.querySelector('.notes-header h1')?.textContent.trim() || 'Class 6 Science Advanced Practice';
 
             return {
-                quizTitle: quizTitle,
+                quizTitle,
                 questionText: question,
-                userAnswer: userAnswer,
-                correctAnswer: correctAnswer,
-                explanation: explanation,
+                userAnswer,
+                correctAnswer,
+                explanation,
                 pageUrl: window.location.href
             };
+        }
+
+        async function saveAttempt(card, isCorrect) {
+            if (!window.ProgressTracker) {
+                return;
+            }
+
+            const textInput = card.querySelector('input[type="text"]');
+            const selected = card.querySelector('input[type="radio"]:checked');
+            const questionNumber = Array.from(document.querySelectorAll('.quiz-card')).indexOf(card) + 1;
+            const questionId = card.dataset.questionId || `quiz-card-${questionNumber}`;
+            const userAnswer = selected
+                ? selected.closest('label').textContent.trim()
+                : textInput?.value.trim() || 'No answer';
+
+            const success = await window.ProgressTracker.saveAttempt({
+                quiz_url: window.location.pathname,
+                question_number: questionNumber,
+                question_text: card.querySelector('h3')?.textContent.trim() || 'Question',
+                user_answer: userAnswer,
+                correct_answer: getCorrectLabel(card) || 'Not available',
+                is_correct: isCorrect,
+                time_spent_seconds: window.ProgressTracker.getElapsedTime(questionId)
+            });
+
+            if (success) {
+                window.ProgressTracker.startQuestion(questionId);
+            }
         }
 
         function handleCheck(card) {
             revealAIButton(card);
             const type = card.dataset.type;
+
             if (type === 'mcq' || type === 'tf') {
                 const selected = card.querySelector('input[type="radio"]:checked');
                 if (!selected) {
                     setFeedback(card, false, 'Please choose an option first.');
                     return;
                 }
+
                 const isCorrect = selected.value === card.dataset.answer;
-                const reason = getReason(card);
                 if (isCorrect) {
-                    const message = reason ? `Correct! Explanation: ${reason}` : 'Correct!';
-                    setFeedback(card, true, message);
+                    setFeedback(card, true, 'Correct!');
+                    saveAttempt(card, true);
                 } else {
                     const correctLabel = getCorrectLabel(card);
-                    const reasonText = reason ? ` Explanation: ${reason}` : '';
+                    const reason = type === 'tf' ? getReason(card) : '';
+                    const reasonText = reason ? ` Reason: ${reason}` : '';
                     const message = correctLabel
                         ? `Not quite. Correct answer: ${correctLabel}.${reasonText}`
                         : `Not quite. Try again.${reasonText}`;
+
                     setFeedback(card, false, message);
+                    saveAttempt(card, false);
                 }
+
                 return;
             }
 
@@ -513,13 +597,16 @@
                     setFeedback(card, false, 'Please type an answer first.');
                     return;
                 }
+
                 const accepted = (card.dataset.answers || '').split('|').map(normalizeAnswer);
                 const isCorrect = accepted.includes(userAnswer);
                 if (isCorrect) {
                     setFeedback(card, true, 'Correct!');
+                    saveAttempt(card, true);
                 } else {
-                    const correctLabel = accepted[0] ? accepted[0] : 'Review the chapter.';
+                    const correctLabel = accepted[0] || 'Review the chapter.';
                     setFeedback(card, false, `Check again. Answer: ${correctLabel}`);
+                    saveAttempt(card, false);
                 }
             }
         }
@@ -529,56 +616,63 @@
             if (!answer) {
                 return;
             }
+
             const isShown = answer.classList.toggle('show');
-            if (button) {
-                button.textContent = isShown ? 'Hide Answer' : 'Show Answer';
-                button.setAttribute('aria-expanded', String(isShown));
-            }
+            button.textContent = isShown ? 'Hide Answer' : 'Show Answer';
+            button.setAttribute('aria-expanded', String(isShown));
         }
 
-        document.querySelectorAll('.quiz-card').forEach((card) => {
-            const button = card.querySelector('.quiz-btn');
-            if (!button) {
-                return;
-            }
-
-            if (card.dataset.type === 'subjective') {
-                button.setAttribute('aria-expanded', 'false');
-            }
-
-            button.addEventListener('click', () => {
-                if (card.dataset.type === 'subjective') {
-                    handleShow(card, button);
-                } else {
-                    handleCheck(card);
+        function initializeQuizPage() {
+            document.querySelectorAll('.quiz-card').forEach((card, index) => {
+                card.dataset.questionId = `quiz-card-${index + 1}`;
+                if (window.ProgressTracker?.startQuestion) {
+                    window.ProgressTracker.startQuestion(card.dataset.questionId);
                 }
-            });
 
-            const input = card.querySelector('input[type="text"]');
-            if (input) {
-                input.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        handleCheck(card);
-                    }
-                });
-            }
-        });
-
-        document.querySelectorAll('.discuss-ai-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const card = button.closest('.quiz-card');
-                if (!card) return;
-
-                if (typeof window.initAIChat !== 'function') {
-                    alert('AI chat is not available right now. Please try again shortly.');
+                const button = card.querySelector('.quiz-btn');
+                if (!button) {
                     return;
                 }
 
-                const context = buildAIContext(card);
-                window.initAIChat(context);
+                if (card.dataset.type === 'subjective') {
+                    button.setAttribute('aria-expanded', 'false');
+                }
+
+                button.addEventListener('click', () => {
+                    if (card.dataset.type === 'subjective') {
+                        handleShow(card, button);
+                    } else {
+                        handleCheck(card);
+                    }
+                });
+
+                const input = card.querySelector('input[type="text"]');
+                if (input) {
+                    input.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            handleCheck(card);
+                        }
+                    });
+                }
             });
-        });
+
+            document.querySelectorAll('.discuss-ai-btn').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const card = button.closest('.quiz-card');
+                    if (!card) {
+                        return;
+                    }
+
+                    if (typeof window.initAIChat !== 'function') {
+                        alert('AI chat is not available right now. Please try again shortly.');
+                        return;
+                    }
+
+                    window.initAIChat(buildAIContext(card));
+                });
+            });
+        }
     </script>
 </body>
 

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6" id="theme-color-meta">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta http-equiv="Cache-Control" content="no-store, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>My Dashboard - RaushanSync Science</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/style.css">
+
+    <script>
+        document.documentElement.classList.add("auth-pending");
+    </script>
+
+    <style>
+        :root {
+            --header-height: 70px;
+        }
+
+        html.auth-pending body > * {
+            visibility: hidden;
+        }
+
+        html.auth-pending body::before {
+            content: "Loading your dashboard...";
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-color);
+            color: var(--primary-color);
+            font: 600 1.125rem/1.4 "Poppins", sans-serif;
+            visibility: visible;
+            z-index: 9999;
+        }
+
+        main {
+            padding-top: calc(var(--header-height) + 40px);
+            padding-bottom: 4rem;
+        }
+
+        .dashboard-header {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .dashboard-header p {
+            color: var(--secondary-text-color);
+            font-size: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.125rem;
+            color: var(--secondary-text-color);
+            padding: 3rem 1rem;
+        }
+
+        .loading.page-error {
+            color: #dc2626;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.accent-2 {
+            border-left-color: #f093fb;
+        }
+
+        .stat-card.accent-3 {
+            border-left-color: #4facfe;
+        }
+
+        .stat-card.accent-4 {
+            border-left-color: #43e97b;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary-text-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .stat-meta {
+            font-size: 0.75rem;
+            color: var(--secondary-text-color);
+            margin-top: 0.5rem;
+        }
+
+        .section {
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .profile-item {
+            padding: 1rem;
+            background-color: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-label {
+            font-size: 0.75rem;
+            color: var(--secondary-text-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-value {
+            font-size: 1rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* Prevent long, unbroken strings (like email addresses) from overflowing
+           their profile boxes — allow them to break/wrap as needed. */
+        .profile-value {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-color-dark, var(--primary-color));
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding-top: calc(var(--header-height) + 20px);
+                padding-bottom: 2rem;
+            }
+
+            .dashboard-header {
+                margin-top: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .dashboard-header p {
+                font-size: 0.9rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                margin-bottom: 1.5rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .profile-item {
+                padding: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1.2rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            main {
+                padding-top: calc(var(--header-height) + 15px);
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.25rem;
+            }
+
+            .stats-grid {
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+
+            .section {
+                padding: 1.2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            .profile-label {
+                font-size: 0.7rem;
+            }
+
+            .profile-value {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <a href="/" class="logo">RaushanSYNC Science</a>
+            <div id="nav"></div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode">
+                    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                </button>
+                <button class="hamburger" id="hamburger" aria-label="Open menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="loading" id="loading">Loading your dashboard...</div>
+            <div class="loading page-error" id="errorMessage" style="display: none;"></div>
+
+            <div id="dashboardContent" style="display: none;">
+                <div class="dashboard-header">
+                    <h1 id="welcomeTitle">Welcome!</h1>
+                    <p>Manage your learning journey here.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card accent-1">
+                        <div class="stat-label">Account Status</div>
+                        <div class="stat-value" style="color: var(--primary-color);">?</div>
+                        <div class="stat-meta">Active</div>
+                    </div>
+                    <div class="stat-card accent-2">
+                        <div class="stat-label">Class/Grade</div>
+                        <div class="stat-value" id="classValue">�</div>
+                        <div class="stat-meta">Level</div>
+                    </div>
+                    <div class="stat-card accent-3">
+                        <div class="stat-label">Profile Status</div>
+                        <div class="stat-value" style="color: #4facfe;">?</div>
+                        <div class="stat-meta">Complete</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Your Profile</h2>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <div class="profile-label">Full Name</div>
+                            <div class="profile-value" id="profileFullName">�</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">Email</div>
+                            <div class="profile-value" id="profileEmail">�</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">Class</div>
+                            <div class="profile-value" id="profileClass">�</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">School</div>
+                            <div class="profile-value" id="profileSchool">�</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Getting Started</h2>
+                    <p style="color: var(--secondary-text-color); margin-bottom: 1.5rem;">Your dashboard is ready! Explore RaushanSYNC Science content to begin your learning journey.</p>
+                    <a href="/" class="btn-primary">Explore Learning Resources</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/assets/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
+    <script src="/assets/js/auth-config.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", initializeDashboard);
+
+        async function initializeDashboard() {
+            if (!window.supabaseClient) {
+                showError("Authentication is unavailable. Please check Supabase configuration.");
+                return;
+            }
+
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                
+                if (!session) {
+                    window.location.replace("/login.html");
+                    return;
+                }
+
+                const user = session.user;
+                const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
+                const email = user.email || "�";
+                const gradeClass = user.user_metadata?.grade_class || "Not specified";
+                const schoolName = user.user_metadata?.school_name || "Not provided";
+
+                document.getElementById("welcomeTitle").textContent = "Welcome back, " + fullName + "!";
+                document.getElementById("profileFullName").textContent = fullName;
+                document.getElementById("profileEmail").textContent = email;
+                document.getElementById("profileClass").textContent = "Class " + gradeClass;
+                document.getElementById("profileSchool").textContent = schoolName;
+                document.getElementById("classValue").textContent = "Class " + gradeClass;
+                
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("dashboardContent").style.display = "block";
+                document.documentElement.classList.remove("auth-pending");
+
+            } catch (error) {
+                console.error("Initialization error:", error);
+                showError("Failed to load dashboard. Please refresh the page.");
+            }
+        }
+
+        function showError(message) {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("dashboardContent").style.display = "none";
+            const errorDiv = document.getElementById("errorMessage");
+            errorDiv.textContent = message;
+            errorDiv.style.display = "block";
+            document.documentElement.classList.remove("auth-pending");
+        }
+    </script>
+</body>
+</html>
+

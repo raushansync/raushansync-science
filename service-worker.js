@@ -1,9 +1,15 @@
 /* RaushanSYNC Science PWA Service Worker */
-const CACHE_VERSION = 'science-v1.0.2.9';
+const CACHE_VERSION = 'science-v1.0.3.0';
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
 const MAX_RUNTIME_ENTRIES = 60;
+
+const SENSITIVE_DOCUMENT_PATHS = new Set([
+  '/login.html',
+  '/signup.html',
+  '/dashboard.html'
+]);
 
 const CORE_ASSETS = [
   '/',
@@ -29,8 +35,6 @@ const CORE_ASSETS = [
   '/class11/',
   '/class12/',
   '/video-lessons/class06/chapter01-the-wonderful-world-of-science/index.html',
-
-  // Newly added Class 07 notes (precache important pages)
   '/notes/class07/chapter01-nutrition-in-plants/',
   '/notes/class07/chapter01-nutrition-in-plants/index.html',
   '/notes/class07/chapter01-nutrition-in-plants/congratulations.html',
@@ -72,7 +76,14 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-// For later: refactor to prefix array once JS architecture is finalized
+function isProtectedRoute(pathname) {
+  return pathname.startsWith('/practice/') || pathname.startsWith('/practice-advanced/');
+}
+
+function isSensitiveDocumentPath(pathname) {
+  return SENSITIVE_DOCUMENT_PATHS.has(pathname) || isProtectedRoute(pathname);
+}
+
 function isNotesOrPractice(pathname) {
   return pathname.startsWith('/notes/')
     || pathname.startsWith('/practice/')
@@ -149,6 +160,18 @@ async function networkFirst(request) {
   }
 }
 
+async function networkOnlyDocument(request) {
+  try {
+    return await fetch(request, { cache: 'no-store' });
+  } catch (error) {
+    const offline = await caches.match(OFFLINE_URL);
+    if (offline) {
+      return offline;
+    }
+    throw error;
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
@@ -159,8 +182,12 @@ self.addEventListener('fetch', (event) => {
 
   const pathname = url.pathname;
 
-  // Keep HTML fresh so newly deployed lesson content is not trapped behind cache-first routing.
   if (request.mode === 'navigate' || request.destination === 'document') {
+    if (isSensitiveDocumentPath(pathname)) {
+      event.respondWith(networkOnlyDocument(request));
+      return;
+    }
+
     event.respondWith(networkFirst(request));
     return;
   }
