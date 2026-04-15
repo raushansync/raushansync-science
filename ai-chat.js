@@ -172,8 +172,17 @@
         const roleClass = role === 'user' ? 'ai-user' : 'ai-assistant';
         message.className = 'ai-chat-message ' + roleClass + (extraClass ? ' ' + extraClass : '');
 
-        const renderAsMarkdown = role === 'assistant' && extraClass !== 'ai-typing';
-        if (renderAsMarkdown) {
+        if (extraClass === 'ai-typing') {
+            message.setAttribute('aria-label', 'Thinking');
+            message.innerHTML = [
+                '<span class="ai-chat-thinking-label">Thinking</span>',
+                '<span class="ai-chat-thinking-dots" aria-hidden="true">',
+                '<span>.</span>',
+                '<span>.</span>',
+                '<span>.</span>',
+                '</span>'
+            ].join('');
+        } else if (role === 'assistant') {
             message.innerHTML = renderAssistantMarkdown(text);
         } else {
             message.textContent = text;

@@ -1,5 +1,5 @@
 /* RaushanSYNC Science PWA Service Worker */
-const CACHE_VERSION = 'science-v1.0.2.4';
+const CACHE_VERSION = 'science-v1.0.2.5';
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
@@ -12,6 +12,7 @@ const CORE_ASSETS = [
   '/manifest.json',
   '/assets/css/style.css',
   '/assets/js/script.js',
+  '/ai-chat.js',
   '/components/nav.html',
   '/components/footer.html',
   '/components/support-cta.html',
