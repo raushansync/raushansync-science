@@ -1,5 +1,5 @@
 /* RaushanSYNC Science PWA Service Worker */
-const CACHE_VERSION = 'science-v1.0.2.3';
+const CACHE_VERSION = 'science-v1.0.2.4';
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
@@ -158,13 +158,14 @@ self.addEventListener('fetch', (event) => {
 
   const pathname = url.pathname;
 
-  if (isStaticAsset(request, pathname) || isComponent(pathname) || isNotesOrPractice(pathname)) {
-    event.respondWith(cacheFirst(request));
+  // Keep HTML fresh so newly deployed lesson content is not trapped behind cache-first routing.
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(networkFirst(request));
     return;
   }
 
-  if (request.mode === 'navigate' || request.destination === 'document') {
-    event.respondWith(networkFirst(request));
+  if (isStaticAsset(request, pathname) || isComponent(pathname) || isNotesOrPractice(pathname)) {
+    event.respondWith(cacheFirst(request));
     return;
   }
 
