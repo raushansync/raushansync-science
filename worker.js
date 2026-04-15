@@ -7,12 +7,14 @@ const LOCAL_DEV_HOSTS = new Set([
     '127.0.0.1'
 ]);
 
-const MODEL_CANDIDATES = [
-    'google/gemma-3-4b-it:free',
-    'google/gemma-3-12b-it:free',
-    'openai/gpt-oss-20b:free',
-    'openrouter/free'
-];
+const GROQ_MODELS = {
+    quality: 'llama-3.3-70b-versatile',
+    fast: 'llama-3.1-8b-instant',
+    longContext: 'qwen/qwen3-32b'
+};
+
+const DEFAULT_GROQ_MODEL = GROQ_MODELS.fast;
+const FALLBACK_GROQ_MODEL = GROQ_MODELS.longContext;
 
 function isAllowedOrigin(origin) {
     if (typeof origin !== 'string') return false;
@@ -88,19 +90,48 @@ function normalizeHistory(history) {
         .filter(item => item.content.length > 0);
 }
 
-function extractAssistantText(payload) {
-    const content = payload?.choices?.[0]?.message?.content;
+function tryParseJson(text) {
+    if (typeof text !== 'string') return null;
+    const trimmed = text.trim();
+    if (!trimmed) return null;
 
-    if (typeof content === 'string') return content.trim();
-
-    if (Array.isArray(content)) {
-        return content
-            .map(part => (typeof part?.text === 'string' ? part.text : ''))
-            .join(' ')
-            .trim();
+    try {
+        return JSON.parse(trimmed);
+    } catch (error) {
+        return null;
     }
+}
 
-    return '';
+function chooseGroqModel(requestedModel) {
+    const selected = cleanText(requestedModel, '');
+
+    if (!selected) return DEFAULT_GROQ_MODEL;
+
+    if (selected === 'llama3-70b-8192') return GROQ_MODELS.quality;
+    if (selected === 'llama3-8b-8192') return GROQ_MODELS.fast;
+    if (selected === 'mixtral-8x7b-32768') return GROQ_MODELS.longContext;
+
+    const allowedModels = new Set(Object.values(GROQ_MODELS));
+    return allowedModels.has(selected) ? selected : DEFAULT_GROQ_MODEL;
+}
+
+async function requestGroqChatCompletion(env, model, messages) {
+    const upstreamResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${env.GROQ_API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: model,
+            messages: messages,
+            temperature: 0.4,
+            max_completion_tokens: 500
+        })
+    });
+
+    const rawUpstreamText = await upstreamResponse.text();
+    return { upstreamResponse, rawUpstreamText };
 }
 
 export default {
@@ -122,8 +153,8 @@ export default {
             return jsonResponse({ error: 'Origin not allowed' }, 403, origin);
         }
 
-        if (!env.OPENROUTER_API_KEY) {
-            return jsonResponse({ error: 'Missing OPENROUTER_API_KEY in Worker environment' }, 500, origin);
+        if (!env.GROQ_API_KEY) {
+            return jsonResponse({ error: 'Missing GROQ_API_KEY in Worker environment' }, 500, origin);
         }
 
         let body;
@@ -137,6 +168,7 @@ export default {
         const context = body?.context && typeof body.context === 'object' ? body.context : {};
         const history = normalizeHistory(body?.history);
         const learnerLevel = inferLearnerLevel(context);
+        const requestedModel = chooseGroqModel(body?.model);
 
         if (!message) {
             return jsonResponse({ error: 'Message is required' }, 400, origin);
@@ -175,54 +207,96 @@ export default {
             { role: 'user', content: message }
         ];
 
-        let lastErrorDetail = 'OpenRouter returned a non-success status.';
-
-        for (const model of MODEL_CANDIDATES) {
-            let upstreamResponse;
-            try {
-                upstreamResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${env.OPENROUTER_API_KEY}`,
-                        'Content-Type': 'application/json',
-                        'HTTP-Referer': 'https://science.raushansync.com',
-                        'X-Title': 'RaushanSYNC Science AI Tutor'
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        messages: messages,
-                        temperature: 0.4,
-                        max_tokens: 500
-                    })
-                });
-            } catch (error) {
-                lastErrorDetail = 'Failed to reach OpenRouter API';
-                continue;
-            }
-
-            let upstreamData;
-            try {
-                upstreamData = await upstreamResponse.json();
-            } catch (error) {
-                upstreamData = {};
-            }
-
-            if (!upstreamResponse.ok) {
-                lastErrorDetail =
-                    upstreamData?.error?.message ||
-                    upstreamData?.message ||
-                    'OpenRouter returned a non-success status.';
-                continue;
-            }
-
-            const reply = extractAssistantText(upstreamData);
-            if (reply) {
-                return jsonResponse({ reply: reply, model: model }, 200, origin);
-            }
-
-            lastErrorDetail = 'OpenRouter returned an empty response';
+        const modelsToTry = [requestedModel];
+        if (requestedModel === DEFAULT_GROQ_MODEL && FALLBACK_GROQ_MODEL !== DEFAULT_GROQ_MODEL) {
+            modelsToTry.push(FALLBACK_GROQ_MODEL);
         }
 
-        return jsonResponse({ error: 'OpenRouter request failed', detail: lastErrorDetail }, 502, origin);
+        let lastErrorDetail = 'Groq returned a non-success status.';
+        let lastUpstreamStatus = 502;
+        let lastModel = requestedModel;
+
+        for (let index = 0; index < modelsToTry.length; index += 1) {
+            const model = modelsToTry[index];
+            const canFallback = index === 0 && modelsToTry.length > 1;
+            let upstreamResponse;
+
+            try {
+                const result = await requestGroqChatCompletion(env, model, messages);
+                upstreamResponse = result.upstreamResponse;
+                lastUpstreamStatus = upstreamResponse.status;
+                lastModel = model;
+
+                const rawUpstreamText = result.rawUpstreamText;
+
+                if (!upstreamResponse.ok) {
+                    const detail = rawUpstreamText.trim() || 'Groq returned a non-success status.';
+                    lastErrorDetail = 'Groq API error: ' + detail;
+
+                    console.error('[groq] request failed', {
+                        model: model,
+                        status: upstreamResponse.status,
+                        body: detail.slice(0, 500)
+                    });
+
+                    if (canFallback && upstreamResponse.status === 429) {
+                        console.warn('[groq] falling back after 429', {
+                            fromModel: model,
+                            toModel: FALLBACK_GROQ_MODEL
+                        });
+                        continue;
+                    }
+
+                    return jsonResponse({
+                        error: 'Groq request failed',
+                        detail: lastErrorDetail,
+                        upstreamStatus: upstreamResponse.status,
+                        model: model,
+                        provider: 'Groq'
+                    }, upstreamResponse.status, origin);
+                }
+
+                const data = tryParseJson(rawUpstreamText) || {};
+                const reply = data?.choices?.[0]?.message?.content || 'No response';
+
+                console.log('[groq] request succeeded', {
+                    model: model,
+                    status: upstreamResponse.status,
+                    usedFallback: index > 0
+                });
+
+                return jsonResponse({
+                    reply: reply,
+                    model: model,
+                    provider: 'Groq'
+                }, 200, origin);
+            } catch (error) {
+                const detail = error instanceof Error ? error.message : 'Failed to reach Groq API';
+                lastErrorDetail = detail;
+                lastUpstreamStatus = 502;
+                lastModel = model;
+
+                console.error('[groq] network failure', {
+                    model: model,
+                    message: detail
+                });
+
+                return jsonResponse({
+                    error: 'Groq request failed',
+                    detail: detail,
+                    upstreamStatus: 502,
+                    model: model,
+                    provider: 'Groq'
+                }, 502, origin);
+            }
+        }
+
+        return jsonResponse({
+            error: 'Groq request failed',
+            detail: lastErrorDetail,
+            upstreamStatus: lastUpstreamStatus,
+            model: lastModel,
+            provider: 'Groq'
+        }, lastUpstreamStatus, origin);
     }
 };

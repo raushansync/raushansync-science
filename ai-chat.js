@@ -271,7 +271,24 @@
         }
 
         if (!response.ok) {
-            throw new Error(data.error || 'AI service request failed. Please try again.');
+            const detail = typeof data.detail === 'string' ? data.detail.trim() : '';
+            const upstreamStatus = Number.isInteger(data.upstreamStatus) ? data.upstreamStatus : response.status;
+            const model = typeof data.model === 'string' ? data.model.trim() : '';
+            const provider = typeof data.provider === 'string' ? data.provider.trim() : 'AI service';
+            const message = detail || data.error || 'AI service request failed. Please try again.';
+            const prefix = upstreamStatus ? provider + ' ' + upstreamStatus : provider;
+            const modelLabel = model ? ' [' + model + ']' : '';
+
+            console.error('AI worker request failed', {
+                responseStatus: response.status,
+                upstreamStatus: upstreamStatus,
+                provider: provider,
+                model: model,
+                detail: detail,
+                error: data.error || null
+            });
+
+            throw new Error(prefix + modelLabel + ': ' + message);
         }
 
         const reply = typeof data.reply === 'string' ? data.reply.trim() : '';
