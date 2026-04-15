@@ -121,6 +121,7 @@
                             equipment</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -133,6 +134,7 @@
                         <label class="quiz-option"><input type="radio" name="a2" value="d"> d) Examination</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -148,6 +150,7 @@
                             flower</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -165,6 +168,7 @@
                             notebook immediately</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -177,6 +181,7 @@
                         <label class="quiz-option"><input type="radio" name="a5" value="d"> d) Imagination</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
             </section>
@@ -233,6 +238,7 @@
                         <label class="quiz-option"><input type="radio" name="c1" value="false"> False</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -244,6 +250,7 @@
                         <label class="quiz-option"><input type="radio" name="c2" value="false"> False</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -255,6 +262,7 @@
                         <label class="quiz-option"><input type="radio" name="c3" value="false"> False</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -266,6 +274,7 @@
                         <label class="quiz-option"><input type="radio" name="c4" value="false"> False</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
 
@@ -277,6 +286,7 @@
                         <label class="quiz-option"><input type="radio" name="c5" value="false"> False</label>
                     </div>
                     <button class="quiz-btn" type="button">Check Answer</button>
+                    <button class="quiz-btn discuss-ai-btn" type="button" hidden>Ask AI</button>
                     <div class="quiz-feedback" aria-live="polite"></div>
                 </div>
             </section>
@@ -371,6 +381,24 @@
         </div>
     </main>
 
+    <div id="ai-chat-modal" class="ai-chat-modal" hidden aria-hidden="true" role="dialog" aria-modal="true"
+        aria-labelledby="ai-chat-title">
+        <div class="ai-chat-overlay" data-ai-chat-close></div>
+        <section class="ai-chat-panel">
+            <header class="ai-chat-header">
+                <h2 id="ai-chat-title">Ask AI Tutor</h2>
+                <button id="ai-chat-close" class="ai-chat-close" type="button" aria-label="Close AI chat">×</button>
+            </header>
+            <div id="ai-chat-context" class="ai-chat-context" aria-live="polite"></div>
+            <div id="ai-chat-history" class="ai-chat-history" aria-live="polite"></div>
+            <form id="ai-chat-form" class="ai-chat-input-row">
+                <label for="ai-chat-input" class="ai-chat-label">Ask a follow-up</label>
+                <textarea id="ai-chat-input" rows="2" placeholder="Ask why this answer is correct, request a hint, or ask for an example..."></textarea>
+                <button id="ai-chat-send" type="submit">Send</button>
+            </form>
+        </section>
+    </div>
+
     <div id="support-cta"></div>
 
 
@@ -383,6 +411,7 @@
     <div id="footer"></div>
 
     <script src="/assets/js/script.js"></script>
+    <script src="/ai-chat.js"></script>
     <script>
         function normalizeAnswer(value) {
             return value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -415,7 +444,33 @@
             return (card.dataset.reason || '').trim();
         }
 
+        function revealAIButton(card) {
+            const button = card.querySelector('.discuss-ai-btn');
+            if (button) {
+                button.hidden = false;
+            }
+        }
+
+        function buildAIContext(card) {
+            const question = card.querySelector('h3')?.textContent.trim() || 'Question unavailable';
+            const selected = card.querySelector('input[type="radio"]:checked');
+            const userAnswer = selected ? selected.closest('label').textContent.trim() : 'No option selected yet.';
+            const correctAnswer = getCorrectLabel(card) || 'Correct answer not available.';
+            const explanation = getReason(card) || 'No explanation available.';
+            const quizTitle = document.querySelector('.notes-header h1')?.textContent.trim() || 'Class 6 Science Practice';
+
+            return {
+                quizTitle: quizTitle,
+                questionText: question,
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
+                explanation: explanation,
+                pageUrl: window.location.href
+            };
+        }
+
         function handleCheck(card) {
+            revealAIButton(card);
             const type = card.dataset.type;
             if (type === 'mcq' || type === 'tf') {
                 const selected = card.querySelector('input[type="radio"]:checked');
@@ -495,6 +550,21 @@
                     }
                 });
             }
+        });
+
+        document.querySelectorAll('.discuss-ai-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const card = button.closest('.quiz-card');
+                if (!card) return;
+
+                if (typeof window.initAIChat !== 'function') {
+                    alert('AI chat is not available right now. Please try again shortly.');
+                    return;
+                }
+
+                const context = buildAIContext(card);
+                window.initAIChat(context);
+            });
         });
     </script>
 </body>
