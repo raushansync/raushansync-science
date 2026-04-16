@@ -180,7 +180,7 @@ export default {
             'Adapt explanation depth, vocabulary, and examples to this learner level.',
             'Explain concepts clearly, step-by-step, using simple language.',
             'Keep the tone encouraging and never shame mistakes.',
-            'Focus only on the provided quiz question context and related biology concept.',
+            'Focus only on the provided quiz question context and related science concept.',
             'If the student is wrong, explain why and how to reason correctly.',
             'Use short paragraphs and optional bullet points for clarity.',
             'Use Markdown for formatting: **bold**, *italic*, and - or 1. lists. Do not output raw HTML.',
