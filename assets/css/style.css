@@ -882,7 +882,9 @@ main {
 @media (min-width: 768px) {
   .notes-header {
     flex-direction: row;
-    gap: 0;
+    justify-content: space-between;
+    text-align: left;
+    gap: 2rem;
   }
 }
 
@@ -2048,11 +2050,7 @@ main {
 
 @media (min-width: 768px) {
   .notes-header-actions {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    margin-left: 0;
+    margin-left: auto;
   }
 }
 
