@@ -120,12 +120,22 @@
                 </div>
 
                 <div style="margin-top: 40px; text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <a href="/signup.html" class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;">
-                        🚀 Get Started
-                    </a>
-                    <a href="/login.html" class="btn btn-secondary" style="font-size: 16px; padding: 12px 32px;">
-                        Already have an account? Sign In
-                    </a>
+                    <!-- Buttons for unauthenticated users -->
+                    <div id="auth-buttons-guest" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="/signup.html" class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;">
+                            🚀 Get Started
+                        </a>
+                        <a href="/login.html" class="btn btn-secondary" style="font-size: 16px; padding: 12px 32px;">
+                            Already have an account? Sign In
+                        </a>
+                    </div>
+
+                    <!-- Button for authenticated users -->
+                    <div id="auth-buttons-user" style="display: none;">
+                        <a href="/dashboard.html" class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;">
+                            📊 Your Dashboard
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -179,6 +189,52 @@
     </main>
 
     <div id="footer"></div>
+
+    <!-- Authentication Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
+    <script src="/assets/js/auth-config.js"></script>
+    <script src="/assets/js/auth-guard.js"></script>
+
+    <!-- Dashboard Button Toggle Script -->
+    <script>
+        (function initializeHomepageAuth() {
+            const guestButtonsDiv = document.getElementById('auth-buttons-guest');
+            const userButtonsDiv = document.getElementById('auth-buttons-user');
+
+            function updateButtonsUI(session) {
+                if (session) {
+                    // User is logged in - show dashboard button
+                    guestButtonsDiv.style.display = 'none';
+                    userButtonsDiv.style.display = 'block';
+                } else {
+                    // User is not logged in - show sign up and sign in buttons
+                    guestButtonsDiv.style.display = 'flex';
+                    userButtonsDiv.style.display = 'none';
+                }
+            }
+
+            // Check current auth state
+            function checkAuthState() {
+                if (window.authState && window.authState.initialized) {
+                    updateButtonsUI(window.authState.session);
+                }
+            }
+
+            // Listen for auth state changes
+            window.addEventListener('rs:auth-state-change', (event) => {
+                updateButtonsUI(event.detail.session);
+            });
+
+            // Initial check (with a small delay to ensure auth-config has initialized)
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(checkAuthState, 100);
+                });
+            } else {
+                setTimeout(checkAuthState, 100);
+            }
+        })();
+    </script>
 
     <script src="assets/js/script.js"></script>
 
