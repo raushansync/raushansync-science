@@ -109,65 +109,49 @@ function sanitizeText(value, maxLength) {
     return normalized.slice(0, maxLength);
 }
 
-function normalizeGradeClass(value) {
-    const parsed = Number.parseInt(value, 10);
-    if (!Number.isInteger(parsed) || parsed < 6 || parsed > 12) {
-        return null;
-    }
-
-    return parsed;
-}
-
 function getProfileSeed(session) {
     const user = session?.user;
     if (!user?.id) {
         return null;
     }
 
+    // Step 3 Update: Only extract fields for new profiles table
+    // Email stays in auth.users, grade_class/school_name removed
     return {
         id: user.id,
-        email: sanitizeText(user.email || '', 255).toLowerCase() || null,
         full_name: sanitizeText(user.user_metadata?.full_name || '', 120) || null,
-        grade_class: normalizeGradeClass(user.user_metadata?.grade_class),
-        school_name: sanitizeText(user.user_metadata?.school_name || '', 160) || null
+        education_level: sanitizeText(user.user_metadata?.education_level || '', 50) || null,
+        phone: sanitizeText(user.user_metadata?.phone || '', 20) || null
     };
 }
 
-function buildProfilePatch(existingProfile, seed, updateLastLogin) {
+function buildProfilePatch(existingProfile, seed) {
     const patch = {};
 
     if (!existingProfile) {
+        // Creating new profile
         patch.id = seed.id;
 
-        if (seed.email) {
-            patch.email = seed.email;
-        }
         if (seed.full_name) {
             patch.full_name = seed.full_name;
         }
-        if (seed.grade_class !== null) {
-            patch.grade_class = seed.grade_class;
+        if (seed.education_level) {
+            patch.education_level = seed.education_level;
         }
-        if (seed.school_name) {
-            patch.school_name = seed.school_name;
+        if (seed.phone) {
+            patch.phone = seed.phone;
         }
     } else {
-        if (!existingProfile.email && seed.email) {
-            patch.email = seed.email;
-        }
-        if (!existingProfile.full_name && seed.full_name) {
+        // Updating existing profile - sync all fields that differ
+        if (seed.full_name && seed.full_name !== existingProfile.full_name) {
             patch.full_name = seed.full_name;
         }
-        if ((existingProfile.grade_class === null || existingProfile.grade_class === undefined) && seed.grade_class !== null) {
-            patch.grade_class = seed.grade_class;
+        if (seed.education_level && seed.education_level !== existingProfile.education_level) {
+            patch.education_level = seed.education_level;
         }
-        if (!existingProfile.school_name && seed.school_name) {
-            patch.school_name = seed.school_name;
+        if (seed.phone && seed.phone !== existingProfile.phone) {
+            patch.phone = seed.phone;
         }
-    }
-
-    if (updateLastLogin) {
-        patch.last_login = new Date().toISOString();
     }
 
     return patch;
@@ -180,10 +164,9 @@ function buildFallbackProfile(seed, existingProfile) {
 
     return {
         id: existingProfile?.id || seed?.id || null,
-        email: existingProfile?.email || seed?.email || null,
         full_name: existingProfile?.full_name || seed?.full_name || '',
-        grade_class: existingProfile?.grade_class ?? seed?.grade_class ?? null,
-        school_name: existingProfile?.school_name || seed?.school_name || null
+        education_level: existingProfile?.education_level || seed?.education_level || null,
+        phone: existingProfile?.phone || seed?.phone || null
     };
 }
 
@@ -224,13 +207,15 @@ async function fetchProfileForSession(session) {
     }
 
     const { data, error } = await window.supabaseClient
-        .from('student_profiles')
-        .select('*')
+        .from('profiles')
+        .select('id, full_name, education_level, phone, created_at')
         .eq('id', session.user.id)
         .maybeSingle();
 
     if (error) {
-        console.error('Failed to fetch profile:', error);
+        if (DEBUG_AUTH) {
+            console.error('Failed to fetch profile:', error);
+        }
         return null;
     }
 
@@ -245,7 +230,9 @@ async function initializeAuth() {
 
     const { data, error } = await window.supabaseClient.auth.getSession();
     if (error) {
-        console.error('Failed to initialize auth state:', error);
+        if (DEBUG_AUTH) {
+            console.error('Failed to initialize auth state:', error);
+        }
         updateAuthState(null);
         return;
     }
@@ -263,7 +250,9 @@ async function initializeAuth() {
 
 window.supabaseClient = (() => {
     if (typeof supabase === 'undefined') {
-        console.error('Supabase library not loaded. Add this script before auth-config.js.');
+        if (DEBUG_AUTH) {
+            console.error('Supabase library not loaded. Add this script before auth-config.js.');
+        }
         return null;
     }
 
@@ -278,6 +267,75 @@ window.supabaseClient = (() => {
 
 window.whenAuthReady = function () {
     return authReadyPromise;
+};
+
+/**
+ * Progress System Helper Functions
+ * Prepared for Step 4: Progress Tick System integration
+ */
+
+window.getCurrentSite = function() {
+    // Return the actual hostname/domain for use as the site identifier
+    // Supports: science.raushansync.com, maths.raushansync.com, cs.raushansync.com, etc.
+    // Also supports local development: localhost, raushansync-science.pages.dev
+    const hostname = window.location.hostname;
+    
+    // For production domains, return the full hostname
+    if (hostname.includes('raushansync.com')) {
+        return hostname; // e.g., science.raushansync.com, maths.raushansync.com
+    }
+    
+    // For development environments, use a consistent identifier
+    // (in dev, all sites run on same hostname, so use a fallback or environment variable)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        // For local development, try to get site from subdomain simulation or default to 'science'
+        return 'science.raushansync.com'; // Dev default
+    }
+    
+    // Pages.dev and other preview deployments
+    if (hostname === 'raushansync-science.pages.dev') {
+        return 'science.raushansync.com';
+    }
+    
+    // Fallback: return hostname as-is
+    return hostname;
+};
+
+window.getCurrentPath = function() {
+    return window.location.pathname + window.location.search + window.location.hash;
+};
+
+window.normalizePath = function(path) {
+    if (!path || typeof path !== 'string') {
+        return window.getCurrentPath();
+    }
+    try {
+        const url = new URL(path, window.location.origin);
+        if (url.origin !== window.location.origin) {
+            return window.getCurrentPath();
+        }
+        return (url.pathname + url.search + url.hash).slice(0, 500);
+    } catch (error) {
+        return window.getCurrentPath();
+    }
+};
+
+window.isUserLoggedIn = function() {
+    return window.authState && window.authState.session && window.authState.session.user;
+};
+
+window.getCurrentSession = async function() {
+    if (!window.supabaseClient) {
+        return null;
+    }
+    const { data, error } = await window.supabaseClient.auth.getSession();
+    if (error) {
+        if (DEBUG_AUTH) {
+            console.error('Failed to get session:', error);
+        }
+        return null;
+    }
+    return data?.session || null;
 };
 
 window.logEvent = function (eventName, eventData = {}) {
@@ -359,18 +417,6 @@ window.redirectToLogin = function (targetPath) {
     window.location.replace(`${loginUrl.pathname}${loginUrl.search}`);
 };
 
-window.getCurrentSession = async function () {
-    if (!window.supabaseClient) {
-        return null;
-    }
-
-    if (!authState.initialized) {
-        await window.whenAuthReady();
-    }
-
-    return authState.session;
-};
-
 window.getCurrentUser = async function () {
     const session = await window.getCurrentSession();
     return session?.user || null;
@@ -382,7 +428,19 @@ window.syncUserProfile = async function (options = {}) {
         return null;
     }
 
-    const seed = getProfileSeed(session);
+    // Use explicit profile data if provided (for updates), otherwise read from session
+    let seed;
+    if (options.explicitProfile) {
+        seed = {
+            id: session.user.id,
+            full_name: sanitizeText(options.explicitProfile.full_name || '', 120) || null,
+            education_level: sanitizeText(options.explicitProfile.education_level || '', 50) || null,
+            phone: sanitizeText(options.explicitProfile.phone || '', 20) || null
+        };
+    } else {
+        seed = getProfileSeed(session);
+    }
+    
     if (!seed?.id) {
         return null;
     }
@@ -391,7 +449,7 @@ window.syncUserProfile = async function (options = {}) {
         ? options.profile
         : await fetchProfileForSession(session);
 
-    const patch = buildProfilePatch(existingProfile, seed, Boolean(options.updateLastLogin));
+    const patch = buildProfilePatch(existingProfile, seed);
     const fallbackProfile = buildFallbackProfile(seed, existingProfile);
 
     if (!Object.keys(patch).length) {
@@ -402,32 +460,34 @@ window.syncUserProfile = async function (options = {}) {
         let result;
 
         if (existingProfile) {
+            // Step 3: Update new profiles table
             result = await window.supabaseClient
-                .from('student_profiles')
+                .from('profiles')
                 .update(patch)
                 .eq('id', seed.id)
                 .select('*')
                 .maybeSingle();
         } else {
-            if (!patch.email) {
-                return fallbackProfile;
-            }
-
+            // Step 3: Insert into new profiles table
             result = await window.supabaseClient
-                .from('student_profiles')
+                .from('profiles')
                 .insert(patch)
                 .select('*')
                 .maybeSingle();
         }
 
         if (result.error) {
-            console.error('Failed to sync profile:', result.error);
+            if (DEBUG_AUTH) {
+                console.error('Failed to sync profile:', result.error);
+            }
             return fallbackProfile;
         }
 
         return result.data || fallbackProfile;
     } catch (error) {
-        console.error('Unexpected error while syncing profile:', error);
+        if (DEBUG_AUTH) {
+            console.error('Unexpected error while syncing profile:', error);
+        }
         return fallbackProfile;
     }
 };
@@ -485,7 +545,9 @@ window.signOut = async function () {
 
     const { error } = await window.supabaseClient.auth.signOut();
     if (error) {
-        console.error('Sign out failed:', error);
+        if (DEBUG_AUTH) {
+            console.error('Sign out failed:', error);
+        }
         throw error;
     }
 

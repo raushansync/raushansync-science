@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
-Sitemap: https://science.raushansync.com/sitemap.xml
+
+# Sitemap configuration: Set per-deployment or environment
+# For science.raushansync.com: Sitemap: https://science.raushansync.com/sitemap.xml
+# For maths.raushansync.com: Sitemap: https://maths.raushansync.com/sitemap.xml
+# For cs.raushansync.com: Sitemap: https://cs.raushansync.com/sitemap.xml

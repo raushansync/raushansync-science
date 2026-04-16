@@ -579,14 +579,14 @@
                         <div class="stat-meta">Active</div>
                     </div>
                     <div class="stat-card accent-2">
-                        <div class="stat-label">Learned Hours</div>
-                        <div class="stat-value" id="learnedHours">0h</div>
-                        <div class="stat-meta" id="learnedMeta">Lifetime Total</div>
+                        <div class="stat-label">Articles Completed</div>
+                        <div class="stat-value" id="articlesCompletedCount">0</div>
+                        <div class="stat-meta" id="articlesCompletedMeta">From all chapters</div>
                     </div>
                     <div class="stat-card accent-3">
-                        <div class="stat-label">Profile Status</div>
-                        <div class="stat-value" id="profileStatus" style="color: #4facfe;">–</div>
-                        <div class="stat-meta" id="profileStatusMeta">Checking...</div>
+                        <div class="stat-label">Practices Completed</div>
+                        <div class="stat-value" id="practicesCompletedCount">0</div>
+                        <div class="stat-meta" id="practicesCompletedMeta">Test your understanding</div>
                     </div>
                 </div>
 
@@ -605,12 +605,12 @@
                             <div class="profile-value" id="profileEmail">–</div>
                         </div>
                         <div class="profile-item">
-                            <div class="profile-label">Class</div>
-                            <div class="profile-value" id="profileClass">–</div>
+                            <div class="profile-label">Phone</div>
+                            <div class="profile-value" id="profilePhone">–</div>
                         </div>
                         <div class="profile-item">
-                            <div class="profile-label">School</div>
-                            <div class="profile-value" id="profileSchool">–</div>
+                            <div class="profile-label">Education Level</div>
+                            <div class="profile-value" id="profileClass">–</div>
                         </div>
                     </div>
                 </div>
@@ -641,22 +641,25 @@
                     <label for="emailInput" class="form-label">Email</label>
                     <input type="email" id="emailInput" class="form-input" placeholder="Enter your email" maxlength="255" required>
                 </div>
+                    <div class="form-group">
+                        <label for="phoneInput" class="form-label">Phone</label>
+                        <input type="tel" id="phoneInput" class="form-input" placeholder="Enter your phone number" maxlength="20" inputmode="tel">
+                    </div>
                 <div class="form-group">
-                    <label for="classInput" class="form-label">Class / Grade</label>
+                    <label for="classInput" class="form-label">Education Level</label>
                     <select id="classInput" class="form-input" required>
-                        <option value="">Select your class</option>
-                        <option value="6">Class 6</option>
-                        <option value="7">Class 7</option>
-                        <option value="8">Class 8</option>
-                        <option value="9">Class 9</option>
-                        <option value="10">Class 10</option>
-                        <option value="11">Class 11</option>
-                        <option value="12">Class 12</option>
+                        <option value="">Select your education level</option>
+                        <option value="class 06">Class 06</option>
+                        <option value="class 07">Class 07</option>
+                        <option value="class 08">Class 08</option>
+                        <option value="class 09">Class 09</option>
+                        <option value="class 10">Class 10</option>
+                        <option value="class 11">Class 11</option>
+                        <option value="class 12">Class 12</option>
+                        <option value="undergraduate">Undergraduate</option>
+                        <option value="postgraduate">Postgraduate</option>
+                        <option value="phd">PhD</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label for="schoolInput" class="form-label">School Name</label>
-                    <input type="text" id="schoolInput" class="form-input" placeholder="Enter your school name" maxlength="160">
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
@@ -666,82 +669,75 @@
         </div>
     </div>
 
-    <script src="/assets/js/script.js"></script>
+    <!-- Load dependencies first (Supabase must come before auth-config.js) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
     <script src="/assets/js/auth-config.js"></script>
+    <script src="/assets/js/progress-tracker.js"></script>
+    <script src="/assets/js/tick-manager.js"></script>
+    
+    <!-- Main app script (depends on auth-config.js) -->
+    <script src="/assets/js/script.js"></script>
+    
+    <!-- Auth guard must be last (for protected pages) -->
     <script src="/assets/js/auth-guard.js"></script>
 
     <script>
         let currentUser = null;
+        let currentProfile = null;
         let activityTracker = {
-            isActive: false,
-            lastActivityTime: Date.now(),
-            inactivityTimeout: 20 * 60 * 1000, // 20 minutes of inactivity pauses timer
-            sessionStartTime: null,
-            totalMilliseconds: 0,
-            updateInterval: null,
-            inactivityTimer: null,
-            syncInterval: null
+            // Deprecated - kept for reference but no longer used
+            // See Step 3: Activity tracking and learned_hours removed
         };
 
-        document.addEventListener("DOMContentLoaded", initializeDashboard);
-
-        // Modal handlers
-        const modal = document.getElementById("editProfileModal");
-        const editBtn = document.getElementById("editProfileBtn");
-        const closeBtn = document.getElementById("modalClose");
-        const cancelBtn = document.getElementById("cancelBtn");
-        const editForm = document.getElementById("editProfileForm");
-        const modalMessage = document.getElementById("modalMessage");
-
-        editBtn.addEventListener("click", openEditModal);
-        closeBtn.addEventListener("click", closeEditModal);
-        cancelBtn.addEventListener("click", closeEditModal);
-        editForm.addEventListener("submit", handleEditFormSubmit);
-
-        // Close modal when clicking outside of it
-        window.addEventListener("click", (event) => {
-            if (event.target === modal) {
-                closeEditModal();
+        // Safety timeout: if dashboard doesn't initialize within 15 seconds, show error
+        const dashboardInitTimeout = setTimeout(() => {
+            if (document.getElementById("loading").style.display !== "none") {
+                showError("Dashboard is taking too long to load. Please refresh the page.");
             }
-        });
+        }, 15000);
 
-        // Activity detection events
-        const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"];
-        activityEvents.forEach((event) => {
-            document.addEventListener(event, handleActivity, true);
+        // Clear timeout once dashboard initializes
+        async function initializeDashboardWithTimeout() {
+            try {
+                await initializeDashboard();
+            } finally {
+                clearTimeout(dashboardInitTimeout);
+            }
+        }
+
+        // Modal handlers - set up after DOM is ready
+        let modal, editBtn, closeBtn, cancelBtn, editForm, modalMessage;
+
+        function setupModalHandlers() {
+            modal = document.getElementById("editProfileModal");
+            editBtn = document.getElementById("editProfileBtn");
+            closeBtn = document.getElementById("modalClose");
+            cancelBtn = document.getElementById("cancelBtn");
+            editForm = document.getElementById("editProfileForm");
+            modalMessage = document.getElementById("modalMessage");
+
+            if (editBtn) editBtn.addEventListener("click", openEditModal);
+            if (closeBtn) closeBtn.addEventListener("click", closeEditModal);
+            if (cancelBtn) cancelBtn.addEventListener("click", closeEditModal);
+            if (editForm) editForm.addEventListener("submit", handleEditFormSubmit);
+
+            // Close modal when clicking outside of it
+            if (modal) {
+                window.addEventListener("click", (event) => {
+                    if (event.target === modal) {
+                        closeEditModal();
+                    }
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setupModalHandlers();
+            initializeDashboardWithTimeout();
         });
 
         function handleActivity() {
-            const now = Date.now();
-            
-            // If there was a long inactivity, start a new session
-            if (activityTracker.isActive && (now - activityTracker.lastActivityTime) > activityTracker.inactivityTimeout) {
-                // User was inactive for too long, end the session but keep total
-                if (activityTracker.sessionStartTime) {
-                    const sessionTime = activityTracker.lastActivityTime - activityTracker.sessionStartTime;
-                    activityTracker.totalMilliseconds += sessionTime;
-                }
-                activityTracker.sessionStartTime = now;
-            } else if (!activityTracker.isActive) {
-                // User is starting a new session
-                activityTracker.isActive = true;
-                activityTracker.sessionStartTime = now;
-            }
-
-            activityTracker.lastActivityTime = now;
-            clearTimeout(activityTracker.inactivityTimer);
-
-            // Set inactivity timeout
-            activityTracker.inactivityTimer = setTimeout(() => {
-                if (activityTracker.isActive && activityTracker.sessionStartTime) {
-                    const sessionTime = Date.now() - activityTracker.sessionStartTime;
-                    activityTracker.totalMilliseconds += sessionTime;
-                    activityTracker.isActive = false;
-                    activityTracker.sessionStartTime = null;
-                    syncLearnedHours();
-                }
-            }, activityTracker.inactivityTimeout);
+            // Activity tracking removed in Step 3 - Learned hours tracking deprecated
         }
 
         function getLearnedHours() {
@@ -816,6 +812,62 @@
             updateLearnedHoursDisplay();
         }
 
+        // REPLACED BY PROGRESS STATS (Step 3)
+        async function loadProgressStats() {
+            try {
+                if (!window.supabaseClient || !currentUser) {
+                    return;
+                }
+
+                // Query articles completed
+                const { data: articleProgress, error: articleError } = await window.supabaseClient
+                    .from('progress')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('item_type', 'article')
+                    .eq('completed', true);
+
+                // Query practices completed
+                const { data: practiceProgress, error: practiceError } = await window.supabaseClient
+                    .from('progress')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('item_type', 'practice')
+                    .eq('completed', true);
+
+                const articlesCompleted = !articleError ? (articleProgress?.length || 0) : 0;
+                const practicesCompleted = !practiceError ? (practiceProgress?.length || 0) : 0;
+
+                // STEP 4: Update displays with real progress data
+                // Display articles completed
+                const articlesEl = document.getElementById("articlesCompletedCount");
+                if (articlesEl) {
+                    articlesEl.textContent = articlesCompleted;
+                    articlesEl.classList.add('progress-stats-updated');
+                }
+
+                // Display practices completed
+                const practicesEl = document.getElementById("practicesCompletedCount");
+                if (practicesEl) {
+                    practicesEl.textContent = practicesCompleted;
+                    practicesEl.classList.add('progress-stats-updated');
+                }
+
+                // Keep old IDs for backward compatibility if needed
+                const learnedHoursEl = document.getElementById("learnedHours");
+                if (learnedHoursEl) {
+                    learnedHoursEl.textContent = articlesCompleted;
+                }
+                const learnedMetaEl = document.getElementById("learnedMeta");
+                if (learnedMetaEl) {
+                    learnedMetaEl.textContent = "Articles Completed";
+                }
+
+            } catch (error) {
+                console.error("Error loading progress stats:", error);
+            }
+        }
+
         async function initializeDashboard() {
             if (!window.supabaseClient) {
                 showError("Authentication is unavailable. Please check Supabase configuration.");
@@ -831,27 +883,32 @@
                 }
 
                 currentUser = session.user;
-                
-                // Load existing learned hours from metadata
-                const existingMs = currentUser.user_metadata?.learned_milliseconds || 0;
-                activityTracker.totalMilliseconds = existingMs;
 
-                const fullName = currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "User";
+                // Try to load extended profile (profiles table). Prefer values from profiles when available.
+                try {
+                    currentProfile = await window.getUserProfile();
+                } catch (err) {
+                    console.error('Failed to fetch profile:', err);
+                    currentProfile = null;
+                }
+
+                const fullName = (currentProfile?.full_name) || currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "User";
                 const email = currentUser.email || "–";
-                const gradeClass = currentUser.user_metadata?.grade_class || "Not specified";
-                const schoolName = currentUser.user_metadata?.school_name || "Not provided";
+                const educationLevel = currentProfile?.education_level || currentUser.user_metadata?.education_level || "Not specified";
+                const phone = currentProfile?.phone || currentUser.user_metadata?.phone || "–";
 
                 document.getElementById("welcomeTitle").textContent = "Welcome back, " + fullName + "!";
                 document.getElementById("profileFullName").textContent = fullName;
                 document.getElementById("profileEmail").textContent = email;
-                document.getElementById("profileClass").textContent = "Class " + gradeClass;
-                document.getElementById("profileSchool").textContent = schoolName;
+                document.getElementById("profileClass").textContent = educationLevel;
+                const profilePhoneEl = document.getElementById("profilePhone");
+                if (profilePhoneEl) profilePhoneEl.textContent = phone;
+
+                // Load and display progress stats
+                await loadProgressStats();
                 
                 // Update profile status
                 updateProfileStatus();
-                
-                // Start activity tracking and display updates
-                startActivityTracking();
                 
                 document.getElementById("loading").style.display = "none";
                 document.getElementById("dashboardContent").style.display = "block";
@@ -865,26 +922,26 @@
 
         function updateProfileStatus() {
             if (!currentUser) return;
-
             const fullName = currentUser.user_metadata?.full_name || "";
             const email = currentUser.email || "";
-            const gradeClass = currentUser.user_metadata?.grade_class || "";
-            const schoolName = currentUser.user_metadata?.school_name || "";
+            const educationLevel = currentUser.user_metadata?.education_level || "";
 
-            // Check if all required fields are filled
-            const isComplete = fullName && email && gradeClass && schoolName;
+            // Check if required fields are filled
+            const isComplete = Boolean(fullName && email && educationLevel);
 
             const statusElement = document.getElementById("profileStatus");
             const statusMetaElement = document.getElementById("profileStatusMeta");
 
-            if (isComplete) {
-                statusElement.textContent = "✓";
-                statusElement.style.color = "#10b981";
-                statusMetaElement.textContent = "Complete";
-            } else {
-                statusElement.textContent = "✗";
-                statusElement.style.color = "#ef4444";
-                statusMetaElement.textContent = "Incomplete";
+            // If neither element exists on this page, nothing to update
+            if (!statusElement && !statusMetaElement) return;
+
+            if (statusElement) {
+                statusElement.textContent = isComplete ? "✓" : "✗";
+                statusElement.style.color = isComplete ? "#10b981" : "#ef4444";
+            }
+
+            if (statusMetaElement) {
+                statusMetaElement.textContent = isComplete ? "Complete" : "Incomplete";
             }
         }
 
@@ -901,10 +958,10 @@
             if (!currentUser) return;
 
             // Populate form with current values
-            document.getElementById("fullNameInput").value = currentUser.user_metadata?.full_name || "";
+            document.getElementById("fullNameInput").value = currentProfile?.full_name || currentUser.user_metadata?.full_name || "";
             document.getElementById("emailInput").value = currentUser.email || "";
-            document.getElementById("classInput").value = currentUser.user_metadata?.grade_class || "";
-            document.getElementById("schoolInput").value = currentUser.user_metadata?.school_name || "";
+            document.getElementById("phoneInput").value = currentProfile?.phone || currentUser.user_metadata?.phone || "";
+            document.getElementById("classInput").value = currentProfile?.education_level || currentUser.user_metadata?.education_level || "";
 
             // Clear previous messages
             clearModalMessage();
@@ -940,8 +997,8 @@
             try {
                 const fullName = document.getElementById("fullNameInput").value.trim();
                 const email = document.getElementById("emailInput").value.trim();
-                const gradeClass = parseInt(document.getElementById("classInput").value, 10);
-                const schoolName = document.getElementById("schoolInput").value.trim();
+                const phone = document.getElementById("phoneInput").value.trim();
+                const educationLevel = document.getElementById("classInput").value.trim();
 
                 // Validation
                 if (!fullName) {
@@ -958,22 +1015,19 @@
                     return;
                 }
 
-                if (!gradeClass || gradeClass < 6 || gradeClass > 12) {
-                    showModalMessage("Please select a valid class", "error");
+                if (!educationLevel) {
+                    showModalMessage("Please select your education level", "error");
                     saveBtn.disabled = false;
                     saveBtn.textContent = originalText;
                     return;
                 }
 
-                // Update user metadata and email
-                const updates = {
-                    email: email,
-                    data: {
-                        full_name: fullName,
-                        grade_class: gradeClass,
-                        school_name: schoolName
-                    }
-                };
+                if (phone && phone.length > 20) {
+                    showModalMessage("Phone number is too long", "error");
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                    return;
+                }
 
                 // If email has changed, update it in auth
                 if (email !== currentUser.email) {
@@ -983,12 +1037,12 @@
                     }
                 }
 
-                // Update user metadata
+                // Update user metadata (include phone)
                 const { error: metadataError } = await window.supabaseClient.auth.updateUser({
                     data: {
                         full_name: fullName,
-                        grade_class: gradeClass,
-                        school_name: schoolName
+                        education_level: educationLevel,
+                        phone: phone || null
                     }
                 });
 
@@ -996,10 +1050,20 @@
                     throw metadataError;
                 }
 
+                // Also sync to the profiles table to keep server-side profile row up-to-date
+                try {
+                    const synced = await window.syncUserProfile({ explicitProfile: { full_name: fullName, education_level: educationLevel, phone: phone || null } });
+                    if (synced) currentProfile = synced;
+                } catch (syncErr) {
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        console.error('Profile sync failed:', syncErr);
+                    }
+                }
+
                 // Update the current user object
                 currentUser.user_metadata.full_name = fullName;
-                currentUser.user_metadata.grade_class = gradeClass;
-                currentUser.user_metadata.school_name = schoolName;
+                currentUser.user_metadata.education_level = educationLevel;
+                currentUser.user_metadata.phone = phone || null;
                 if (email !== currentUser.email) {
                     currentUser.email = email;
                 }
@@ -1008,8 +1072,9 @@
                 document.getElementById("welcomeTitle").textContent = "Welcome back, " + fullName + "!";
                 document.getElementById("profileFullName").textContent = fullName;
                 document.getElementById("profileEmail").textContent = email;
-                document.getElementById("profileClass").textContent = "Class " + gradeClass;
-                document.getElementById("profileSchool").textContent = schoolName || "Not provided";
+                document.getElementById("profileClass").textContent = educationLevel;
+                const profilePhoneEl = document.getElementById("profilePhone");
+                if (profilePhoneEl) profilePhoneEl.textContent = phone || "–";
 
                 // Update profile status
                 updateProfileStatus();
@@ -1020,7 +1085,9 @@
                 }, 1500);
 
             } catch (error) {
-                console.error("Update error:", error);
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.error("Update error:", error);
+                }
                 showModalMessage(error.message || "Failed to update profile. Please try again.", "error");
             } finally {
                 saveBtn.disabled = false;

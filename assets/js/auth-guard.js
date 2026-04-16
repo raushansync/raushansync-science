@@ -75,7 +75,9 @@
             markAuthReady();
 
         } catch (error) {
-            console.error('auth-guard.js: Unexpected error during auth check', error);
+            if (DEBUG_AUTH) {
+                console.error('auth-guard.js: Unexpected error during auth check', error);
+            }
             // On error, mark auth as ready to show content (assume user should see login page if needed)
             markAuthReady();
         }
@@ -89,12 +91,13 @@
         handleAuthCheck();
     }
 
-    // Safety timeout: if auth check doesn't complete within 5 seconds, show content anyway
-    // This prevents permanent page hiding if auth service fails
+    // Safety timeout: if auth check doesn't complete within 10 seconds, show error
+    // (Do not default to showing protected content as a security measure)
     setTimeout(() => {
         if (!document.documentElement.classList.contains('auth-ready')) {
-            console.warn('auth-guard.js: Auth check timeout, showing content');
-            markAuthReady();
+            console.error('auth-guard.js: Auth check timeout after 10 seconds - not showing content');
+            // Add error state instead of forcing content visibility
+            document.documentElement.classList.add('auth-error');
         }
-    }, 5000);
+    }, 10000);
 })();

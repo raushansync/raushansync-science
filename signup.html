@@ -452,9 +452,14 @@
         </div>
     </main>
 
-    <script src="/assets/js/script.js"></script>
+    <!-- Load dependencies first -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
     <script src="/assets/js/auth-config.js"></script>
+    
+    <!-- Main app script -->
+    <script src="/assets/js/script.js"></script>
+    
+    <!-- Auth guard for protected pages -->
     <script src="/assets/js/auth-guard.js"></script>
 
     <script>
@@ -523,13 +528,15 @@
                     errorDiv.textContent = errorMessage;
                     errorDiv.classList.add("show");
                     
-                    // Log for debugging
-                    console.error("Signup error details:", {
-                        message: error.message,
-                        status: error.status,
-                        code: error.code,
-                        fullError: error
-                    });
+                    // Log for debugging (only on localhost/dev)
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        console.error("Signup error details:", {
+                            message: error.message,
+                            status: error.status,
+                            code: error.code,
+                            fullError: error
+                        });
+                    }
                     
                     signupBtn.disabled = false;
                     loadingDiv.classList.remove("show");
@@ -537,6 +544,13 @@
                 }
 
                 if (data.user) {
+                    // Sync user profile to database before redirecting
+                    try {
+                        await window.syncUserProfile();
+                    } catch (syncErr) {
+                        // Profile sync error - continue anyway as user is created
+                        window.logEvent('Profile sync failed during signup', { error: syncErr });
+                    }
                     window.location.replace("/login.html?message=signup-success");
                 }
             } catch (err) {

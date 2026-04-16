@@ -217,7 +217,9 @@
             function checkAuthState() {
                 if (window.authState && window.authState.initialized) {
                     updateButtonsUI(window.authState.session);
+                    return true; // Successfully checked
                 }
+                return false; // Auth not yet initialized
             }
 
             // Listen for auth state changes
@@ -225,13 +227,30 @@
                 updateButtonsUI(event.detail.session);
             });
 
-            // Initial check (with a small delay to ensure auth-config has initialized)
+            // Initial check with retry logic
+            let attempts = 0;
+            const maxAttempts = 50; // 5 seconds max with 100ms intervals
+            
+            function attemptInitialize() {
+                if (checkAuthState()) {
+                    // Auth initialized successfully
+                    return;
+                }
+                
+                if (attempts < maxAttempts) {
+                    attempts++;
+                    setTimeout(attemptInitialize, 100);
+                } else {
+                    // Timeout - default to showing guest buttons
+                    console.warn('Auth initialization timeout on homepage');
+                    updateButtonsUI(null);
+                }
+            }
+
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    setTimeout(checkAuthState, 100);
-                });
+                document.addEventListener('DOMContentLoaded', attemptInitialize);
             } else {
-                setTimeout(checkAuthState, 100);
+                attemptInitialize();
             }
         })();
     </script>

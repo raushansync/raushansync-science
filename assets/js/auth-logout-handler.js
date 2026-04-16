@@ -29,7 +29,9 @@
             // signOut() automatically redirects to login, so we won't reach here
             return true;
         } catch (error) {
-            console.error('Logout error:', error);
+            if (DEBUG_AUTH) {
+                console.error('Logout error:', error);
+            }
             if (!quiet) {
                 alert('Logout failed. Please try again.');
             }
@@ -38,18 +40,20 @@
     };
 
     // Attach event listeners to all elements with data-action="logout"
+    // Use stopImmediatePropagation to prevent double-firing
     document.addEventListener('click', async (event) => {
         if (event.target.getAttribute('data-action') === 'logout') {
             event.preventDefault();
+            event.stopImmediatePropagation();
+            
+            // Dispatch user-logout event for progress system cleanup (STEP 4)
+            try {
+                document.dispatchEvent(new CustomEvent('user-logout'));
+            } catch (e) {
+                // Ignore dispatch errors
+            }
+            
             await window.handleLogout();
         }
-    });
-
-    // Support for form submission
-    document.addEventListener('submit', async (event) => {
-        if (event.target.getAttribute('data-action') === 'logout') {
-            event.preventDefault();
-            await window.handleLogout();
-        }
-    });
+    }, true); // Use capturing phase to fire before other handlers
 })();

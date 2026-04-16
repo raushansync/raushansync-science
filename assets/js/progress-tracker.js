@@ -1,6 +1,11 @@
 /**
  * progress-tracker.js
- * Tracks student quiz attempts and saves them to Supabase.
+ * Tracks student practice attempts and saves them to Supabase.
+ * 
+ * Step 3 Update: Refactored for new schema
+ * - Old: quiz_attempts table with detailed attempt tracking
+ * - New: practice_scores table with final scores
+ * - Ready for Step 4: Full progress system integration
  */
 
 window.ProgressTracker = (() => {
@@ -79,7 +84,7 @@ window.ProgressTracker = (() => {
         async saveAttempt(attemptData) {
             try {
                 if (!window.supabaseClient) {
-                    console.error('Cannot save quiz attempt: Supabase client not initialized.');
+                    window.logEvent('Cannot save practice attempt: Supabase client not initialized');
                     return false;
                 }
 
@@ -90,34 +95,39 @@ window.ProgressTracker = (() => {
                 }
 
                 if (typeof attemptData?.is_correct !== 'boolean') {
-                    console.error('Invalid attempt data:', attemptData);
+                    window.logEvent('Invalid attempt data', { attemptData });
                     return false;
                 }
+
+                // New schema: practice_scores stores final scores (0-100)
+                // Convert boolean is_correct to score
+                const score = attemptData.is_correct ? 100 : 0;
+                
+                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+                const practicePath = window.normalizePath 
+                    ? window.normalizePath(attemptData.practice_url || attemptData.quiz_url)
+                    : normalizeQuizUrl(attemptData.practice_url || attemptData.quiz_url);
 
                 const sanitizedData = {
                     user_id: session.user.id,
-                    quiz_url: normalizeQuizUrl(attemptData.quiz_url),
-                    question_number: normalizeQuestionNumber(attemptData.question_number),
-                    question_text: sanitizeText(attemptData.question_text, 500),
-                    user_answer: sanitizeText(attemptData.user_answer, 1000),
-                    correct_answer: sanitizeText(attemptData.correct_answer, 1000),
-                    is_correct: attemptData.is_correct,
-                    time_spent_seconds: clampInteger(attemptData.time_spent_seconds, 0, 7200)
+                    site: site,
+                    practice_path: practicePath,
+                    score: clampInteger(score, 0, 100)
                 };
 
                 const { error } = await window.supabaseClient
-                    .from('quiz_attempts')
-                    .insert(sanitizedData);
+                    .from('practice_scores')
+                    .upsert(sanitizedData, { onConflict: 'user_id,site,practice_path' });
 
                 if (error) {
-                    console.error('Failed to save quiz attempt:', error);
+                    window.logEvent('Failed to save practice attempt', { error });
                     return false;
                 }
 
-                window.logEvent('Quiz attempt saved');
+                window.logEvent('Practice score saved');
                 return true;
             } catch (error) {
-                console.error('Unexpected error saving attempt:', error);
+                window.logEvent('Unexpected error saving attempt', { error });
                 return false;
             }
         },
@@ -133,14 +143,20 @@ window.ProgressTracker = (() => {
                     return [];
                 }
 
-                let query = window.supabaseClient
-                    .from('quiz_attempts')
-                    .select('id, quiz_url, question_number, is_correct, time_spent_seconds, created_at')
-                    .eq('user_id', session.user.id)
-                    .order('created_at', { ascending: false });
+                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
 
-                if (filters.quiz_url) {
-                    query = query.eq('quiz_url', normalizeQuizUrl(filters.quiz_url));
+                let query = window.supabaseClient
+                    .from('practice_scores')
+                    .select('id, practice_path, score, updated_at')
+                    .eq('user_id', session.user.id)
+                    .eq('site', site)
+                    .order('updated_at', { ascending: false });
+
+                if (filters.practice_path) {
+                    const normalizedPath = window.normalizePath 
+                        ? window.normalizePath(filters.practice_path)
+                        : normalizeQuizUrl(filters.practice_path);
+                    query = query.eq('practice_path', normalizedPath);
                 }
                 if (filters.limit) {
                     query = query.limit(clampInteger(filters.limit, 1, 100, 10));
@@ -148,37 +164,44 @@ window.ProgressTracker = (() => {
 
                 const { data, error } = await query;
                 if (error) {
-                    console.error('Failed to fetch attempts:', error);
+                    window.logEvent('Failed to fetch practice attempts', { error });
                     return [];
                 }
 
                 return data || [];
             } catch (error) {
-                console.error('Unexpected error fetching attempts:', error);
+                window.logEvent('Unexpected error fetching attempts', { error });
                 return [];
             }
         },
 
-        async getQuizStats(quizUrl) {
+        async getPracticeStats(practicePath) {
             try {
-                const attempts = await this.getAttemptHistory({ quiz_url: quizUrl });
-                const correctAnswers = attempts.filter((attempt) => attempt.is_correct).length;
+                const attempts = await this.getAttemptHistory({ practice_path: practicePath });
                 const totalAttempts = attempts.length;
-                const averageTime = totalAttempts
-                    ? Math.round(attempts.reduce((sum, attempt) => sum + (attempt.time_spent_seconds || 0), 0) / totalAttempts)
+                const averageScore = totalAttempts
+                    ? Math.round(attempts.reduce((sum, attempt) => sum + (attempt.score || 0), 0) / totalAttempts)
+                    : 0;
+                const highestScore = totalAttempts
+                    ? Math.max(...attempts.map(a => a.score || 0))
                     : 0;
 
                 return {
                     total_attempts: totalAttempts,
-                    correct_answers: correctAnswers,
-                    incorrect_answers: totalAttempts - correctAnswers,
-                    accuracy: totalAttempts ? `${((correctAnswers / totalAttempts) * 100).toFixed(1)}%` : '0%',
-                    average_time: `${averageTime}s`
+                    average_score: averageScore,
+                    highest_score: highestScore,
+                    passing: averageScore >= 70 ? 'Yes' : 'No'
                 };
             } catch (error) {
-                console.error('Failed to calculate quiz stats:', error);
+                window.logEvent('Failed to calculate practice stats', { error });
                 return null;
             }
+        },
+
+        async getQuizStats(quizUrl) {
+            // Deprecated: Use getPracticeStats instead
+            // Kept for backward compatibility
+            return this.getPracticeStats(quizUrl);
         },
 
         async getOverallStats() {
@@ -192,39 +215,278 @@ window.ProgressTracker = (() => {
                     return null;
                 }
 
-                const { data: attempts, error } = await window.supabaseClient
-                    .from('quiz_attempts')
-                    .select('quiz_url, is_correct, time_spent_seconds')
-                    .eq('user_id', session.user.id);
+                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+
+                const { data: scores, error } = await window.supabaseClient
+                    .from('practice_scores')
+                    .select('practice_path, score')
+                    .eq('user_id', session.user.id)
+                    .eq('site', site);
 
                 if (error) {
-                    console.error('Failed to fetch attempts:', error);
+                    window.logEvent('Failed to fetch scores for overall stats', { error });
                     return null;
                 }
 
-                const safeAttempts = attempts || [];
-                const totalAttempts = safeAttempts.length;
-                const totalCorrect = safeAttempts.filter((attempt) => attempt.is_correct).length;
-                const totalTimeMinutes = totalAttempts
-                    ? Math.round(safeAttempts.reduce((sum, attempt) => sum + (attempt.time_spent_seconds || 0), 0) / 60)
+                const safeScores = scores || [];
+                const totalPractices = safeScores.length;
+                const averageScore = totalPractices
+                    ? Math.round(safeScores.reduce((sum, s) => sum + (s.score || 0), 0) / totalPractices)
                     : 0;
+                const uniquePractices = new Set(safeScores.map(s => s.practice_path)).size;
+                const passingCount = safeScores.filter(s => s.score >= 70).length;
 
                 return {
-                    total_attempts: totalAttempts,
-                    total_correct: totalCorrect,
-                    total_incorrect: totalAttempts - totalCorrect,
-                    overall_accuracy: totalAttempts ? `${((totalCorrect / totalAttempts) * 100).toFixed(1)}%` : '0%',
-                    unique_quizzes: new Set(safeAttempts.map((attempt) => attempt.quiz_url)).size,
-                    total_time_spent: `${totalTimeMinutes} min`
+                    total_practices: totalPractices,
+                    unique_practices: uniquePractices,
+                    average_score: averageScore,
+                    passing_practices: passingCount,
+                    failing_practices: totalPractices - passingCount
                 };
             } catch (error) {
-                console.error('Failed to calculate overall stats:', error);
+                window.logEvent('Failed to calculate overall stats', { error });
+                return null;
+            }
+        },
+
+        /**
+         * STEP 4: Progress Tick System
+         * New functions for full progress tracking
+         */
+
+        detectItemType(path) {
+            // Auto-detect item type from URL path
+            if (!path || typeof path !== 'string') {
+                return 'article'; // Default to article
+            }
+
+            const lowerPath = path.toLowerCase();
+            
+            // Practice detection
+            if (lowerPath.includes('/practice/') || 
+                lowerPath.includes('/practice-advanced/') ||
+                lowerPath.includes('/practice-solution/')) {
+                return 'practice';
+            }
+
+            // Check if it's a practice page (renamed from quiz)
+            if (lowerPath.includes('/practice') && lowerPath.endsWith('.html')) {
+                return 'practice';
+            }
+
+            // Articles in notes folder
+            if (lowerPath.includes('/notes/')) {
+                // If it has practice in the name, it's a practice
+                if (lowerPath.includes('practice') || lowerPath.includes('quiz')) {
+                    return 'practice';
+                }
+                return 'article';
+            }
+
+            return 'article'; // Default
+        },
+
+        async getProgress(site, itemPath) {
+            try {
+                if (!window.supabaseClient) {
+                    return null;
+                }
+
+                const session = await window.getCurrentSession();
+                if (!session) {
+                    return null;
+                }
+
+                const normalizedPath = window.normalizePath 
+                    ? window.normalizePath(itemPath)
+                    : normalizeQuizUrl(itemPath);
+
+                // Use limit(1) to avoid PostgREST 406 when multiple rows exist
+                const { data: rows, error } = await window.supabaseClient
+                    .from('progress')
+                    .select('*')
+                    .eq('user_id', session.user.id)
+                    .eq('site', site)
+                    .eq('item_path', normalizedPath)
+                    .limit(1);
+
+                if (error) {
+                    // Log and return null on unexpected errors
+                    window.logEvent('Failed to fetch progress', { error });
+                    return null;
+                }
+
+                // Return the first row if present
+                return (rows && rows.length) ? rows[0] : null;
+            } catch (error) {
+                window.logEvent('Error fetching progress', { error });
+                return null;
+            }
+        },
+
+        async setProgress(site, itemPath, itemType, completed) {
+            try {
+                if (!window.supabaseClient) {
+                    return false;
+                }
+
+                const session = await window.getCurrentSession();
+                if (!session) {
+                    return false;
+                }
+
+                const normalizedPath = window.normalizePath 
+                    ? window.normalizePath(itemPath)
+                    : normalizeQuizUrl(itemPath);
+
+                const progressData = {
+                    user_id: session.user.id,
+                    site: site,
+                    item_path: normalizedPath,
+                    item_type: itemType,
+                    completed: completed
+                };
+
+                const { error } = await window.supabaseClient
+                    .from('progress')
+                    .upsert(progressData, { onConflict: 'user_id,site,item_path' });
+
+                if (error) {
+                    window.logEvent('Failed to set progress', { error });
+                    return false;
+                }
+
+                window.logEvent('Progress updated');
+                return true;
+            } catch (error) {
+                window.logEvent('Unexpected error setting progress', { error });
+                return false;
+            }
+        },
+
+        async toggleProgress(site, itemPath, itemType) {
+            try {
+                // NOTE: Potential race condition between read and write if multiple tabs
+                // are open. However, Supabase upsert ensures consistency.
+                // Multi-tab sync would need additional server-side versioning.
+                const currentProgress = await this.getProgress(site, itemPath);
+                const newCompletedState = currentProgress ? !currentProgress.completed : true;
+                
+                return await this.setProgress(site, itemPath, itemType, newCompletedState);
+            } catch (error) {
+                window.logEvent('Error toggling progress', { error });
+                return false;
+            }
+        },
+
+        async markCompleted(site, itemPath, itemType) {
+            return await this.setProgress(site, itemPath, itemType, true);
+        },
+
+        async loadPageProgress() {
+            try {
+                if (!window.isUserLoggedIn || !window.isUserLoggedIn()) {
+                    return null;
+                }
+
+                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+                const path = window.getCurrentPath ? window.getCurrentPath() : window.location.pathname;
+                const itemType = this.detectItemType(path);
+
+                const progress = await this.getProgress(site, path);
+                
+                return {
+                    completed: progress ? progress.completed : false,
+                    itemType: itemType,
+                    site: site,
+                    itemPath: path,
+                    data: progress
+                };
+            } catch (error) {
+                window.logEvent('Error loading page progress', { error });
+                return null;
+            }
+        },
+
+        async savePracticeScore(site, practicePath, score) {
+            try {
+                if (!window.supabaseClient) {
+                    return false;
+                }
+
+                const session = await window.getCurrentSession();
+                if (!session) {
+                    return false;
+                }
+
+                // Validate score
+                const validScore = clampInteger(score, 0, 100);
+
+                const normalizedPath = window.normalizePath 
+                    ? window.normalizePath(practicePath)
+                    : normalizeQuizUrl(practicePath);
+
+                const scoreData = {
+                    user_id: session.user.id,
+                    site: site,
+                    practice_path: normalizedPath,
+                    score: validScore
+                };
+
+                const { error } = await window.supabaseClient
+                    .from('practice_scores')
+                    .upsert(scoreData, { onConflict: 'user_id,site,practice_path' });
+
+                if (error) {
+                    window.logEvent('Failed to save practice score', { error });
+                    return false;
+                }
+
+                window.logEvent('Practice score saved successfully');
+                return true;
+            } catch (error) {
+                window.logEvent('Unexpected error saving practice score', { error });
+                return false;
+            }
+        },
+
+        async getPracticeScore(site, practicePath) {
+            try {
+                if (!window.supabaseClient) {
+                    return null;
+                }
+
+                const session = await window.getCurrentSession();
+                if (!session) {
+                    return null;
+                }
+
+                const normalizedPath = window.normalizePath 
+                    ? window.normalizePath(practicePath)
+                    : normalizeQuizUrl(practicePath);
+
+                const { data: rows, error } = await window.supabaseClient
+                    .from('practice_scores')
+                    .select('score')
+                    .eq('user_id', session.user.id)
+                    .eq('site', site)
+                    .eq('practice_path', normalizedPath)
+                    .limit(1);
+
+                if (error) {
+                    window.logEvent('Failed to fetch practice score', { error });
+                    return null;
+                }
+
+                return (rows && rows[0] && rows[0].score) ? rows[0].score : null;
+            } catch (error) {
+                window.logEvent('Error fetching practice score', { error });
                 return null;
             }
         },
 
         async deleteAllAttempts() {
-            if (!window.confirm('Are you sure? This will delete all of your quiz attempts.')) {
+            if (!window.confirm('Are you sure? This will delete all of your practice scores.')) {
                 return false;
             }
 
@@ -238,20 +500,23 @@ window.ProgressTracker = (() => {
                     return false;
                 }
 
+                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+
                 const { error } = await window.supabaseClient
-                    .from('quiz_attempts')
+                    .from('practice_scores')
                     .delete()
-                    .eq('user_id', session.user.id);
+                    .eq('user_id', session.user.id)
+                    .eq('site', site);
 
                 if (error) {
-                    console.error('Failed to delete attempts:', error);
+                    window.logEvent('Failed to delete practice scores', { error });
                     return false;
                 }
 
-                window.logEvent('All quiz attempts deleted');
+                window.logEvent('All practice scores deleted');
                 return true;
             } catch (error) {
-                console.error('Unexpected error deleting attempts:', error);
+                window.logEvent('Unexpected error deleting practice scores', { error });
                 return false;
             }
         }

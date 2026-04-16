@@ -1,5 +1,5 @@
-﻿/* RaushanSYNC Science PWA Service Worker */
-const CACHE_VERSION = 'science-v1.0.3.4';
+﻿/* RaushanSYNC Learning Platform PWA Service Worker */
+const CACHE_VERSION = 'app-v1.0.5';  // Generic version for cross-site use
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
@@ -39,21 +39,21 @@ const CORE_ASSETS = [
   '/notes/class07/chapter01-nutrition-in-plants/index.html',
   '/notes/class07/chapter01-nutrition-in-plants/congratulations.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/quiz1.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/practice1.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/quiz2.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/practice2.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/quiz3.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/practice3.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/quiz4.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/practice4.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/quiz5.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/practice5.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/quiz6.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/practice6.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/quiz7.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/practice7.html',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/quiz8.html'
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/practice8.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -164,10 +164,14 @@ async function networkOnlyDocument(request) {
   try {
     return await fetch(request, { cache: 'no-store' });
   } catch (error) {
+    // Try to serve offline page first
     const offline = await caches.match(OFFLINE_URL);
     if (offline) {
       return offline;
     }
+    
+    // Log error with context for debugging
+    console.error(`Service Worker: Failed to fetch document at ${request.url}`, error);
     throw error;
   }
 }

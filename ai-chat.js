@@ -1,6 +1,6 @@
 (function () {
     const WORKER_URL = 'https://quiz-ai-tutor.raushanguptaicloud.workers.dev/';
-    const SUPPORTED_ORIGIN_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+    const SUPPORTED_ORIGIN_PATTERN = /^https?:\/\/(localhost|127\.0\.0\.1|.*\.raushansync\.com)(:\d+)?$/;
 
     const state = {
         context: {},
@@ -20,7 +20,7 @@
     function sanitizeContext(context) {
         const ctx = context && typeof context === 'object' ? context : {};
         return {
-            quizTitle: getText(ctx.quizTitle, 'Quiz Discussion'),
+            practiceTitle: getText(ctx.practiceTitle || ctx.quizTitle, 'Practice Discussion'),
             questionText: getText(ctx.questionText, 'Question unavailable'),
             userAnswer: getText(ctx.userAnswer, 'No answer selected yet'),
             correctAnswer: getText(ctx.correctAnswer, 'Correct answer unavailable'),
@@ -36,9 +36,8 @@
     }
 
     function isSupportedOrigin(origin) {
-        return origin === 'https://science.raushansync.com' ||
-            origin === 'null' ||
-            SUPPORTED_ORIGIN_PATTERN.test(origin);
+        // Allow localhost (dev), null (from file://), and any *.raushansync.com domain (production)
+        return origin === 'null' || SUPPORTED_ORIGIN_PATTERN.test(origin);
     }
 
     function describeOrigin(origin) {
@@ -218,7 +217,7 @@
         if (!ui.context) return;
 
         const contextLine = [
-            'Topic: ' + state.context.quizTitle,
+            'Topic: ' + state.context.practiceTitle,
             'Question: ' + state.context.questionText,
             'Your answer: ' + state.context.userAnswer,
             'Correct answer: ' + state.context.correctAnswer

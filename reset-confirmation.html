@@ -380,9 +380,14 @@
         </div>
     </main>
 
-    <script src="/assets/js/script.js"></script>
+    <!-- Load dependencies first -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
     <script src="/assets/js/auth-config.js"></script>
+    
+    <!-- Main app script -->
+    <script src="/assets/js/script.js"></script>
+    
+    <!-- Auth guard for protected pages -->
     <script src="/assets/js/auth-guard.js"></script>
 
     <script>
