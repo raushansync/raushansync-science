@@ -88,6 +88,8 @@
             }
         })();
     </script>
+    <!-- Quiz Score Handler -->
+    <script src="/assets/js/quiz-score-handler.js"></script>
 </head>
 
 <body>
@@ -476,140 +478,12 @@
             }
         }
 
-        // STEP 4: Score Calculation and Persistence
-        const quizState = {
-            correctAnswers: new Set(),
-            totalQuestions: 0,
-            answered: 0,
-            submitted: false
-        };
-
-        function calculateAndSaveScore() {
-            const totalQuestions = document.querySelectorAll('.quiz-card').length;
-            const correctCount = quizState.correctAnswers.size;
-            const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
-
-            return { score, correctCount, totalQuestions };
-        }
-
-        function showScoreCard() {
-            // Remove any existing score card
-            const existingCard = document.querySelector('.quiz-score-card');
-            if (existingCard) {
-                existingCard.remove();
-            }
-
-            const { score, correctCount, totalQuestions } = calculateAndSaveScore();
-            const passed = score >= 70;
-
-            const scoreCard = document.createElement('section');
-            scoreCard.className = 'quiz-score-card palette ' + (passed ? 'success' : 'warning');
-            scoreCard.innerHTML = `
-                <h2>Quiz Complete!</h2>
-                <div class="score-display">
-                    <div class="score-number">${score}%</div>
-                    <p class="score-text">${correctCount} out of ${totalQuestions} correct</p>
-                </div>
-                <p class="score-status">${passed ? '✓ Passed! Great work!' : '✗ Keep practicing. You can do better!'}</p>
-                <p class="score-note">Your score has been saved to your progress dashboard.</p>
-            `;
-
-            // Insert after the last quiz card
-            const lastCard = document.querySelector('.quiz-card:last-of-type');
-            if (lastCard) {
-                lastCard.parentElement.insertBefore(scoreCard, lastCard.nextSibling);
-            }
-
-            // Save score to Supabase
-            if (window.isUserLoggedIn && window.isUserLoggedIn() && window.ProgressTracker) {
-                const site = window.getCurrentSite ? window.getCurrentSite() : 'science.raushansync.com';
-                const practicePath = window.normalizePath 
-                    ? window.normalizePath(window.location.pathname)
-                    : window.location.pathname;
-
-                window.ProgressTracker.savePracticeScore(site, practicePath, score).then(success => {
-                    if (success) {
-                        window.logEvent('Practice score saved', { score, practicePath });
-                    }
-                }).catch(error => {
-                    console.error('Error saving score:', error);
-                });
-            }
-
-            // Update page progress
-            if (window.isUserLoggedIn && window.isUserLoggedIn() && window.ProgressTracker) {
-                const site = window.getCurrentSite ? window.getCurrentSite() : 'science.raushansync.com';
-                const itemPath = window.getCurrentPath ? window.getCurrentPath() : window.location.pathname;
-                
-                window.ProgressTracker.markCompleted(site, itemPath, 'practice').catch(error => {
-                    console.error('Error marking practice as completed:', error);
-                });
-            }
-
-            // Scroll to score card
-            scoreCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        function createSubmitButton() {
-            const section = document.createElement('section');
-            section.style.marginTop = '2rem';
-            section.style.display = 'flex';
-            section.style.justifyContent = 'center';
-            
-            const button = document.createElement('button');
-            button.className = 'video-solution-btn';
-            button.textContent = 'Submit Quiz & See Score';
-            button.id = 'quiz-submit-btn';
-            button.addEventListener('click', () => {
-                if (!window.isUserLoggedIn || !window.isUserLoggedIn()) {
-                    alert('Please log in to save your score.');
-                    return;
-                }
-
-                if (quizState.answered === 0) {
-                    alert('Please answer at least one question before submitting.');
-                    return;
-                }
-
-                // Disable submit button
-                button.disabled = true;
-                button.textContent = 'Submitting...';
-
-                // Show score after a brief delay
-                setTimeout(() => {
-                    showScoreCard();
-                    button.textContent = 'Score Submitted!';
-                }, 500);
-            });
-
-            section.appendChild(button);
-
-            // Insert before the footer section
-            const footer = document.querySelector('.notes-watermark');
-            if (footer) {
-                footer.parentElement.insertBefore(section, footer);
-            }
-        }
-
-        document.querySelectorAll('.quiz-card').forEach((card, index) => {
+          document.querySelectorAll('.quiz-card').forEach((card, index) => {
             const button = card.querySelector('.quiz-btn:not(.discuss-ai-btn)');
             if (button) {
                 button.addEventListener('click', () => {
                     handleCheck(card);
-                    
-                    // STEP 4: Track if answer is correct
-                    const selected = getSelectedAnswers(card);
-                    const correct = getCorrectAnswers(card);
-                    const isCorrect = arraysMatch(selected, correct);
-                    
-                    if (isCorrect) {
-                        quizState.correctAnswers.add(index);
-                    } else {
-                        quizState.correctAnswers.delete(index);
-                    }
-                    
-                    quizState.answered++;
-                });
+});
             }
         });
 
@@ -627,24 +501,7 @@
                 window.initAIChat(context);
             });
         });
-
-        // STEP 4: Initialize quiz score tracking
-        document.addEventListener('DOMContentLoaded', () => {
-            quizState.totalQuestions = document.querySelectorAll('.quiz-card').length;
-            createSubmitButton();
-        });
-
-        // If DOMContentLoaded already fired
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                quizState.totalQuestions = document.querySelectorAll('.quiz-card').length;
-                createSubmitButton();
-            });
-        } else {
-            quizState.totalQuestions = document.querySelectorAll('.quiz-card').length;
-            createSubmitButton();
-        }
-    </script>
+      </script>
 
 </body>
 

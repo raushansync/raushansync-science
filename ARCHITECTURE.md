@@ -1,381 +1,81 @@
-# RaushanSYNC Science - System Architecture
+# System Architecture Document
 
-## System Overview
+This document provides a comprehensive, super-detailed overview of the technological implementation, architecture, and core logic of the platform.
 
-```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                       STUDENT'S BROWSER                          â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚                                                                   â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”         â”‚
-â”‚  â”‚  Login Page  â”‚  â”‚ Signup Page  â”‚  â”‚  Quiz Pages    â”‚         â”‚
-â”‚  â”‚ (/login.html)â”‚  â”‚(/signup.html)â”‚  â”‚  Protected âœ“   â”‚         â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜         â”‚
-â”‚         â”‚                  â”‚                    â”‚                â”‚
-â”‚         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                â”‚
-â”‚                            â†“                                      â”‚
-â”‚              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                     â”‚
-â”‚              â”‚    Dashboard Page           â”‚                     â”‚
-â”‚              â”‚ (/dashboard.html)           â”‚                     â”‚
-â”‚              â”‚  â€¢ View progress            â”‚                     â”‚
-â”‚              â”‚  â€¢ See stats                â”‚                     â”‚
-â”‚              â”‚  â€¢ Recent attempts          â”‚                     â”‚
-â”‚              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                     â”‚
-â”‚                                                                   â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚  â”‚             JavaScript Modules (Frontend)                  â”‚ â”‚
-â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤ â”‚
-â”‚  â”‚ auth-config.js            progress-tracker.js             â”‚ â”‚
-â”‚  â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€         â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€              â”‚ â”‚
-â”‚  â”‚ â€¢ Initialize Supabase     â€¢ Save quiz attempts            â”‚ â”‚
-â”‚  â”‚ â€¢ Get current user        â€¢ Get user stats                â”‚ â”‚
-â”‚  â”‚ â€¢ Manage login/logout     â€¢ Calculate accuracy            â”‚ â”‚
-â”‚  â”‚ â€¢ Check authentication    â€¢ Fetch attempt history         â”‚ â”‚
-â”‚  â”‚ â€¢ Get user profile        â€¢ Get quiz statistics           â”‚ â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â”‚                                                                   â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                              â”‚ HTTPS API Calls
-                    (Supabase JS SDK)
-                              â†“
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                    SUPABASE BACKEND (Cloud)                      â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚                                                                   â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”‚
-â”‚  â”‚  Authentication      â”‚  â”‚  PostgreSQL Database    â”‚          â”‚
-â”‚  â”‚  (Supabase Auth)     â”‚  â”‚  (Supabase Database)    â”‚          â”‚
-â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤          â”‚
-â”‚  â”‚ â€¢ Email/Password     â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚          â”‚
-â”‚  â”‚ â€¢ JWT Sessions       â”‚  â”‚ â”‚student_profiles   â”‚   â”‚          â”‚
-â”‚  â”‚ â€¢ Auth Flow Control  â”‚  â”‚ â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â”‚          â”‚
-â”‚  â”‚ â€¢ User Creation      â”‚  â”‚ â”‚id, email, name,   â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚grade, school,     â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚created_at...      â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚                         â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚quiz_attempts      â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚user_id (FK)       â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚quiz_url           â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚is_correct         â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚user_answer        â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â”‚created_at...      â”‚   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚                         â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ Row-Level Security (RLS)â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚ âœ“ Students see only     â”‚          â”‚
-â”‚  â”‚                      â”‚  â”‚   their own data       â”‚          â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â”‚
-â”‚                                                                   â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-```
+## 1. High-Level Architecture Overview
+
+The system is a static-first, highly dynamic client-side application designed for maximum performance, offline capability, and seamless user experience. 
+
+### Core Tech Stack
+- **Hosting:** GitHub Pages (Static file hosting)
+- **CDN & DNS:** Cloudflare (Edge caching, SSL, DDoS protection)
+- **Database & Auth:** Supabase (PostgreSQL, Row Level Security, Authentication)
+- **AI Services:** Groq API (High-speed inference for AI chat/responses)
+- **Frontend:** Vanilla HTML5, CSS3, JavaScript (No heavy frameworks for optimal performance)
 
 ---
 
-## Data Flow - Student Signup
+## 2. Infrastructure & Delivery
 
-```
-1. Student fills signup form
-   â†“
-2. Validates inputs (password strength, email format)
-   â†“
-3. Sends to: supabaseClient.auth.signUp({email, password})
-   â†“
-4. Supabase creates new user in auth.users
-   â†“
-5. Trigger fires: public.handle_new_user()
-   â†“
-6. Auto-creates profile in student_profiles table
-   â†“
-7. Returns success â†’ Redirect to login
-   â†“
-âœ… Student ready to login
-```
+### GitHub Pages & Cloudflare Integration
+- **GitHub Pages:** Serves as the origin server. All static assets (HTML, CSS, JS, Images) are deployed here.
+- **Cloudflare (CDN / DNS):** Sits in front of GitHub Pages. 
+  - **DNS Resolution:** Manages custom domain routing (`CNAME`).
+  - **Edge Caching:** Caches static assets at edge nodes globally, reducing latency and origin load.
+  - **Security:** Enforces strict HTTPS and provides web application firewall (WAF) rules.
 
 ---
 
-## Data Flow - Student Login
+## 3. Database & Backend (Supabase)
 
-```
-1. Student enters email + password
-   â†“
-2. Sends to: supabaseClient.auth.signInWithPassword({email, password})
-   â†“
-3. Supabase validates credentials
-   â†“
-4. If valid: Returns JWT token in session
-   â†“
-5. Browser stores JWT (automatic by Supabase SDK)
-   â†“
-6. Redirect to dashboard.html
-   â†“
-7. Dashboard loads user profile + stats using JWT
-   â†“
-âœ… Student authenticated & session active
-```
+Since the application is static-first, backend interactions are handled strictly via client-side API calls to Supabase.
+- **Authentication:** Managed via Supabase Auth (JWT tokens). Scripts like `auth-config.js` and `auth-guard.js` intercept routing to protect private routes.
+- **Data Storage:** Uses Supabase's PostgreSQL database to store user profiles, progress data, and quiz scores.
+- **Security (RLS):** Row Level Security ensures users can only read/write their own progress and data.
 
 ---
 
-## Data Flow - Quiz Attempt Saving
+## 4. AI Chat Integration (Groq API)
 
-```
-1. Student answers MCQ question
-   â†“
-2. Clicks "Check Answer"
-   â†“
-3. validateAnswer(card) checks if correct
-   â†“
-4. If correct/incorrect â†’ showFeedback()
-   â†“
-5. Call: saveAttempt(card, isCorrect)
-   â†“
-6. Extract: question text, user answer, correct answer
-   â†“
-7. Send to: ProgressTracker.saveAttempt({
-      quiz_url: ...,
-      question_number: ...,
-      user_answer: ...,
-      correct_answer: ...,
-      is_correct: true/false,
-      ...
-    })
-   â†“
-8. Backend: Inserts into quiz_attempts table
-   â†“
-9. RLS Policy checks: user_id == current_user_id
-   â†“
-10. If authorized: INSERT successful
-    â†“
-11. Browser console: âœ… "Attempt saved to your progress"
-    â†“
-âœ… Progress recorded in database
-```
+The platform features an AI assistant powered by the Groq API (handled in `ai-chat.js`).
+- **Inference Engine:** Uses Groq's high-speed inference for near-instantaneous responses.
+- **Client-Side Orchestration:** The frontend manages the prompt context, captures user input, and securely communicates with an intermediary worker (e.g., Cloudflare Worker defined in `worker.js` or `wrangler.jsonc`) to keep API keys hidden from the client, before reaching the Groq API.
 
 ---
 
-## Data Flow - Dashboard Load
+## 5. Core Feature Specifications
 
-```
-1. Student visits /dashboard.html
-   â†“
-2. JavaScript runs: window.getCurrentSession()
-   â†“
-3. Checks if JWT token exists
-   â†“
-4. If no token â†’ Redirect to /login.html
-   â†“
-5. If token exists â†’ Continue loading dashboard
-   â†“
-6. Fetch: getUserProfile() â†’ Gets student_profiles row
-   â†“
-7. Fetch: getOverallStats() â†’ Queries all quiz_attempts
-   â†“
-8. Calculate:
-   â€¢ total_attempts = COUNT(*)
-   â€¢ accuracy = COUNT(is_correct=true) / COUNT(*) * 100
-   â€¢ recent_attempts = LIMIT 10, ORDER BY created_at DESC
-   â†“
-9. Display stats in HTML:
-   â€¢ Stats cards (numbers)
-   â€¢ Profile info (text)
-   â€¢ Recent attempts (table)
-   â†“
-âœ… Dashboard fully populated
-```
+### 5.1 Dynamic Insertion of Elements
+To keep the application DRY (Don't Repeat Yourself) without a build step or framework, UI components like the Navbar, Footer, and Support CTAs are loaded dynamically.
+- **Mechanism:** The system uses the JavaScript `fetch()` API to retrieve global components from the `/components/` folder (e.g., `nav.html`, `footer.html`).
+- **DOM Injection:** Once fetched, the raw HTML is parsed and injected into placeholder `<div>` tags (e.g., `<div id="nav-placeholder"></div>`) via `innerHTML`.
+- **Event Reattachment:** After insertion, custom events and active link states are dynamically calculated based on `window.location.pathname` so the correct menu item is highlighted.
 
----
+### 5.2 Quiz Logic (`quiz-score-handler.js`)
+The quiz system is completely client-side, designed to be fault-tolerant and responsive.
+- **State Management:** Quiz state (current question, selected options, score) is kept in memory and backed up to `localStorage` to survive accidental page reloads.
+- **Rendering:** Questions and options are dynamically rendered via JavaScript templating.
+- **Validation:** When a user selects an option, the system evaluates the answer against the correct option. Immediate feedback (visual cues) is provided.
+- **Score Calculation:** Managed by `quiz-score-handler.js`. It aggregates points, calculates percentages, and determines pass/fail thresholds.
+- **Result Submission:** Upon completion, the final score payload is formatted and sent to Supabase. If the user is offline, it queues the result in `localStorage` to be synced later.
 
-## Student Access Control (Authentication)
+### 5.3 Progress Tracking (`progress-tracker.js` & `tick-manager.js`)
+Progress tracking is crucial for the learning experience, tracking chapters read, videos watched, and quizzes completed.
+- **Hybrid Storage Strategy:**
+  1. **Local State (`localStorage`):** Optimistic UI updates. When a user completes a lesson, it's instantly marked as complete locally (managed by `tick-manager.js`).
+  2. **Remote Sync (Supabase):** `progress-tracker.js` acts as an orchestrator. It listens for completion events, updates the UI, and debounces an API call to Supabase to persist the state permanently in the database.
+- **Conflict Resolution:** On login, the system pulls the master state from Supabase and overwrites/merges the local state to ensure consistency across devices.
 
-```
-NON-AUTHENTICATED REQUEST
-         â†“
-    Visit /practice/class06/.../index.html
-         â†“
-    HTML loads â†’ Script runs DOMContentLoaded
-         â†“
-    Call: window.requireAuth()
-         â†“
-    Check: Does JWT token exist?
-         â†“
-    NO JWT FOUND
-         â†“
-    Redirect: /login.html?redirect=/practice/class06/...
-         â†“
-âœ… Student forced to login first
+### 5.4 Advanced Caching & Offline Capabilities
+The app is designed as a Progressive Web App (PWA) using `service-worker.js`.
+- **Service Worker Lifecycle:**
+  - **Install Phase:** Pre-caches critical assets (core CSS, JS, `index.html`, and `offline.html`).
+  - **Activate Phase:** Cleans up stale caches from previous versions.
+- **Caching Strategies:**
+  - **Cache First, Network Fallback:** Used for static assets (images, fonts, CSS). It checks the cache first; if missing, it fetches and caches it.
+  - **Network First, Cache Fallback:** Used for HTML pages and Supabase API GET requests. It ensures the user gets the freshest data, prioritizing the network but falling back to the cache if offline.
+- **Offline Mode:** If an explicit page is not cached and the user is offline, the service worker intercepts the failed network request and serves `offline.html`.
 
-
-AUTHENTICATED REQUEST
-         â†“
-    Visit /practice/class06/.../index.html
-         â†“
-    HTML loads â†’ Script runs DOMContentLoaded
-         â†“
-    Call: window.requireAuth()
-         â†“
-    Check: Does JWT token exist?
-         â†“
-    JWT FOUND â† Automatic from Supabase after login
-         â†“
-    Continue loading page
-         â†“
-âœ… Student can access quiz
-```
-
----
-
-## Database Security - Row Level Security (RLS)
-
-```
-STUDENT 1 (User ID: uuid-101)
-    â†“
-    Query: SELECT * FROM quiz_attempts WHERE user_id = uuid-101
-    â†“
-    RLS Policy Checks:
-    "Users can view own attempts"
-      WHERE profile_id = uuid-101 AND current_user = uuid-101
-    â†“
-    MATCH âœ… â†’ Returns user's attempts
-    â†“
-    Student sees only THEIR attempts
-
-
-STUDENT 2 (User ID: uuid-202) tries to access STUDENT 1's data
-    â†“
-    Query: SELECT * FROM quiz_attempts WHERE user_id = uuid-101
-    â†“
-    RLS Policy Checks:
-    "Users can view own attempts"
-      WHERE user_id = uuid-101 AND current_user = uuid-202
-    â†“
-    NO MATCH âŒ â†’ Query blocked
-    â†“
-    Error: "Permission denied"
-    â†“
-    Student 2 CANNOT see Student 1's data
-```
-
----
-
-## File Organization
-
-```
-raushansync-science/
-â”‚
-â”œâ”€â”€ Authentication Pages
-â”‚   â”œâ”€â”€ login.html              â† Student login
-â”‚   â”œâ”€â”€ signup.html             â† Student registration
-â”‚   â””â”€â”€ dashboard.html          â† Progress view
-â”‚
-â”œâ”€â”€ Quiz Pages (Protected)
-â”‚   â”œâ”€â”€ practice/class06/...    â† Basic practice (+ auth)
-â”‚   â””â”€â”€ practice-advanced/.../  â† Advanced (+ auth)
-â”‚
-â”œâ”€â”€ JavaScript Modules
-â”‚   â””â”€â”€ assets/js/
-â”‚       â”œâ”€â”€ auth-config.js          â† Supabase init + auth utils
-â”‚       â”œâ”€â”€ progress-tracker.js     â† Attempt tracking + stats
-â”‚       â”œâ”€â”€ script.js               â† Existing theme/nav
-â”‚       â””â”€â”€ style.css               â† Existing styles
-â”‚
-â”œâ”€â”€ AI Tutor (Existing)
-â”‚   â”œâ”€â”€ ai-chat.js              â† AI modal + chat
-â”‚   â””â”€â”€ worker.js               â† Cloudflare Workers backend
-â”‚
-â””â”€â”€ Documentation
-    â”œâ”€â”€ QUICK_START.md              â† 3-step setup guide
-    â”œâ”€â”€ SUPABASE_SETUP.md           â† SQL schema
-    â”œâ”€â”€ IMPLEMENTATION_GUIDE.md     â† Full reference
-    â””â”€â”€ ARCHITECTURE.md (this file) â† System design
-```
-
----
-
-## Key Security Principles
-
-### 1. **Authentication** ðŸ”
-- Passwords hashed via bcrypt (Supabase handles)
-- JWT tokens issued after login
-- Tokens auto-managed by Supabase SDK
-- Auto-refresh before expiry
-
-### 2. **Authorization** ðŸ”’
-- Row-Level Security (RLS) policies
-- Students can only access their own data
-- Database enforces (not just frontend)
-- Multiple policy chain for defense-in-depth
-
-### 3. **Data Privacy** ðŸ›¡ï¸
-- Email verified before access (future)
-- Session validation on each request
-- No data exposed in URLs
-- HTTPS only
-
-### 4. **API Security** ðŸ”‘
-- **anon key**: Used on frontend (limited permissions)
-- **service_key**: Never exposed (for admin only)
-- CORS: Only from your domain
-- Rate limiting available (future)
-
----
-
-## Scalability
-
-### Current Capacity (Supabase Free Tier)
-
-| Metric | Limit | Status |
-|--------|-------|--------|
-| Storage | 500 MB | Safe for ~50,000 attempts |
-| API Calls | 2M/month | ~100+ attempts/sec |
-| Concurrent Connections | Unlimited | Auto-scaling |
-| Active Users | ~10,000 | Tested range |
-| Database Size | 500 MB | Sufficient |
-
-### When to Upgrade (Supabase Pro - $25/month)
-
-- Storage: 8 GB (+15 GB increments)
-- API Calls: 5M + $0.04/1M extra
-- Recommended at: 15,000+ students
-
----
-
-## Deployment Checklist
-
-```
-â–¡ Create Supabase project
-â–¡ Run SQL migrations
-â–¡ Update auth-config.js with credentials
-â–¡ Test signup
-â–¡ Test login
-â–¡ Test quiz access
-â–¡ Test progress saving
-â–¡ Test dashboard stats
-â–¡ Deploy all new files
-â–¡ Test on production domain
-â–¡ Monitor console for errors
-
-Ready to Launch! âœ…
-```
-
----
-
-## What Happens Next (Future)
-
-1. **Teachers** - Admin panel to view all student progress
-2. **Analytics** - Deep insights into learning patterns
-3. **AI Enhancements** - Personalized recommendations
-4. **Gamification** - Badges, streaks, leaderboards
-5. **Notifications** - Email progress updates
-6. **Mobile App** - Native iOS/Android (if needed)
-
----
-
-**System Designed For:**
-- âœ… First-principles science learning (Class 6-12)
-- âœ… AI-powered tutoring (Groq + Cloudflare Workers)
-- âœ… Progress tracking (Supabase PostgreSQL)
-- âœ… Offline support (Service Workers)
-- âœ… Privacy first (RLS enforcement)
-- âœ… Zero downtime (Serverless architecture)
+## 6. Security Considerations
+- **No Secrets on Client:** Groq API keys and Supabase Service Role keys are completely sequestered behind Cloudflare Workers. Only the anon-key for Supabase is exposed to the frontend.
+- **XSS Prevention:** All dynamic data inserted into the DOM (especially AI responses or user progress text) is strictly sanitized using `textContent` instead of `innerHTML` where applicable.

@@ -121,18 +121,49 @@ window.QuizScoreHandler = (() => {
 
         // Scroll to score card
         scoreCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+        return { score, correctCount, totalQuestions };
     }
 
     function createSubmitButton() {
+        if (document.getElementById('quiz-submit-btn')) return; // Prevent duplicate buttons
+
         const section = document.createElement('section');
         section.style.marginTop = '2rem';
         section.style.display = 'flex';
-        section.style.justifyContent = 'center';
+        section.style.flexDirection = 'column';
+        section.style.alignItems = 'center';
         
         const button = document.createElement('button');
         button.className = 'video-solution-btn';
         button.textContent = 'Submit Quiz & See Score';
         button.id = 'quiz-submit-btn';
+
+        const lastScoreDisplay = document.createElement('p');
+        lastScoreDisplay.id = 'quiz-last-score-display';
+        lastScoreDisplay.style.textAlign = 'center';
+        lastScoreDisplay.style.marginTop = '1rem';
+        lastScoreDisplay.style.fontWeight = 'bold';
+        lastScoreDisplay.style.display = 'none';
+        section.appendChild(button);
+        section.appendChild(lastScoreDisplay);
+
+        // Fetch and show last score
+        if (window.isUserLoggedIn && window.isUserLoggedIn() && window.ProgressTracker) {
+            const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+            const practicePath = window.normalizePath 
+                ? window.normalizePath(window.location.pathname)
+                : window.location.pathname;
+
+            window.ProgressTracker.getPracticeScore(site, practicePath).then(lastScore => {
+                if (lastScore !== null) {
+                    lastScoreDisplay.textContent = `Your Previous Score: ${lastScore}%`;
+                    lastScoreDisplay.style.display = 'block';
+                    button.textContent = 'Reattempt & Submit Again';
+                }
+            }).catch(e => console.error('Error fetching previous score', e));
+        }
+
         button.addEventListener('click', () => {
             if (!window.isUserLoggedIn || !window.isUserLoggedIn()) {
                 alert('Please log in to save your score.');
@@ -150,18 +181,23 @@ window.QuizScoreHandler = (() => {
 
             // Show score after a brief delay, then re-enable button
             setTimeout(() => {
-                showScoreCard();
-                button.textContent = 'View Score Again';
+                const { score } = showScoreCard();
+                button.textContent = 'Reattempt & Submit Again';
                 button.disabled = false;  // Re-enable for viewing score again
+                
+                // Update local display immediately
+                lastScoreDisplay.textContent = `Your Previous Score: ${score}%`;
+                lastScoreDisplay.style.display = 'block';
             }, 500);
         });
 
-        section.appendChild(button);
-
-        // Insert before the footer section
+        // Insert before the footer section or at the end of the container
         const footer = document.querySelector('.notes-watermark');
         if (footer) {
             footer.parentElement.insertBefore(section, footer);
+        } else {
+            const container = document.querySelector('.notes-container') || document.body;
+            container.appendChild(section);
         }
     }
 
@@ -171,7 +207,8 @@ window.QuizScoreHandler = (() => {
         // Track answers when quiz buttons are clicked
         document.querySelectorAll('.quiz-card').forEach((card, index) => {
             const button = card.querySelector('.quiz-btn:not(.discuss-ai-btn)');
-            if (button) {
+            if (button && !button.dataset.scoreTrackingInitialized) {
+                button.dataset.scoreTrackingInitialized = 'true';
                 // Wrap with score tracking
                 button.addEventListener('click', () => {
                     // Get answer state
