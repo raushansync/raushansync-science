@@ -498,6 +498,11 @@
             } else if (params.get("message") === "signup-success") {
                 redirectInfo.textContent = "Account created successfully! Please sign in with your credentials.";
                 redirectInfo.classList.add("show");
+            } else if (params.get("message") === "check-email") {
+                redirectInfo.textContent = "Account created! Please check your email to confirm your account before logging in.";
+                redirectInfo.style.backgroundColor = "rgba(234, 179, 8, 0.1)"; /* Yellow-ish warning background */
+                redirectInfo.style.borderLeftColor = "#eab308"; /* Yellow-ish warning border */
+                redirectInfo.classList.add("show");
             } else if (params.get("message") === "password-reset-success") {
                 redirectInfo.textContent = "Password reset successfully! You can now sign in with your new password.";
                 redirectInfo.classList.add("show");

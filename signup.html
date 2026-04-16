@@ -413,22 +413,25 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="gradeClass">Class</label>
-                                <select id="gradeClass" name="gradeClass" required>
-                                    <option value="">Select Class</option>
-                                    <option value="6">Class 6</option>
-                                    <option value="7">Class 7</option>
-                                    <option value="8">Class 8</option>
-                                    <option value="9">Class 9</option>
-                                    <option value="10">Class 10</option>
-                                    <option value="11">Class 11</option>
-                                    <option value="12">Class 12</option>
+                                <label for="educationLevel">Education Level</label>
+                                <select id="educationLevel" name="educationLevel" required>
+                                    <option value="">Select Level</option>
+                                    <option value="class 06">Class 06</option>
+                                    <option value="class 07">Class 07</option>
+                                    <option value="class 08">Class 08</option>
+                                    <option value="class 09">Class 09</option>
+                                    <option value="class 10">Class 10</option>
+                                    <option value="class 11">Class 11</option>
+                                    <option value="class 12">Class 12</option>
+                                    <option value="undergraduate">Undergraduate</option>
+                                    <option value="postgraduate">Postgraduate</option>
+                                    <option value="phd">PhD</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label for="schoolName">School</label>
-                                <input type="text" id="schoolName" name="schoolName" placeholder="Your School" required>
+                                <label for="phoneNumber">Phone Number</label>
+                                <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Phone Number" inputmode="tel">
                             </div>
                         </div>
 
@@ -464,14 +467,14 @@
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
-            const gradeClass = document.getElementById("gradeClass").value;
-            const schoolName = document.getElementById("schoolName").value.trim();
+            const educationLevel = document.getElementById("educationLevel").value;
+            const phoneNumber = document.getElementById("phoneNumber").value.trim();
             const errorDiv = document.getElementById("errorMessage");
             const loadingDiv = document.getElementById("loading");
             const signupBtn = document.getElementById("signupBtn");
 
-            if (!fullName || !email || !password || !confirmPassword || !gradeClass || !schoolName) {
-                errorDiv.textContent = "Please fill in all fields.";
+            if (!fullName || !email || !password || !confirmPassword || !educationLevel) {
+                errorDiv.textContent = "Please fill in all required fields.";
                 errorDiv.classList.add("show");
                 return;
             }
@@ -503,10 +506,11 @@
                     email,
                     password,
                     options: {
+                        emailRedirectTo: window.location.origin + '/dashboard.html',
                         data: {
                             full_name: fullName,
-                            grade_class: gradeClass,
-                            school_name: schoolName
+                            education_level: educationLevel,
+                            phone: phoneNumber
                         }
                     }
                 });
@@ -546,7 +550,7 @@
                         // Profile sync error - continue anyway as user is created
                         window.logEvent('Profile sync failed during signup', { error: syncErr });
                     }
-                    window.location.replace("/login.html?message=signup-success");
+                    window.location.replace("/login.html?message=check-email");
                 }
             } catch (err) {
                 errorDiv.textContent = "An error occurred. Please try again.";
