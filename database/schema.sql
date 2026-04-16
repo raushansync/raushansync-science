@@ -1,20 +1,13 @@
 -- ============================================================================
--- RaushanSync Science - Database Migration v2
--- Production-Ready Supabase Migration
+-- RaushanSync Science - Initial Database Schema
+-- Production-Ready Supabase Initialization
 -- 
--- Purpose: Replace old quiz/student tracking schema with minimal, scalable
---          profiles + progress + practice_scores architecture
---
--- Date: April 2026
+-- Purpose: Setup initial profiles, progress, and practice_scores architecture
+--          for the RaushanSYNC Science platform. Run this script once on a 
+--          fresh Supabase project.
 -- ============================================================================
 
--- Step 0: Safety - Drop obsolete tables if they exist (with cascade to remove data)
--- ============================================================================
-
-DROP TABLE IF EXISTS public.quiz_attempts CASCADE;
-DROP TABLE IF EXISTS public.student_profiles CASCADE;
-
--- Step 1: Create new minimal schema
+-- Step 1: Create Schema Tables
 -- ============================================================================
 
 -- 1.1 PROFILES table - User metadata only
@@ -268,16 +261,12 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.progress TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.practice_scores TO authenticated;
 
 -- ============================================================================
--- Migration complete!
+-- Database Initialization Complete!
 -- ============================================================================
 -- 
--- Summary of changes:
+-- Summary of new schema:
 -- 
--- OLD SCHEMA (removed):
---   - student_profiles (email, counters, timestamps)
---   - quiz_attempts (detailed attempt logs)
---
--- NEW SCHEMA (created):
+-- TABLES CREATED:
 --   - profiles (minimal user metadata)
 --   - progress (article/practice completion tracking)
 --   - practice_scores (quiz score storage)
