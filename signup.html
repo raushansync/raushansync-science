@@ -502,11 +502,16 @@
             errorDiv.classList.remove("show");
 
             try {
+                const redirectParam = new URLSearchParams(window.location.search).get("redirect");
+                const safeDest = redirectParam && typeof window.getSafeRedirectPath === 'function'
+                    ? window.getSafeRedirectPath(redirectParam, "/dashboard.html")
+                    : "/dashboard.html";
+                    
                 const { data, error } = await window.supabaseClient.auth.signUp({
                     email,
                     password,
                     options: {
-                        emailRedirectTo: window.location.origin + '/dashboard.html',
+                        emailRedirectTo: window.location.origin + safeDest,
                         data: {
                             full_name: fullName,
                             education_level: educationLevel,

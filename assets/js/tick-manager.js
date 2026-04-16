@@ -87,9 +87,11 @@ window.TickManager = (() => {
 
         // Check if user is logged in
         if (!window.isUserLoggedIn || !window.isUserLoggedIn()) {
-            // Show login prompt
-            if (confirm('You need to log in to save your progress. Go to login page?')) {
-                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+            // Redirect directly to login with return path using the site's redirect helper
+            if (window.redirectToLogin) {
+                window.redirectToLogin(window.location.pathname + window.location.search + window.location.hash);
+            } else {
+                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
             }
             return;
         }

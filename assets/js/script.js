@@ -280,25 +280,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 await window.whenAuthReady();
             }
 
-            // Check if user is logged in
-            if (!window.isUserLoggedIn || !window.isUserLoggedIn()) {
-                // Ticks will not be interactive for logged-out users
-                return;
-            }
-
             // Initialize tick manager for all data-tick-container elements
             if (window.TickManager && typeof window.TickManager.initializePageTicks === 'function') {
                 await window.TickManager.initializePageTicks();
             }
 
-            // Track this page view
-            if (window.ProgressTracker && typeof window.ProgressTracker.loadPageProgress === 'function') {
-                const pageProgress = await window.ProgressTracker.loadPageProgress();
-                if (pageProgress) {
-                    window.logEvent('Page progress loaded', { 
-                        completed: pageProgress.completed, 
-                        itemType: pageProgress.itemType 
-                    });
+            // Track this page view if user is logged in
+            if (window.isUserLoggedIn && window.isUserLoggedIn()) {
+                if (window.ProgressTracker && typeof window.ProgressTracker.loadPageProgress === 'function') {
+                    const pageProgress = await window.ProgressTracker.loadPageProgress();
+                    if (pageProgress) {
+                        window.logEvent('Page progress loaded', { 
+                            completed: pageProgress.completed, 
+                            itemType: pageProgress.itemType 
+                        });
+                    }
                 }
             }
         } catch (error) {

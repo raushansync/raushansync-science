@@ -44,16 +44,7 @@ const AUTH_PAGE_PATHS = new Set([
 const PROTECTED_PATH_PREFIXES = [
     AUTH_ROUTE_DASHBOARD,
     '/practice/',
-    '/practice-advanced/',
-    '/notes/',
-    '/video-lessons/',
-    '/class06/',
-    '/class07/',
-    '/class08/',
-    '/class09/',
-    '/class10/',
-    '/class11/',
-    '/class12/'
+    '/practice-advanced/'
 ];
 
 let authState = {
@@ -89,6 +80,9 @@ function matchesProtectedPath(pathname, prefix) {
 }
 
 function isProtectedPath(pathname = window.location.pathname) {
+    if (pathname.includes('/practice') && !pathname.includes('/practice-solution')) {
+        return true;
+    }
     return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(pathname, prefix));
 }
 
@@ -585,6 +579,9 @@ window.isAuthenticated = async function () {
 };
 
 window.isProtectedPath = function (pathname = window.location.pathname) {
+    if (pathname.includes('/practice') && !pathname.includes('/practice-solution')) {
+        return true;
+    }
     return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(pathname, prefix));
 };
 

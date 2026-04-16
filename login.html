@@ -398,7 +398,7 @@
                     </div>
 
                     <div class="signup-link">
-                        Don't have an account? <a href="/signup.html">Sign up here</a>
+                        Don't have an account? <a href="/signup.html" id="signup-link">Sign up here</a>
                     </div>
                 </div>
             </div>
@@ -462,7 +462,12 @@
                         // Profile sync error - continue anyway as login succeeded
                         window.logEvent('Profile sync failed during login', { error: syncErr });
                     }
-                    window.location.replace("/dashboard.html");
+
+                    if (window.redirectAuthenticatedUser) {
+                        await window.redirectAuthenticatedUser("/dashboard.html");
+                    } else {
+                        window.location.replace("/dashboard.html");
+                    }
                 }
             } catch (err) {
                 errorDiv.textContent = "An error occurred. Please try again.";
@@ -506,6 +511,13 @@
             } else if (params.get("message") === "password-reset-success") {
                 redirectInfo.textContent = "Password reset successfully! You can now sign in with your new password.";
                 redirectInfo.classList.add("show");
+            }
+            
+            if (params.get("redirect")) {
+                const signupLink = document.getElementById("signup-link");
+                if (signupLink) {
+                    signupLink.href = "/signup.html?redirect=" + encodeURIComponent(params.get("redirect"));
+                }
             }
         });
     </script>
