@@ -494,6 +494,34 @@
             return (card.dataset.reason || '').trim();
         }
 
+        function clearHighlight(card) {
+            card.querySelectorAll('.quiz-option').forEach(label => {
+                label.classList.remove('correct-option', 'incorrect-option');
+            });
+        }
+
+        function highlightCorrect(card) {
+            const correctValue = card.dataset.answer;
+            if (!correctValue) return;
+
+            const input = card.querySelector(`input[value="${correctValue}"]`);
+            if (input) {
+                const label = input.closest('label');
+                if (label) label.classList.add('correct-option');
+            }
+        }
+
+        function highlightIncorrectSelections(card, selectedValue) {
+            const correctValue = card.dataset.answer;
+            if (!selectedValue || selectedValue === correctValue) return;
+
+            const input = card.querySelector(`input[value="${selectedValue}"]`);
+            if (input) {
+                const label = input.closest('label');
+                if (label) label.classList.add('incorrect-option');
+            }
+        }
+
         function revealAIButton(card) {
             const button = card.querySelector('.discuss-ai-btn');
             if (button) {
@@ -561,11 +589,16 @@
                     return;
                 }
 
+                clearHighlight(card);
+
                 const isCorrect = selected.value === card.dataset.answer;
                 if (isCorrect) {
+                    highlightCorrect(card);
                     setFeedback(card, true, 'Correct!');
                     saveAttempt(card, true);
                 } else {
+                    highlightCorrect(card);
+                    highlightIncorrectSelections(card, selected.value);
                     const correctLabel = getCorrectLabel(card);
                     const reason = type === 'tf' ? getReason(card) : '';
                     const reasonText = reason ? ` Reason: ${reason}` : '';

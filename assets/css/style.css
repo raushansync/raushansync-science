@@ -1573,14 +1573,28 @@ main {
 }
 
 /* quiz color exp */
-.correct-option {
-    background-color: #d4edda;
+.quiz-option.correct-option {
+    background-color: #d4edda !important;
     border-left: 4px solid #28a745;
+    color: #155724 !important;
 }
 
-.incorrect-option {
-    background-color: #f8d7da;
+.quiz-option.incorrect-option {
+    background-color: #f8d7da !important;
     border-left: 4px solid #dc3545;
+    color: #721c24 !important;
+}
+
+.dark-mode .quiz-option.correct-option {
+    background-color: rgba(40, 167, 69, 0.15) !important;
+    border-left: 4px solid #28a745;
+    color: #d4edda !important;
+}
+
+.dark-mode .quiz-option.incorrect-option {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+    border-left: 4px solid #dc3545;
+    color: #f8d7da !important;
 }
 
 .quiz-feedback.correct {
