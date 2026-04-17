@@ -1,4 +1,8 @@
-[
-  // Paste the contents provided by PWABuilder here.
-  // This file is required by Google Play to prove you own the domain.
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.raushansync.science",
+        "sha256_cert_fingerprints": ["77:5D:E1:74:CA:80:99:FC:25:37:90:3D:FA:F2:79:D2:4B:A6:5F:D6:16:77:78:FD:C1:22:75:1F:E7:94:42:BF"]
+      }
+    }]
