@@ -242,7 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.documentElement.dataset.navDocClickInit !== 'true') {
             document.documentElement.dataset.navDocClickInit = 'true';
             document.addEventListener('click', (e) => {
-                if (!hamburger.contains(e.target) && !menu.contains(e.target)) {
+                const themeToggleBtn = document.getElementById('theme-toggle');
+                const clickedInsideThemeToggle = themeToggleBtn && themeToggleBtn.contains(e.target);
+
+                if (!hamburger.contains(e.target) && !menu.contains(e.target) && !clickedInsideThemeToggle) {
                     menu.classList.remove('active');
                     hamburger.classList.remove('active');
                     hamburger.setAttribute('aria-expanded', 'false');

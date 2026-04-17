@@ -135,8 +135,8 @@ window.QuizScoreHandler = (() => {
         section.style.alignItems = 'center';
         
         const button = document.createElement('button');
-        button.className = 'video-solution-btn';
-        button.textContent = 'Submit Quiz & See Score';
+        button.className = 'quiz-submit-btn-custom';
+        button.textContent = 'Submit and see score';
         button.id = 'quiz-submit-btn';
 
         const lastScoreDisplay = document.createElement('p');
