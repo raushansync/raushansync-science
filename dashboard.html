@@ -570,8 +570,8 @@
                 <div class="stats-grid">
                     <div class="stat-card accent-1">
                         <div class="stat-label">Account Status</div>
-                        <div class="stat-value" style="color: var(--primary-color);">✓</div>
-                        <div class="stat-meta">Active</div>
+                        <div class="stat-value" id="profileStatus" style="color: var(--primary-color);">✓</div>
+                        <div class="stat-meta" id="profileStatusMeta">Active</div>
                     </div>
                     <div class="stat-card accent-2">
                         <div class="stat-label">Articles Completed</div>
@@ -917,26 +917,28 @@
 
         function updateProfileStatus() {
             if (!currentUser) return;
-            const fullName = currentUser.user_metadata?.full_name || "";
+            const fullName = currentProfile?.full_name || currentUser.user_metadata?.full_name || "";        
             const email = currentUser.email || "";
-            const educationLevel = currentUser.user_metadata?.education_level || "";
+            const educationLevel = currentProfile?.education_level || currentUser.user_metadata?.education_level || "";
+            const phone = currentProfile?.phone || currentUser.user_metadata?.phone || "";
 
-            // Check if required fields are filled
-            const isComplete = Boolean(fullName && email && educationLevel);
+            // Check if all profile fields are filled
+            const isComplete = Boolean(fullName && email && educationLevel && phone);    
 
-            const statusElement = document.getElementById("profileStatus");
+            const statusElement = document.getElementById("profileStatus");     
             const statusMetaElement = document.getElementById("profileStatusMeta");
 
-            // If neither element exists on this page, nothing to update
+            // If neither element exists on this page, nothing to update        
             if (!statusElement && !statusMetaElement) return;
 
             if (statusElement) {
                 statusElement.textContent = isComplete ? "✓" : "✗";
-                statusElement.style.color = isComplete ? "#10b981" : "#ef4444";
+                statusElement.style.color = isComplete ? "#10b981" : "#ef4444"; 
             }
 
             if (statusMetaElement) {
                 statusMetaElement.textContent = isComplete ? "Complete" : "Incomplete";
+                statusMetaElement.style.color = isComplete ? "#10b981" : "#ef4444";
             }
         }
 
