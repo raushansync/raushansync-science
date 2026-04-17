@@ -63,7 +63,7 @@ window.QuizScoreHandler = (() => {
         const scoreCard = document.createElement('section');
         scoreCard.className = 'quiz-score-card palette ' + (passed ? 'success' : 'warning');
         scoreCard.innerHTML = `
-            <h2>Quiz Complete!</h2>
+            <h2>Practice Complete!</h2>
             <div class="score-display">
                 <div class="score-number">${score}%</div>
                 <p class="score-text">${correctCount} out of ${totalQuestions} correct</p>

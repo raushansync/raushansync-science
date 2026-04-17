@@ -164,7 +164,7 @@
         return blocks.join('');
     }
 
-    function addMessage(role, text, extraClass) {
+    function addMessage(role, text, extraClass, skipScroll = false) {
         if (!ui.history) return null;
 
         const message = document.createElement('div');
@@ -188,7 +188,11 @@
         }
 
         ui.history.appendChild(message);
-        scrollToBottom();
+        
+        if (!skipScroll) {
+            scrollToBottom();
+        }
+        
         return message;
     }
 
@@ -315,7 +319,7 @@
         try {
             const reply = await sendToWorker(userMessage);
             if (typingMessage) typingMessage.remove();
-            addMessage('assistant', reply);
+            addMessage('assistant', reply, null, true);
             state.history.push({ role: 'assistant', content: reply });
         } catch (error) {
             if (typingMessage) typingMessage.remove();

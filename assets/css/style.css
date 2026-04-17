@@ -1880,7 +1880,7 @@ main {
 .ai-chat-panel {
     position: relative;
     z-index: 1;
-    width: min(720px, 100%);
+    width: min(900px, 95%);
     height: min(86vh, 780px);
     border: 1px solid rgba(148, 163, 184, 0.35);
     border-radius: 1.12rem;
@@ -2550,7 +2550,7 @@ body.ai-chat-open {
     }
 
     .ai-chat-context {
-        font-size: 0.8rem;
+        display: none;
     }
 
     .discuss-ai-btn {
