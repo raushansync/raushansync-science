@@ -137,13 +137,15 @@ function buildProfilePatch(existingProfile, seed) {
         }
     } else {
         // Updating existing profile - sync all fields that differ
+        // For full_name and education_level, avoid wiping out valid data with accidental nulls
         if (seed.full_name && seed.full_name !== existingProfile.full_name) {
             patch.full_name = seed.full_name;
         }
         if (seed.education_level && seed.education_level !== existingProfile.education_level) {
             patch.education_level = seed.education_level;
         }
-        if (seed.phone && seed.phone !== existingProfile.phone) {
+        // Phone is optional and user might want to remove it, so allow syncing null
+        if (seed.phone !== existingProfile.phone) {
             patch.phone = seed.phone;
         }
     }

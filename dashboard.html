@@ -536,6 +536,72 @@
                 font-size: 0.9rem;
             }
         }
+
+        /* Palette Styles */
+        .dashboard-palette {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 1rem;
+            margin-top: 0.5rem;
+            z-index: 100;
+            animation: fadeIn 0.2s ease;
+            text-align: left;
+        }
+
+        .dashboard-palette.show {
+            display: block;
+        }
+
+        .stat-card.palette-active {
+            z-index: 100;
+        }
+
+        .palette-loading {
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            text-align: center;
+            font-style: italic;
+        }
+
+        .palette-item {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .palette-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .palette-item a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: block;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+
+        .palette-item a:hover {
+            color: var(--primary-color);
+            background-color: rgba(59, 130, 246, 0.05); /* Soft blue tint */
+        }
+
+        .palette-empty {
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -568,20 +634,29 @@
                 </div>
 
                 <div class="stats-grid">
-                    <div class="stat-card accent-1">
-                        <div class="stat-label">Account Status</div>
+                    <div class="stat-card accent-1" id="accountCard" style="cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent;" title="Click to view account status details">
+                        <div class="stat-label">Account Status ▾</div>
                         <div class="stat-value" id="profileStatus" style="color: var(--primary-color);">✓</div>
                         <div class="stat-meta" id="profileStatusMeta">Active</div>
+                        <div id="accountPalette" class="dashboard-palette">
+                            <div class="palette-item" id="accountMessage">Loading status...</div>
+                        </div>
                     </div>
-                    <div class="stat-card accent-2">
-                        <div class="stat-label">Articles Completed</div>
+                    <div class="stat-card accent-2" id="articlesCard" style="cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent;" title="Click to view recently completed articles">
+                        <div class="stat-label">Articles Completed ▾</div>
                         <div class="stat-value" id="articlesCompletedCount">0</div>
                         <div class="stat-meta" id="articlesCompletedMeta">From all chapters</div>
+                        <div id="articlesPalette" class="dashboard-palette">
+                            <div class="palette-loading">Loading recent articles...</div>
+                        </div>
                     </div>
-                    <div class="stat-card accent-3">
-                        <div class="stat-label">Practices Completed</div>
+                    <div class="stat-card accent-3" id="practicesCard" style="cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent;" title="Click to view recently completed practice">
+                        <div class="stat-label">Practice Completed ▾</div>
                         <div class="stat-value" id="practicesCompletedCount">0</div>
                         <div class="stat-meta" id="practicesCompletedMeta">Test your understanding</div>
+                        <div id="practicesPalette" class="dashboard-palette">
+                            <div class="palette-loading">Loading recent practice...</div>
+                        </div>
                     </div>
                 </div>
 
@@ -863,6 +938,92 @@
             }
         }
 
+        function formatPathToTitle(path) {
+            if (!path) return 'Unknown Item';
+            let text = path.replace(/\/index\.html$/, '').replace(/\.html$/, '').replace(/\/$/, '');
+            let parts = text.split('/').filter(p => !['notes', 'practice', 'practice-advanced', 'practice-solution'].includes(p) && p !== '');
+            if (parts.length === 0) return 'Content';
+            return parts.map(p => {
+                return p.replace(/([a-zA-Z])(\d+)/g, '$1 $2')
+                    .replace(/-/g, ' ')
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }).join(' - ');
+        }
+
+        async function fetchRecentProgress(itemType, limit = 3) {
+            if (!window.supabaseClient || !currentUser) return [];
+            try {
+                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+                const { data, error } = await window.supabaseClient
+                    .from('progress')
+                    .select('item_path, updated_at')
+                    .eq('user_id', currentUser.id)
+                    .eq('site', site)
+                    .eq('item_type', itemType)
+                    .eq('completed', true)
+                    .order('updated_at', { ascending: false })
+                    .limit(limit);
+
+                if (error) throw error;
+                return data || [];
+            } catch (err) {
+                console.error("Error fetching recent " + itemType + ":", err);
+                return [];
+            }
+        }
+        
+        function setupProgressPalettes() {
+            const setups = [
+                { cardId: 'accountCard', paletteId: 'accountPalette', type: 'account' },
+                { cardId: 'articlesCard', paletteId: 'articlesPalette', type: 'article' },
+                { cardId: 'practicesCard', paletteId: 'practicesPalette', type: 'practice' }
+            ];
+
+            setups.forEach(setup => {
+                const card = document.getElementById(setup.cardId);
+                const palette = document.getElementById(setup.paletteId);
+                if (!card || !palette) return;
+
+                let loaded = false;
+
+                card.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const isShowing = palette.classList.contains('show');
+
+                    // Close all palettes and remove active states
+                    document.querySelectorAll('.dashboard-palette.show').forEach(p => p.classList.remove('show'));
+                    document.querySelectorAll('.stat-card.palette-active').forEach(c => c.classList.remove('palette-active'));
+
+                    if (isShowing) return;
+
+                    palette.classList.add('show');
+                    card.classList.add('palette-active');
+
+                    if (!loaded && setup.type !== 'account') {
+                        const items = await fetchRecentProgress(setup.type);
+                        if (items.length === 0) {
+                            palette.innerHTML = '<div class="palette-empty">No recent activity.</div>';
+                        } else {
+                            palette.innerHTML = items.map(item => {
+                                const title = formatPathToTitle(item.item_path);
+                                return `<div class="palette-item"><a href="${item.item_path}">${title}</a></div>`;
+                            }).join('');
+                        }
+                        loaded = true;
+                    }
+                });
+
+                palette.addEventListener('click', e => e.stopPropagation());
+            });
+
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.dashboard-palette.show').forEach(p => p.classList.remove('show'));
+                document.querySelectorAll('.stat-card.palette-active').forEach(c => c.classList.remove('palette-active'));
+            });
+        }
+
         async function initializeDashboard() {
             if (!window.supabaseClient) {
                 showError("Authentication is unavailable. Please check Supabase configuration.");
@@ -902,6 +1063,9 @@
                 // Load and display progress stats
                 await loadProgressStats();
                 
+                // Initialize palettes for completed articles and practices
+                setupProgressPalettes();
+                
                 // Update profile status
                 updateProfileStatus();
                 
@@ -939,6 +1103,15 @@
             if (statusMetaElement) {
                 statusMetaElement.textContent = isComplete ? "Complete" : "Incomplete";
                 statusMetaElement.style.color = isComplete ? "#10b981" : "#ef4444";
+            }
+            
+            const accountMessage = document.getElementById("accountMessage");
+            if (accountMessage) {
+                if (isComplete) {
+                    accountMessage.innerHTML = '<span style="color: #10b981; font-weight: 500;">No action needed! Your profile is complete.</span>';
+                } else {
+                    accountMessage.innerHTML = '<span style="color: #ef4444; font-weight: 500;">Your profile is incomplete. Click "Edit Profile" below to complete it.</span>';
+                }
             }
         }
 
