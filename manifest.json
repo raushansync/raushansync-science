@@ -5,11 +5,14 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait-primary",
   "lang": "en",
+  "dir": "ltr",
   "background_color": "#111827",
   "theme_color": "#3b82f6",
   "description": "RaushanSYNC Science provides NCERT-aligned science learning through guided video lessons, concept notes, and structured practice built from first principles to develop conceptual clarity, curiosity, and scientific thinking.",
+  "categories": ["education", "science"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
