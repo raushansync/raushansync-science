@@ -1,5 +1,5 @@
 ﻿/* RaushanSYNC Learning Platform PWA Service Worker */
-const CACHE_VERSION = 'app-v1.0.21';  // Generic version for cross-site use
+const CACHE_VERSION = 'app-v1.0.22';  // Generic version for cross-site use
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline.html';
@@ -37,23 +37,23 @@ const CORE_ASSETS = [
   '/video-lessons/class06/chapter01-the-wonderful-world-of-science/index.html',
   '/notes/class07/chapter01-nutrition-in-plants/',
   '/notes/class07/chapter01-nutrition-in-plants/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/congratulations.html',
+  '/notes/class07/chapter01-nutrition-in-plants/congratulations/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/practice1.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/practice1/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/practice2.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/practice2/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/practice3.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/practice3/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/practice4.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/practice4/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/practice5.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/practice5/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/practice6.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/practice6/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/practice7.html',
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/practice7/',
   '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/practice8.html'
+  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/practice8/'
 ];
 
 self.addEventListener('install', (event) => {
