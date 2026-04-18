@@ -227,7 +227,6 @@ body {
   width: 24px;
   height: 24px;
   display: block;
-  vertical-align: middle;
 }
 
 .theme-toggle-btn .icon-moon {
@@ -1875,6 +1874,7 @@ main {
         radial-gradient(45% 45% at 50% 96%, var(--ai-chat-aurora-3), transparent 72%),
         var(--ai-chat-overlay);
     backdrop-filter: blur(9px) saturate(1.12);
+    will-change: opacity;
     animation: ai-chat-overlay-in 320ms ease both;
 }
 
@@ -1891,6 +1891,8 @@ main {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transform-origin: top center;
+    will-change: transform, opacity;
     animation: ai-chat-panel-in 460ms cubic-bezier(0.18, 0.82, 0.24, 1) both;
 }
 
@@ -1945,6 +1947,25 @@ main {
     font-weight: 700;
     letter-spacing: 0.2px;
     color: var(--ai-chat-text);
+}
+
+.ai-chat-header-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.ai-chat-subtitle {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--ai-chat-muted);
+    max-width: 58ch;
+}
+
+.ai-chat-subtitle[hidden] {
+    display: none !important;
 }
 
 .ai-chat-close {

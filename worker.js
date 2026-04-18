@@ -13,6 +13,9 @@ const GROQ_MODELS = {
     longContext: 'qwen/qwen3-32b'
 };
 
+const MODE_QUIZ_ASSISTANT = 'quiz-assistant';
+const MODE_STUDENT_SUPPORT = 'student-support';
+
 const DEFAULT_GROQ_MODEL = GROQ_MODELS.fast;
 const FALLBACK_GROQ_MODEL = GROQ_MODELS.longContext;
 
@@ -57,6 +60,7 @@ function cleanText(value, fallback) {
 
 function inferLearnerLevel(context) {
     const combinedText = [
+        cleanText(context?.practiceTitle, ''),
         cleanText(context?.quizTitle, ''),
         cleanText(context?.questionText, ''),
         cleanText(context?.pageUrl, '')
@@ -115,6 +119,15 @@ function chooseGroqModel(requestedModel) {
     return allowedModels.has(selected) ? selected : DEFAULT_GROQ_MODEL;
 }
 
+function normalizeAssistantMode(mode) {
+    const selected = cleanText(mode, '').toLowerCase();
+    if (selected === MODE_STUDENT_SUPPORT) {
+        return MODE_STUDENT_SUPPORT;
+    }
+
+    return MODE_QUIZ_ASSISTANT;
+}
+
 async function requestGroqChatCompletion(env, model, messages) {
     const upstreamResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -167,32 +180,47 @@ export default {
         const message = cleanText(body?.message, '');
         const context = body?.context && typeof body.context === 'object' ? body.context : {};
         const history = normalizeHistory(body?.history);
-        const learnerLevel = inferLearnerLevel(context);
         const requestedModel = chooseGroqModel(body?.model);
+        const assistantMode = normalizeAssistantMode(body?.mode);
+        const learnerLevel = assistantMode === MODE_QUIZ_ASSISTANT
+            ? inferLearnerLevel(context)
+            : '';
 
         if (!message) {
             return jsonResponse({ error: 'Message is required' }, 400, origin);
         }
 
-        const tutorSystemPrompt = [
-            'You are a supportive school science tutor.',
-            'Target learner level: ' + learnerLevel + '.',
-            'Adapt explanation depth, vocabulary, and examples to this learner level.',
-            'Explain concepts clearly, step-by-step, using simple language.',
-            'Keep the tone encouraging and never shame mistakes.',
-            'Focus only on the provided quiz question context and related science concept.',
-            'If the student is wrong, explain why and how to reason correctly.',
-            'Use short paragraphs and optional bullet points for clarity.',
-            'Use Markdown for formatting: **bold**, *italic*, and - or 1. lists. Do not output raw HTML.',
-            'Do not ask the student for clarification or additional details.',
-            'Do not ask follow-up questions unless the student explicitly requests a quiz question.',
-            'Infer missing details from the provided context and give the best direct answer in one response.',
-            'If something is unclear, state one brief assumption and continue with the explanation.'
-        ].join('\n');
+        const tutorSystemPrompt = assistantMode === MODE_STUDENT_SUPPORT
+            ? [
+                'You are RaushanSYNC AI, a smart, friendly, professional student assistant. Help students solve academic and non-academic issues with clear, practical, supportive answers.',
+                'You can support students with: academic doubts, study planning, exam preparation, career guidance, motivation, time management, college issues, personal productivity, and general student support.',
+                'Be empathetic, action-oriented, and specific.',
+                'Give clear steps, practical examples, and concise checklists when useful.',
+                'If details are missing, make one reasonable assumption and proceed with a helpful answer.',
+                'Use Markdown for formatting: **bold**, *italic*, and - or 1. lists. Do not output raw HTML.',
+                'When handling broad student concerns, prioritize practical plans and supportive guidance that can be applied immediately.'
+            ].join('\n')
+            : [
+                'You are RaushanSYNC AI, a smart, friendly, professional student assistant.',
+                'Target learner level: ' + learnerLevel + '.',
+                'You are in quiz-assistant mode for science learning support.',
+                'Adapt explanation depth, vocabulary, and examples to this learner level.',
+                'Explain concepts clearly, step-by-step, using simple language.',
+                'Keep the tone encouraging and never shame mistakes.',
+                'Focus only on the provided quiz question context and related science concept.',
+                'If the student is wrong, explain why and how to reason correctly.',
+                'Use short paragraphs and optional bullet points for clarity.',
+                'Use Markdown for formatting: **bold**, *italic*, and - or 1. lists. Do not output raw HTML.',
+                'Do not ask the student for clarification or additional details.',
+                'Do not ask follow-up questions unless the student explicitly requests a quiz question.',
+                'Infer missing details from the provided context and give the best direct answer in one response.',
+                'If something is unclear, state one brief assumption and continue with the explanation.'
+            ].join('\n');
 
         const contextPrompt = [
-            'Quiz context:',
-            'Topic: ' + cleanText(context.quizTitle, 'Unknown topic'),
+            'Student context:',
+            'Mode: ' + assistantMode,
+            'Topic: ' + cleanText(context.practiceTitle || context.quizTitle, 'Unknown topic'),
             'Question: ' + cleanText(context.questionText, 'Not provided'),
             'Student answer: ' + cleanText(context.userAnswer, 'Not provided'),
             'Correct answer: ' + cleanText(context.correctAnswer, 'Not provided'),

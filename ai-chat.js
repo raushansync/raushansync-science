@@ -1,11 +1,26 @@
 (function () {
     const WORKER_URL = 'https://quiz-ai-tutor.raushanguptaicloud.workers.dev/';
     const SUPPORTED_ORIGIN_PATTERN = /^https?:\/\/(localhost|127\.0\.0\.1|.*\.raushansync\.com)(:\d+)?$/;
+    const MODE_QUIZ_ASSISTANT = 'quiz-assistant';
+    const MODE_STUDENT_SUPPORT = 'student-support';
+    const DEFAULT_CHAT_CONFIG = {
+        mode: MODE_QUIZ_ASSISTANT,
+        title: 'Ask AI Tutor',
+        subtitle: '',
+        assistantGreeting: [
+            'I can help you understand this question step-by-step.',
+            'Ask me what confused you, or ask for a simpler explanation and an example.'
+        ].join(' '),
+        inputLabel: 'Ask a follow-up',
+        inputPlaceholder: 'Ask why this answer is correct, request a hint, or ask for an example...',
+        showContext: true
+    };
 
     const state = {
         context: {},
         history: [],
-        isSending: false
+        isSending: false,
+        config: { ...DEFAULT_CHAT_CONFIG }
     };
 
     const ui = {};
@@ -26,6 +41,30 @@
             correctAnswer: getText(ctx.correctAnswer, 'Correct answer unavailable'),
             explanation: getText(ctx.explanation, 'No explanation available'),
             pageUrl: getText(ctx.pageUrl, window.location.href)
+        };
+    }
+
+    function normalizeMode(mode) {
+        const normalized = getText(mode, '').toLowerCase();
+        if (normalized === MODE_STUDENT_SUPPORT) {
+            return MODE_STUDENT_SUPPORT;
+        }
+
+        return MODE_QUIZ_ASSISTANT;
+    }
+
+    function sanitizeConfig(config) {
+        const safeConfig = config && typeof config === 'object' ? config : {};
+        return {
+            mode: normalizeMode(safeConfig.mode),
+            title: getText(safeConfig.title, DEFAULT_CHAT_CONFIG.title),
+            subtitle: getText(safeConfig.subtitle, DEFAULT_CHAT_CONFIG.subtitle),
+            assistantGreeting: getText(safeConfig.assistantGreeting, DEFAULT_CHAT_CONFIG.assistantGreeting),
+            inputLabel: getText(safeConfig.inputLabel, DEFAULT_CHAT_CONFIG.inputLabel),
+            inputPlaceholder: getText(safeConfig.inputPlaceholder, DEFAULT_CHAT_CONFIG.inputPlaceholder),
+            showContext: typeof safeConfig.showContext === 'boolean'
+                ? safeConfig.showContext
+                : DEFAULT_CHAT_CONFIG.showContext
         };
     }
 
@@ -222,6 +261,14 @@
     function renderContext() {
         if (!ui.context) return;
 
+        if (!state.config.showContext) {
+            ui.context.hidden = true;
+            ui.context.textContent = '';
+            return;
+        }
+
+        ui.context.hidden = false;
+
         const contextLine = [
             'Topic: ' + state.context.practiceTitle,
             'Question: ' + state.context.questionText,
@@ -232,11 +279,32 @@
         ui.context.textContent = contextLine;
     }
 
+    function applyConfigToUI() {
+        if (ui.title) {
+            ui.title.textContent = state.config.title;
+        }
+
+        if (ui.subtitle) {
+            if (state.config.subtitle) {
+                ui.subtitle.hidden = false;
+                ui.subtitle.textContent = state.config.subtitle;
+            } else {
+                ui.subtitle.hidden = true;
+                ui.subtitle.textContent = '';
+            }
+        }
+
+        if (ui.inputLabel) {
+            ui.inputLabel.textContent = state.config.inputLabel;
+        }
+
+        if (ui.input) {
+            ui.input.placeholder = state.config.inputPlaceholder;
+        }
+    }
+
     function addTutorGreeting() {
-        const text = [
-            'I can help you understand this question step-by-step.',
-            'Ask me what confused you, or ask for a simpler explanation and an example.'
-        ].join(' ');
+        const text = state.config.assistantGreeting || DEFAULT_CHAT_CONFIG.assistantGreeting;
         addMessage('assistant', text);
     }
 
@@ -252,7 +320,8 @@
         const payload = {
             message: userMessage,
             context: state.context,
-            history: state.history.slice(-10)
+            history: state.history.slice(-10),
+            mode: state.config.mode
         };
 
         let response;
@@ -346,6 +415,9 @@
         ui.send = document.getElementById('ai-chat-send');
         ui.close = document.getElementById('ai-chat-close');
         ui.overlay = document.querySelector('[data-ai-chat-close]');
+        ui.title = document.getElementById('ai-chat-title');
+        ui.subtitle = document.getElementById('ai-chat-subtitle');
+        ui.inputLabel = document.querySelector('.ai-chat-label');
 
         if (!ui.modal || !ui.form || !ui.input) return;
 
@@ -362,14 +434,16 @@
         isBound = true;
     }
 
-    window.initAIChat = function initAIChat(context) {
+    window.initAIChat = function initAIChat(context, config) {
         bindUI();
         if (!ui.modal || !ui.history) return;
 
         state.context = sanitizeContext(context);
+        state.config = sanitizeConfig(config);
         state.history = [];
 
         ui.history.innerHTML = '';
+        applyConfigToUI();
         renderContext();
         addTutorGreeting();
         openModal();

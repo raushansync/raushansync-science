@@ -242,15 +242,15 @@
     </main>
 
 
-        <div id="ai-chat-modal" class="ai-chat-modal" hidden aria-hidden="true" role="dialog" aria-modal="true"
+    <div id="ai-chat-modal" class="ai-chat-modal" hidden aria-hidden="true" role="dialog" aria-modal="true"
         aria-labelledby="ai-chat-title">
         <div class="ai-chat-overlay" data-ai-chat-close></div>
         <section class="ai-chat-panel">
             <header class="ai-chat-header">
                 <h2 id="ai-chat-title">Ask AI Tutor</h2>
-                <button id="ai-chat-close" class="ai-chat-close" type="button" aria-label="Close AI chat">—</button>
-            </header>
                 <button id="ai-chat-close" class="ai-chat-close" type="button" aria-label="Close AI chat">&times;</button>
+            </header>
+            <div id="ai-chat-context" class="ai-chat-context" aria-live="polite"></div>
             <div id="ai-chat-history" class="ai-chat-history" aria-live="polite"></div>
             <form id="ai-chat-form" class="ai-chat-input-row">
                 <label for="ai-chat-input" class="ai-chat-label">Ask a follow-up</label>
