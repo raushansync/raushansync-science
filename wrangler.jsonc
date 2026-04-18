@@ -3,6 +3,10 @@
   "name": "quiz-ai-tutor",
   "main": "worker.js",
   "compatibility_date": "2026-04-15",
+  "vars": {
+    "SUPABASE_URL": "https://vqchjavjcfrewulqpjcl.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxY2hqYXZqY2ZyZXd1bHFwamNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjgxMTEsImV4cCI6MjA5MTg0NDExMX0.g_yEVDMl-jiOow8KcOcCyVWCdzVq1yDoGPrmRdEy_4M"
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,

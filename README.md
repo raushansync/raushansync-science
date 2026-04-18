@@ -56,6 +56,13 @@ For the AI feature, configure your **Groq API key** inside the Cloudflare Worker
 wrangler secret put GROQ_API_KEY
 ```
 
+The Worker now validates Supabase access tokens before processing AI requests.
+Set these Wrangler vars (or keep them in `wrangler.jsonc`) so auth verification works:
+```bash
+wrangler secret put SUPABASE_URL
+wrangler secret put SUPABASE_ANON_KEY
+```
+
 ## 🗄️ Database Schema
 
 The core Supabase schema (for Auth, Profiles, and Progress parsing) relies on standard Supabase Authentication and RLS (Row Level Security). Ensure your policies permit `SELECT`, `INSERT`, and `UPDATE` only where `auth.uid() = user_id`.

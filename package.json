@@ -1,0 +1,25 @@
+{
+  "name": "raushansync-science",
+  "version": "1.0.0",
+  "description": "Welcome to the **RaushanSYNC Science** platform — a high-performance, static-first web application built for educational purposes. It delivers an offline-capable, highly dynamic student experience using vanilla technologies and serverless edges.",
+  "main": "ai-chat.js",
+  "scripts": {
+    "smoke": "node --check ai-chat.js && node --check service-worker.js && node scripts/validate-core-assets.mjs",
+    "test": "npm run smoke"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raushansync/raushansync-physics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/raushansync/raushansync-physics/issues"
+  },
+  "homepage": "https://github.com/raushansync/raushansync-physics#readme",
+  "devDependencies": {
+    "wrangler": "^4.83.0"
+  }
+}

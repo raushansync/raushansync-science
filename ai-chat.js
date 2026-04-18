@@ -86,6 +86,33 @@
         return origin;
     }
 
+    async function getWorkerAccessToken() {
+        try {
+            if (typeof window.getCurrentSession === 'function') {
+                const session = await window.getCurrentSession();
+                if (session && typeof session.access_token === 'string' && session.access_token.trim()) {
+                    return session.access_token.trim();
+                }
+            }
+
+            if (
+                window.supabaseClient &&
+                window.supabaseClient.auth &&
+                typeof window.supabaseClient.auth.getSession === 'function'
+            ) {
+                const sessionResult = await window.supabaseClient.auth.getSession();
+                const accessToken = sessionResult?.data?.session?.access_token;
+                if (typeof accessToken === 'string' && accessToken.trim()) {
+                    return accessToken.trim();
+                }
+            }
+        } catch (error) {
+            return '';
+        }
+
+        return '';
+    }
+
     function scrollToBottom() {
         if (!ui.history) return;
         ui.history.scrollTop = ui.history.scrollHeight;
@@ -317,6 +344,11 @@
             );
         }
 
+        const accessToken = await getWorkerAccessToken();
+        if (!accessToken) {
+            throw new Error('Please sign in to use the AI assistant.');
+        }
+
         const payload = {
             message: userMessage,
             context: state.context,
@@ -328,7 +360,10 @@
         try {
             response = await fetch(WORKER_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + accessToken
+                },
                 body: JSON.stringify(payload)
             });
         } catch (error) {

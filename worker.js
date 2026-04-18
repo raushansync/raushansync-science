@@ -18,6 +18,9 @@ const MODE_STUDENT_SUPPORT = 'student-support';
 
 const DEFAULT_GROQ_MODEL = GROQ_MODELS.fast;
 const FALLBACK_GROQ_MODEL = GROQ_MODELS.longContext;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 20;
+const RATE_LIMIT_STORE = new Map();
 
 function isAllowedOrigin(origin) {
     if (typeof origin !== 'string') return false;
@@ -36,18 +39,19 @@ function buildCorsHeaders(origin) {
     return {
         'Access-Control-Allow-Origin': allowOrigin,
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Max-Age': '86400',
         'Vary': 'Origin'
     };
 }
 
-function jsonResponse(data, status, origin) {
+function jsonResponse(data, status, origin, extraHeaders = {}) {
     return new Response(JSON.stringify(data), {
         status: status,
         headers: {
             'Content-Type': 'application/json; charset=utf-8',
-            ...buildCorsHeaders(origin)
+            ...buildCorsHeaders(origin),
+            ...extraHeaders
         }
     });
 }
@@ -56,6 +60,133 @@ function cleanText(value, fallback) {
     if (typeof value !== 'string') return fallback;
     const trimmed = value.trim();
     return trimmed.length ? trimmed : fallback;
+}
+
+function extractBearerToken(authorizationHeader) {
+    if (typeof authorizationHeader !== 'string') return '';
+    const match = authorizationHeader.match(/^Bearer\s+(.+)$/i);
+    if (!match) return '';
+    return cleanText(match[1], '');
+}
+
+function resolveClientAddress(request) {
+    const cfIp = cleanText(request.headers.get('CF-Connecting-IP') || '', '');
+    if (cfIp) return cfIp;
+
+    const xForwardedFor = cleanText(request.headers.get('X-Forwarded-For') || '', '');
+    if (!xForwardedFor) return 'unknown';
+
+    return cleanText(xForwardedFor.split(',')[0] || '', 'unknown');
+}
+
+function enforceRateLimit(bucketKey) {
+    const now = Date.now();
+
+    for (const [key, value] of RATE_LIMIT_STORE.entries()) {
+        if (!value || now - value.windowStartedAt > RATE_LIMIT_WINDOW_MS) {
+            RATE_LIMIT_STORE.delete(key);
+        }
+    }
+
+    const existing = RATE_LIMIT_STORE.get(bucketKey);
+    if (!existing) {
+        RATE_LIMIT_STORE.set(bucketKey, {
+            count: 1,
+            windowStartedAt: now
+        });
+        return { limited: false, retryAfterSeconds: 0 };
+    }
+
+    if (now - existing.windowStartedAt > RATE_LIMIT_WINDOW_MS) {
+        RATE_LIMIT_STORE.set(bucketKey, {
+            count: 1,
+            windowStartedAt: now
+        });
+        return { limited: false, retryAfterSeconds: 0 };
+    }
+
+    if (existing.count >= RATE_LIMIT_MAX_REQUESTS) {
+        const retryAfterSeconds = Math.max(
+            1,
+            Math.ceil((RATE_LIMIT_WINDOW_MS - (now - existing.windowStartedAt)) / 1000)
+        );
+
+        return {
+            limited: true,
+            retryAfterSeconds: retryAfterSeconds
+        };
+    }
+
+    existing.count += 1;
+    RATE_LIMIT_STORE.set(bucketKey, existing);
+
+    return { limited: false, retryAfterSeconds: 0 };
+}
+
+async function verifySupabaseAccessToken(env, token) {
+    const supabaseUrl = cleanText(env.SUPABASE_URL, '');
+    const supabaseAnonKey = cleanText(env.SUPABASE_ANON_KEY, '');
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        return {
+            ok: false,
+            reason: 'misconfigured',
+            userId: ''
+        };
+    }
+
+    let endpoint;
+    try {
+        endpoint = new URL('/auth/v1/user', supabaseUrl).toString();
+    } catch (error) {
+        return {
+            ok: false,
+            reason: 'misconfigured',
+            userId: ''
+        };
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'apikey': supabaseAnonKey
+            }
+        });
+
+        if (!response.ok) {
+            return {
+                ok: false,
+                reason: 'unauthorized',
+                userId: ''
+            };
+        }
+
+        const text = await response.text();
+        const data = tryParseJson(text) || {};
+        const userId = cleanText(data?.id, '');
+
+        if (!userId) {
+            return {
+                ok: false,
+                reason: 'unauthorized',
+                userId: ''
+            };
+        }
+
+        return {
+            ok: true,
+            reason: '',
+            userId: userId
+        };
+    } catch (error) {
+        return {
+            ok: false,
+            reason: 'unavailable',
+            userId: ''
+        };
+    }
 }
 
 function inferLearnerLevel(context) {
@@ -152,6 +283,10 @@ export default {
         const origin = request.headers.get('Origin');
 
         if (request.method === 'OPTIONS') {
+            if (!origin || !isAllowedOrigin(origin)) {
+                return jsonResponse({ error: 'Forbidden' }, 403, origin);
+            }
+
             return new Response(null, {
                 status: 204,
                 headers: buildCorsHeaders(origin)
@@ -162,12 +297,52 @@ export default {
             return jsonResponse({ error: 'Method not allowed' }, 405, origin);
         }
 
-        if (origin && !isAllowedOrigin(origin)) {
-            return jsonResponse({ error: 'Origin not allowed' }, 403, origin);
+        if (!origin || !isAllowedOrigin(origin)) {
+            return jsonResponse({ error: 'Forbidden' }, 403, origin);
         }
 
-        if (!env.GROQ_API_KEY) {
-            return jsonResponse({ error: 'Missing GROQ_API_KEY in Worker environment' }, 500, origin);
+        if (!env.GROQ_API_KEY || !env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+            return jsonResponse({ error: 'Service unavailable' }, 503, origin);
+        }
+
+        const bearerToken = extractBearerToken(request.headers.get('Authorization'));
+        if (!bearerToken) {
+            return jsonResponse(
+                { error: 'Unauthorized' },
+                401,
+                origin,
+                { 'WWW-Authenticate': 'Bearer realm="quiz-ai-tutor"' }
+            );
+        }
+
+        const authResult = await verifySupabaseAccessToken(env, bearerToken);
+        if (!authResult.ok) {
+            if (authResult.reason === 'misconfigured') {
+                return jsonResponse({ error: 'Service unavailable' }, 503, origin);
+            }
+
+            if (authResult.reason === 'unavailable') {
+                return jsonResponse({ error: 'Authentication service unavailable' }, 503, origin);
+            }
+
+            return jsonResponse(
+                { error: 'Unauthorized' },
+                401,
+                origin,
+                { 'WWW-Authenticate': 'Bearer realm="quiz-ai-tutor"' }
+            );
+        }
+
+        const clientAddress = resolveClientAddress(request);
+        const rateLimitBucket = `${authResult.userId}:${clientAddress}`;
+        const rateLimitStatus = enforceRateLimit(rateLimitBucket);
+        if (rateLimitStatus.limited) {
+            return jsonResponse(
+                { error: 'Too many requests. Please wait and try again.' },
+                429,
+                origin,
+                { 'Retry-After': String(rateLimitStatus.retryAfterSeconds) }
+            );
         }
 
         let body;
@@ -240,10 +415,6 @@ export default {
             modelsToTry.push(FALLBACK_GROQ_MODEL);
         }
 
-        let lastErrorDetail = 'Groq returned a non-success status.';
-        let lastUpstreamStatus = 502;
-        let lastModel = requestedModel;
-
         for (let index = 0; index < modelsToTry.length; index += 1) {
             const model = modelsToTry[index];
             const canFallback = index === 0 && modelsToTry.length > 1;
@@ -252,19 +423,17 @@ export default {
             try {
                 const result = await requestGroqChatCompletion(env, model, messages);
                 upstreamResponse = result.upstreamResponse;
-                lastUpstreamStatus = upstreamResponse.status;
-                lastModel = model;
 
                 const rawUpstreamText = result.rawUpstreamText;
 
                 if (!upstreamResponse.ok) {
                     const detail = rawUpstreamText.trim() || 'Groq returned a non-success status.';
-                    lastErrorDetail = 'Groq API error: ' + detail;
 
                     console.error('[groq] request failed', {
                         model: model,
                         status: upstreamResponse.status,
-                        body: detail.slice(0, 500)
+                        body: detail.slice(0, 500),
+                        userId: authResult.userId
                     });
 
                     if (canFallback && upstreamResponse.status === 429) {
@@ -276,12 +445,8 @@ export default {
                     }
 
                     return jsonResponse({
-                        error: 'Groq request failed',
-                        detail: lastErrorDetail,
-                        upstreamStatus: upstreamResponse.status,
-                        model: model,
-                        provider: 'Groq'
-                    }, upstreamResponse.status, origin);
+                        error: 'AI service unavailable. Please try again shortly.'
+                    }, 502, origin);
                 }
 
                 const data = tryParseJson(rawUpstreamText) || {};
@@ -290,7 +455,8 @@ export default {
                 console.log('[groq] request succeeded', {
                     model: model,
                     status: upstreamResponse.status,
-                    usedFallback: index > 0
+                    usedFallback: index > 0,
+                    userId: authResult.userId
                 });
 
                 return jsonResponse({
@@ -300,31 +466,21 @@ export default {
                 }, 200, origin);
             } catch (error) {
                 const detail = error instanceof Error ? error.message : 'Failed to reach Groq API';
-                lastErrorDetail = detail;
-                lastUpstreamStatus = 502;
-                lastModel = model;
 
                 console.error('[groq] network failure', {
                     model: model,
-                    message: detail
+                    message: detail,
+                    userId: authResult.userId
                 });
 
                 return jsonResponse({
-                    error: 'Groq request failed',
-                    detail: detail,
-                    upstreamStatus: 502,
-                    model: model,
-                    provider: 'Groq'
+                    error: 'AI service unavailable. Please try again shortly.'
                 }, 502, origin);
             }
         }
 
         return jsonResponse({
-            error: 'Groq request failed',
-            detail: lastErrorDetail,
-            upstreamStatus: lastUpstreamStatus,
-            model: lastModel,
-            provider: 'Groq'
-        }, lastUpstreamStatus, origin);
+            error: 'AI service unavailable. Please try again shortly.'
+        }, 502, origin);
     }
 };

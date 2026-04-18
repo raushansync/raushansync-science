@@ -31,3 +31,7 @@ yarn-error.log*
 
 # Yarn Integrity file
 .yarn-integrity
+
+# Local dependencies and Cloudflare build state
+node_modules/
+.wrangler/
