@@ -18,9 +18,14 @@ Welcome to the **RaushanSYNC Science** platform — a high-performance, static-f
 - **Edge Functions**: Cloudflare Workers (for wrapping AI/LLM API calls securely)
 - **Hosting & CDN**: GitHub Pages + Cloudflare Edge
 
+## 🌐 Production
+
+- **Website**: https://science.raushansync.com
+- **AI Worker**: https://quiz-ai-tutor.raushanguptaicloud.workers.dev/
+
 ## 📖 Architecture
 
-For a detailed breakdown of how the various components interact (Client-side routing, Dynamic component injection, Service Worker caching strategies, and Supabase integrations), please see our [ARCHITECTURE.md](./ARCHITECTURE.md).
+For the complete technical design, data flow contracts, security boundaries, and deployment runbook, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## 🚀 Quick Start / Local Development
 
@@ -43,25 +48,29 @@ python -m http.server 8000
 ### 3. **Cloudflare Worker (AI Chat):**
 If you need to test the Groq AI integration locally, use Wrangler:
 ```bash
-npm install -g wrangler
-wrangler dev
+npm install
+npx wrangler dev
+```
+
+Run smoke checks before deploy:
+```bash
+npm test
 ```
 
 ## 🔒 Environment Configuration
 
-To set up the Supabase connection, modify `assets/js/auth-config.js` with your specific **Supabase URL** and **Anon Key**. Never expose your Service Role key in the frontend.
+Client-side Supabase uses the public project URL and anon key. Never expose your Supabase Service Role key in the frontend.
 
-For the AI feature, configure your **Groq API key** inside the Cloudflare Worker secrets:
+For the AI feature, configure your **Groq API key** as a Cloudflare Worker secret:
 ```bash
-wrangler secret put GROQ_API_KEY
+npx wrangler secret put GROQ_API_KEY
 ```
 
-The Worker now validates Supabase access tokens before processing AI requests.
-Set these Wrangler vars (or keep them in `wrangler.jsonc`) so auth verification works:
-```bash
-wrangler secret put SUPABASE_URL
-wrangler secret put SUPABASE_ANON_KEY
-```
+The worker validates Supabase access tokens before processing AI requests. Keep these worker variables in `wrangler.jsonc` under `vars`:
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+`SUPABASE_ANON_KEY` is a public key and does not need to be stored as a secret.
 
 ## 🗄️ Database Schema
 
