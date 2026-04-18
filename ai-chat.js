@@ -207,7 +207,9 @@
         ui.modal.hidden = false;
         ui.modal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('ai-chat-open');
-        if (ui.input) ui.input.focus();
+        if (ui.input && window.matchMedia("(pointer: fine)").matches) {
+            ui.input.focus();
+        }
     }
 
     function closeModal() {
@@ -327,7 +329,9 @@
             addMessage('assistant', message);
         } finally {
             setSending(false);
-            if (ui.input) ui.input.focus();
+            if (ui.input && window.matchMedia("(pointer: fine)").matches) {
+                ui.input.focus();
+            }
         }
     }
 
