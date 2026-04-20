@@ -73,8 +73,8 @@
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-landscape-6-783x1600.jpeg",
-      "sizes": "783x1600",
+      "src": "/assets/screenshots/screenshot-landscape-6-1600x783.jpeg",
+      "sizes": "1600x783",
       "type": "image/jpeg",
       "form_factor": "wide"
     }
