@@ -13,6 +13,14 @@
   "theme_color": "#3b82f6",
   "description": "RaushanSYNC Science provides NCERT-aligned science learning through guided video lessons, concept notes, and structured practice built from first principles to develop conceptual clarity, curiosity, and scientific thinking.",
   "categories": ["education", "science"],
+  "prefer_related_applications": true,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.raushansync.science",
+      "id": "com.raushansync.science"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -29,40 +37,46 @@
   ],
   "screenshots": [
     {
-      "src": "/assets/screenshots/screenshot-portrait-1-540x720.jpeg",
-      "sizes": "540x720",
+      "src": "/assets/screenshots/screenshot-portrait-1-540x1170.jpeg",
+      "sizes": "540x1170",
       "type": "image/jpeg",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-2-540x720.jpeg",
-      "sizes": "540x720",
+      "src": "/assets/screenshots/screenshot-portrait-2-540x1170.jpeg",
+      "sizes": "540x1170",
       "type": "image/jpeg",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-3-540x720.jpeg",
-      "sizes": "540x720",
+      "src": "/assets/screenshots/screenshot-portrait-3-540x1170.jpeg",
+      "sizes": "540x1170",
       "type": "image/jpeg",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-4-540x720.jpeg",
-      "sizes": "540x720",
+      "src": "/assets/screenshots/screenshot-portrait-4-540x1170.jpeg",
+      "sizes": "540x1170",
       "type": "image/jpeg",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-5-540x720.jpeg",
-      "sizes": "540x720",
+      "src": "/assets/screenshots/screenshot-portrait-5-540x1170.jpeg",
+      "sizes": "540x1170",
       "type": "image/jpeg",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-6-540x720.jpeg",
-      "sizes": "540x720",
+      "src": "/assets/screenshots/screenshot-portrait-6-540x1170.jpeg",
+      "sizes": "540x1170",
       "type": "image/jpeg",
       "form_factor": "narrow"
+    },
+    {
+      "src": "/assets/screenshots/screenshot-landscape-6-783x1600.jpeg",
+      "sizes": "783x1600",
+      "type": "image/jpeg",
+      "form_factor": "wide"
     }
   ]
 }
