@@ -61,9 +61,10 @@ Deployment shape:
 ## 4. Repository Architecture
 
 Top-level content domains:
-- Root page: index.html.
-- Route directories: login, signup, dashboard, password-reset, reset-confirmation, offline.
-- Content pages: notes, practice, practice-advanced, practice-solution, video-lessons.
+- Root page and compatibility route files: index.html, login.html, signup.html.
+- Primary route directories: login, signup, dashboard, password-reset, reset-confirmation, offline.
+- Supporting route directories: about, privacy, terms, class06-class12.
+- Content trees: notes, practice, practice-advanced, practice-solution, video-lessons.
 - Shared UI fragments: components/nav.html, components/footer.html, components/support-cta.html.
 - Shared frontend runtime: assets/js and assets/css.
 - Worker runtime: worker.js + wrangler.jsonc.
@@ -99,7 +100,9 @@ Important JavaScript modules and responsibilities:
 
 ## 5. Runtime Initialization and Script Contract
 
-A typical protected content page loads scripts in this order:
+Current pages use two close script-order variants. The effective contract is dependency-based rather than one fixed global order.
+
+Common variant on dashboard and many practice pages:
 1. Supabase CDN script
 2. auth-config.js
 3. optional progress-tracker.js and tick-manager.js
@@ -107,10 +110,19 @@ A typical protected content page loads scripts in this order:
 5. auth-guard.js
 6. ai-chat.js when AI chat is enabled on page
 
+Common variant on class/legal/landing pages:
+1. Supabase CDN script
+2. auth-config.js
+3. auth-guard.js
+4. optional progress-tracker.js and tick-manager.js
+5. script.js
+6. ai-chat.js when AI chat is enabled on page
+
 Why ordering matters:
-- auth-config.js must run before modules calling window.getCurrentSession and auth helpers.
-- auth-guard.js should execute after auth-config.js so it can await window.whenAuthReady.
-- script.js can bootstrap nav/footer/components and optionally initialize progress/ticks once auth is ready.
+- auth-config.js must run before modules calling window.getCurrentSession, window.whenAuthReady, and auth helpers.
+- auth-guard.js must execute after auth-config.js so it can await window.whenAuthReady.
+- script.js can execute before or after auth-guard.js as long as auth-config.js has already initialized shared auth helpers.
+- If progress-tracker.js and tick-manager.js are used, they must load before code that calls their public APIs.
 
 Initial auth paint behavior:
 - auth-pending class is added early to hide page content until auth state resolves.
@@ -263,6 +275,12 @@ Dashboard AI mode:
 - Dashboard button opens AI modal in student-support mode.
 - Context payload is generic student support context rather than quiz-specific context.
 
+Dashboard critical settings and account deletion mode:
+- Dashboard includes a destructive-action panel gated by explicit user confirmation.
+- User must type DELETE, tick a confirmation checkbox, and wait for a 15-second countdown before deletion is enabled.
+- Client sends authenticated DELETE requests to /api/account/delete, with absolute worker URL fallback if needed.
+- On success, dashboard clears local auth/session state, removes sensitive caches, emits logout/auth-state events, and redirects to /login.
+
 ## 13. AI Assistant Architecture
 
 ### 13.1 Client-side AI runtime (ai-chat.js)
@@ -288,7 +306,7 @@ Request contract from client to worker:
 
 Failure UX model:
 - Network-level failures produce "Unable to reach the AI service..." message.
-- HTTP failures parse response JSON and show structured provider/status message.
+- HTTP failures parse response JSON and show a readable provider/status message when metadata is available.
 
 ### 13.2 Worker runtime (worker.js)
 
@@ -300,6 +318,10 @@ CORS model:
 - OPTIONS, POST, and DELETE
 - Access-Control-Allow-Headers includes Content-Type and Authorization
 - Vary: Origin
+
+Route model:
+- POST / (root) handles AI tutor requests.
+- DELETE /api/account/delete handles authenticated account deletion.
 
 Auth model:
 - Bearer token required
@@ -333,6 +355,13 @@ Security posture of AI path:
 - Browser never receives GROQ_API_KEY.
 - Worker enforces origin + token verification + rate limiting.
 - Client receives sanitized error messages, reducing leakage.
+
+Account deletion runtime model:
+- DELETE /api/account/delete requires SUPABASE_SECRET_KEY plus standard Supabase URL/publishable vars.
+- Bearer token is validated through Supabase /auth/v1/user before deletion actions run.
+- Worker revokes user sessions, deletes auth user, then performs best-effort cleanup in related tables.
+- Cleanup targets include required tables (progress, practice_scores, profiles) and optional legacy tables when present.
+- Response contract is JSON with success/message fields for dashboard UX handling.
 
 ## 14. Service Worker and PWA Architecture
 
@@ -435,6 +464,12 @@ Observed/expected failure classes and behavior:
   - 503 Authentication service unavailable.
 - Groq unavailable/upstream errors:
   - 502 AI service unavailable with sanitized message.
+- Account deletion service unavailable/misconfigured:
+  - 503 from worker with user-facing retry guidance.
+- Account deletion unauthorized:
+  - 401 from worker when bearer token is missing or invalid.
+- Account deletion endpoint fallback path:
+  - dashboard retries absolute worker URL when relative endpoint is unavailable.
 - Offline document fetch:
   - fallback to /offline/ where appropriate.
 
@@ -483,6 +518,10 @@ Production domain:
 
 AI worker endpoint:
 - https://quiz-ai-tutor.raushanguptaicloud.workers.dev/
+
+Account deletion endpoint:
+- /api/account/delete (relative candidate)
+- https://quiz-ai-tutor.raushanguptaicloud.workers.dev/api/account/delete (absolute fallback)
 
 Critical local commands:
 - npm test

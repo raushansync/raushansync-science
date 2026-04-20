@@ -33,7 +33,7 @@ Since this project avoids heavy bundlers, getting started is extremely straightf
 
 ### 1. **Clone the repository:**
 ```bash
-git clone https://github.com/your-username/raushansync-science.git
+git clone https://github.com/raushansync/raushansync-science.git
 cd raushansync-science
 ```
 
