@@ -1,6 +1,7 @@
 const EXACT_ALLOWED_ORIGINS = new Set([
     'https://science.raushansync.com'
 ]);
+const ALLOWED_PRODUCTION_DOMAIN = 'raushansync.com';
 
 const LOCAL_DEV_HOSTS = new Set([
     'localhost',
@@ -38,7 +39,17 @@ function isAllowedOrigin(origin) {
 
     try {
         const url = new URL(origin);
-        return url.protocol === 'http:' && LOCAL_DEV_HOSTS.has(url.hostname);
+
+        if (url.protocol === 'http:' && LOCAL_DEV_HOSTS.has(url.hostname)) {
+            return true;
+        }
+
+        if (url.protocol !== 'https:') {
+            return false;
+        }
+
+        return url.hostname === ALLOWED_PRODUCTION_DOMAIN
+            || url.hostname.endsWith('.' + ALLOWED_PRODUCTION_DOMAIN);
     } catch (error) {
         return false;
     }
