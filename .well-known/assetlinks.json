@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.raushansync.science",
-        "sha256_cert_fingerprints": ["6E:D2:2F:9F:6B:54:8F:39:4B:82:C4:FA:56:BD:D0:0E:BF:D4:58:E4:71:D9:F4:4C:D9:32:36:76:EE:A6:18:9D"]
+        "sha256_cert_fingerprints": ["BD:6D:35:C0:F6:18:F5:35:F7:EB:2F:6F:60:60:8D:4F:54:2D:CC:2A:6C:57:DF:53:67:27:72:14:0D:30:C6:4C"]
       }
     }]
