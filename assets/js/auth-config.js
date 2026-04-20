@@ -18,9 +18,9 @@
 const DEFAULT_SUPABASE_URL = 'https://vqchjavjcfrewulqpjcl.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxY2hqYXZqY2ZyZXd1bHFwamNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjgxMTEsImV4cCI6MjA5MTg0NDExMX0.g_yEVDMl-jiOow8KcOcCyVWCdzVq1yDoGPrmRdEy_4M';
 
-const AUTH_ROUTE_LOGIN = '/login.html';
-const AUTH_ROUTE_SIGNUP = '/signup.html';
-const AUTH_ROUTE_DASHBOARD = '/dashboard.html';
+const AUTH_ROUTE_LOGIN = '/login';
+const AUTH_ROUTE_SIGNUP = '/signup';
+const AUTH_ROUTE_DASHBOARD = '/dashboard';
 
 const DEBUG_AUTH =
     Boolean(window.__AUTH_DEBUG__) ||
@@ -35,6 +35,18 @@ const runtimeConfig =
 const SUPABASE_URL = runtimeConfig.url || DEFAULT_SUPABASE_URL;
 const SUPABASE_ANON_KEY = runtimeConfig.anonKey || DEFAULT_SUPABASE_ANON_KEY;
 
+function normalizePathname(pathname = '/') {
+    if (typeof pathname !== 'string' || !pathname.startsWith('/')) {
+        return '/';
+    }
+
+    if (pathname.length > 1 && pathname.endsWith('/')) {
+        return pathname.slice(0, -1);
+    }
+
+    return pathname;
+}
+
 const AUTH_PAGE_PATHS = new Set([
     AUTH_ROUTE_LOGIN,
     AUTH_ROUTE_SIGNUP,
@@ -46,6 +58,11 @@ const PROTECTED_PATH_PREFIXES = [
     '/practice/',
     '/practice-advanced/'
 ];
+
+// Keep route constants available globally for other scripts.
+window.AUTH_ROUTE_LOGIN = AUTH_ROUTE_LOGIN;
+window.AUTH_ROUTE_SIGNUP = AUTH_ROUTE_SIGNUP;
+window.AUTH_ROUTE_DASHBOARD = AUTH_ROUTE_DASHBOARD;
 
 let authState = {
     initialized: false,
@@ -72,22 +89,25 @@ function resolveAuthReadyOnce(session) {
 }
 
 function matchesProtectedPath(pathname, prefix) {
-    if (prefix.endsWith('.html')) {
-        return pathname === prefix;
+    if (prefix.endsWith('/')) {
+        return pathname === prefix.slice(0, -1) || pathname.startsWith(prefix);
     }
 
-    return pathname === prefix.slice(0, -1) || pathname.startsWith(prefix);
+    return pathname === prefix || pathname.startsWith(prefix + '/');
 }
 
 function isProtectedPath(pathname = window.location.pathname) {
-    if (pathname.includes('/practice') && !pathname.includes('/practice-solution')) {
+    const normalizedPath = normalizePathname(pathname);
+
+    if (normalizedPath.includes('/practice') && !normalizedPath.includes('/practice-solution')) {
         return true;
     }
-    return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(pathname, prefix));
+    return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(normalizedPath, prefix));
 }
 
 function isSensitivePath(pathname = window.location.pathname) {
-    return AUTH_PAGE_PATHS.has(pathname) || isProtectedPath(pathname);
+    const normalizedPath = normalizePathname(pathname);
+    return AUTH_PAGE_PATHS.has(normalizedPath) || isProtectedPath(normalizedPath);
 }
 
 function sanitizeText(value, maxLength) {
@@ -350,29 +370,33 @@ window.markAuthReady = function () {
 window.getSafeRedirectPath = function (rawValue, fallback = AUTH_ROUTE_DASHBOARD, options = {}) {
     const allowAuthPages = Boolean(options.allowAuthPages);
     const safeFallback = typeof fallback === 'string' && fallback.startsWith('/') ? fallback : AUTH_ROUTE_DASHBOARD;
+    const normalizedFallback = normalizePathname(safeFallback);
 
     if (typeof rawValue !== 'string' || !rawValue.trim()) {
-        return safeFallback;
+        return normalizedFallback;
     }
 
     try {
         const url = new URL(rawValue, window.location.origin);
         if (url.origin !== window.location.origin) {
-            return safeFallback;
+            return normalizedFallback;
         }
 
         const safePath = `${url.pathname}${url.search}${url.hash}`;
         if (!safePath.startsWith('/')) {
-            return safeFallback;
+            return normalizedFallback;
         }
 
-        if (!allowAuthPages && AUTH_PAGE_PATHS.has(url.pathname)) {
-            return safeFallback;
+        const normalizedPathname = normalizePathname(url.pathname);
+        const normalizedSafePath = `${normalizedPathname}${url.search}${url.hash}`;
+
+        if (!allowAuthPages && AUTH_PAGE_PATHS.has(normalizedPathname)) {
+            return normalizedFallback;
         }
 
-        return safePath;
+        return normalizedSafePath;
     } catch (error) {
-        return safeFallback;
+        return normalizedFallback;
     }
 };
 
@@ -581,10 +605,11 @@ window.isAuthenticated = async function () {
 };
 
 window.isProtectedPath = function (pathname = window.location.pathname) {
-    if (pathname.includes('/practice') && !pathname.includes('/practice-solution')) {
+    const normalizedPath = normalizePathname(pathname);
+    if (normalizedPath.includes('/practice') && !normalizedPath.includes('/practice-solution')) {
         return true;
     }
-    return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(pathname, prefix));
+    return PROTECTED_PATH_PREFIXES.some((prefix) => matchesProtectedPath(normalizedPath, prefix));
 };
 
 initializeAuth();

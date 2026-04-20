@@ -25,10 +25,22 @@
         return;
     }
 
+    const normalizePathname = (pathname) => {
+        if (typeof pathname !== 'string' || !pathname.startsWith('/')) {
+            return '/';
+        }
+
+        if (pathname.length > 1 && pathname.endsWith('/')) {
+            return pathname.slice(0, -1);
+        }
+
+        return pathname;
+    };
+
     const isAuthPage = () => {
-        const pathname = window.location.pathname;
-        const authPages = ['/login.html', '/signup.html'];
-        return authPages.some(page => pathname === page || pathname.endsWith(page));
+        const pathname = normalizePathname(window.location.pathname);
+        const authPages = new Set(['/login', '/signup']);
+        return authPages.has(pathname);
     };
 
     const isProtectedPage = () => {
@@ -63,7 +75,7 @@
                 // Redirect authenticated user away from login/signup
                 const fallback = typeof window.AUTH_ROUTE_DASHBOARD !== 'undefined' 
                     ? window.AUTH_ROUTE_DASHBOARD 
-                    : '/dashboard.html';
+                    : '/dashboard';
                 
                 if (typeof window.redirectToPath === 'function') {
                     window.redirectToPath(fallback, { replace: true });

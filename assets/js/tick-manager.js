@@ -91,7 +91,7 @@ window.TickManager = (() => {
             if (window.redirectToLogin) {
                 window.redirectToLogin(window.location.pathname + window.location.search + window.location.hash);
             } else {
-                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
             }
             return;
         }

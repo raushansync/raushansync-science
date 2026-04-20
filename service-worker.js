@@ -1,15 +1,33 @@
 ﻿/* RaushanSYNC Learning Platform PWA Service Worker */
-const CACHE_VERSION = 'app-v1.0.3.3';  // Generic version for cross-site use
+const CACHE_VERSION = 'app-v1.0.3.5';  // Generic version for cross-site use
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
-const OFFLINE_URL = '/offline.html';
+const OFFLINE_URL = '/offline/';
 const MAX_RUNTIME_ENTRIES = 60;
 
 const SENSITIVE_DOCUMENT_PATHS = new Set([
-  '/login.html',
-  '/signup.html',
-  '/dashboard.html'
+  '/login',
+  '/signup',
+  '/dashboard',
+  '/password-reset',
+  '/reset-confirmation'
 ]);
+
+function normalizePathname(pathname) {
+  if (typeof pathname !== 'string' || !pathname.startsWith('/')) {
+    return '/';
+  }
+
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname;
+}
+
+function matchesPathPrefix(pathname, prefix) {
+  return pathname === prefix || pathname.startsWith(prefix + '/');
+}
 
 const CORE_ASSETS = [
   '/',
@@ -77,23 +95,24 @@ self.addEventListener('activate', (event) => {
 });
 
 function isProtectedRoute(pathname) {
-  return pathname.startsWith('/practice/') || pathname.startsWith('/practice-advanced/');
+  return matchesPathPrefix(pathname, '/practice') || matchesPathPrefix(pathname, '/practice-advanced');
 }
 
 function isSensitiveDocumentPath(pathname) {
-  return SENSITIVE_DOCUMENT_PATHS.has(pathname) || isProtectedRoute(pathname);
+  const normalizedPath = normalizePathname(pathname);
+  return SENSITIVE_DOCUMENT_PATHS.has(normalizedPath) || isProtectedRoute(normalizedPath);
 }
 
 function isNotesOrPractice(pathname) {
-  return pathname.startsWith('/notes/')
-    || pathname.startsWith('/practice/')
-    || pathname.startsWith('/practice-advanced/')
-    || pathname.startsWith('/practice-solution/')
-    || pathname.startsWith('/video-lessons/');
+  return matchesPathPrefix(pathname, '/notes')
+    || matchesPathPrefix(pathname, '/practice')
+    || matchesPathPrefix(pathname, '/practice-advanced')
+    || matchesPathPrefix(pathname, '/practice-solution')
+    || matchesPathPrefix(pathname, '/video-lessons');
 }
 
 function isComponent(pathname) {
-  return pathname.startsWith('/components/');
+  return matchesPathPrefix(pathname, '/components');
 }
 
 function isStaticAsset(request, pathname) {
@@ -184,7 +203,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  const pathname = url.pathname;
+  const pathname = normalizePathname(url.pathname);
 
   if (request.mode === 'navigate' || request.destination === 'document') {
     if (isSensitiveDocumentPath(pathname)) {

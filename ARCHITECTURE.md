@@ -61,13 +61,14 @@ Deployment shape:
 ## 4. Repository Architecture
 
 Top-level content domains:
-- Root pages: index.html, login.html, signup.html, dashboard.html, and auxiliary auth pages.
+- Root page: index.html.
+- Route directories: login, signup, dashboard, password-reset, reset-confirmation, offline.
 - Content pages: notes, practice, practice-advanced, practice-solution, video-lessons.
 - Shared UI fragments: components/nav.html, components/footer.html, components/support-cta.html.
 - Shared frontend runtime: assets/js and assets/css.
 - Worker runtime: worker.js + wrangler.jsonc.
 - Data schema: database/schema.sql.
-- PWA artifacts: service-worker.js + manifest.json + offline.html.
+- PWA artifacts: service-worker.js + manifest.json + offline/index.html.
 - CI/checks: .github/workflows/smoke.yml and scripts/validate-core-assets.mjs.
 
 Important JavaScript modules and responsibilities:
@@ -141,7 +142,7 @@ Client auth state contract:
 - rs:auth-state-change custom event is emitted on session transitions.
 
 Protected-route policy (frontend):
-- Protected prefixes include /dashboard.html, /practice/, /practice-advanced/.
+- Protected prefixes include /dashboard, /practice/, /practice-advanced/.
 - Any path containing /practice (except /practice-solution) is treated as protected.
 - Unauthenticated users are redirected to login with a safe redirect query param.
 
@@ -348,7 +349,7 @@ Routing strategy matrix:
 - Sensitive document routes (auth pages + protected pages): network-only, no-store
 - Other documents: network-first with cached fallback
 - Static assets/components/content paths: cache-first
-- Offline fallback: /offline.html for document fetch failures
+- Offline fallback: /offline/ for document fetch failures
 
 Runtime cache control:
 - runtime cache trimmed recursively to MAX_RUNTIME_ENTRIES
@@ -435,7 +436,7 @@ Observed/expected failure classes and behavior:
 - Groq unavailable/upstream errors:
   - 502 AI service unavailable with sanitized message.
 - Offline document fetch:
-  - fallback to offline.html where appropriate.
+  - fallback to /offline/ where appropriate.
 
 ## 20. Architecture Tradeoffs
 

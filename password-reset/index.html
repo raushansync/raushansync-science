@@ -302,7 +302,7 @@
                         <button type="submit" id="resetBtn">Send Reset Link</button>
 
                         <div class="back-link">
-                            <a href="/login.html">Back to Sign In</a>
+                            <a href="/login">Back to Sign In</a>
                         </div>
                     </form>
                 </div>
@@ -348,7 +348,7 @@
 
             try {
                 const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: `${window.location.origin}/reset-confirmation.html`
+                    redirectTo: `${window.location.origin}/reset-confirmation`
                 });
 
                 if (error) {
