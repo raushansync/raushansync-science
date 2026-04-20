@@ -59,7 +59,7 @@ npm test
 
 ## 🔒 Environment Configuration
 
-Client-side Supabase uses the public project URL and anon key. Never expose your Supabase Service Role key in the frontend.
+Client-side Supabase uses the public project URL and publishable key. Never expose your Supabase secret key in the frontend.
 
 For the AI feature, configure your **Groq API key** as a Cloudflare Worker secret:
 ```bash
@@ -68,9 +68,14 @@ npx wrangler secret put GROQ_API_KEY
 
 The worker validates Supabase access tokens before processing AI requests. Keep these worker variables in `wrangler.jsonc` under `vars`:
 - `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
+- `SUPABASE_PUBLISHABLE_KEY`
 
-`SUPABASE_ANON_KEY` is a public key and does not need to be stored as a secret.
+The publishable key is public and does not need to be stored as a secret.
+
+For account-deletion admin operations, configure this worker secret:
+```bash
+npx wrangler secret put SUPABASE_SECRET_KEY
+```
 
 ## 🗄️ Database Schema
 

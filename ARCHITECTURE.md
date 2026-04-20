@@ -51,8 +51,8 @@ Operationally relevant config:
 - Worker name: quiz-ai-tutor
 - Worker entry: worker.js
 - Worker compatibility date: 2026-04-15
-- Worker vars include SUPABASE_URL and SUPABASE_ANON_KEY
-- GROQ_API_KEY is expected as a worker secret
+- Worker vars include SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY
+- GROQ_API_KEY and SUPABASE_SECRET_KEY are expected as worker secrets
 
 Deployment shape:
 - Static assets and pages are deployed from repository root structure.
@@ -297,13 +297,13 @@ Allowed origins:
 - local development origins with http protocol and host localhost or 127.0.0.1
 
 CORS model:
-- OPTIONS and POST only
+- OPTIONS, POST, and DELETE
 - Access-Control-Allow-Headers includes Content-Type and Authorization
 - Vary: Origin
 
 Auth model:
 - Bearer token required
-- token verified by calling Supabase /auth/v1/user endpoint with anon key
+- token verified by calling Supabase /auth/v1/user endpoint with publishable key
 - unauthorized returns 401 with WWW-Authenticate header
 
 Rate limiting model:
@@ -403,7 +403,7 @@ Controls currently implemented:
 - limited/no-store caching policy on sensitive documents
 
 Risk notes:
-- Supabase anon key is intentionally public but should be scoped by strict RLS (already used).
+- Supabase publishable key is intentionally public but should be scoped by strict RLS (already used).
 - In-memory worker rate limit is isolate-local, not globally distributed. It is still valuable, but not a full distributed abuse prevention control.
 - CSP and SRI are not comprehensively documented as enforced across all pages yet.
 

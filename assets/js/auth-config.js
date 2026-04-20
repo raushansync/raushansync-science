@@ -16,7 +16,7 @@
 })();
 
 const DEFAULT_SUPABASE_URL = 'https://vqchjavjcfrewulqpjcl.supabase.co';
-const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxY2hqYXZqY2ZyZXd1bHFwamNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjgxMTEsImV4cCI6MjA5MTg0NDExMX0.g_yEVDMl-jiOow8KcOcCyVWCdzVq1yDoGPrmRdEy_4M';
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_mV-vgkc6YeAYi8JMPPHQyQ_eLPj0IPs';
 
 const AUTH_ROUTE_LOGIN = '/login';
 const AUTH_ROUTE_SIGNUP = '/signup';
@@ -33,7 +33,7 @@ const runtimeConfig =
         : {};
 
 const SUPABASE_URL = runtimeConfig.url || DEFAULT_SUPABASE_URL;
-const SUPABASE_ANON_KEY = runtimeConfig.anonKey || DEFAULT_SUPABASE_ANON_KEY;
+const SUPABASE_PUBLISHABLE_KEY = runtimeConfig.publishableKey || DEFAULT_SUPABASE_PUBLISHABLE_KEY;
 
 function normalizePathname(pathname = '/') {
     if (typeof pathname !== 'string' || !pathname.startsWith('/')) {
@@ -272,7 +272,7 @@ window.supabaseClient = (() => {
         return null;
     }
 
-    return supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    return supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
         auth: {
             persistSession: true,
             autoRefreshToken: true,
