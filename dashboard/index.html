@@ -1068,7 +1068,7 @@
                     </div>
                 </div>
 
-                <div class="section">
+                <div class="section" id="profileSection">
                     <div class="profile-section-header">
                         <h2 class="section-title">Your Profile</h2>
                         <button class="btn-primary btn-edit" id="editProfileBtn">Edit Profile</button>
@@ -2011,6 +2011,11 @@
                 document.getElementById("profileClass").textContent = educationLevel;
                 const profilePhoneEl = document.getElementById("profilePhone");
                 if (profilePhoneEl) profilePhoneEl.textContent = phone;
+
+                const shouldOpenProfileEditor = new URLSearchParams(window.location.search).get("edit-profile") === "1" || window.location.hash === "#profileSection";
+                if (shouldOpenProfileEditor) {
+                    setTimeout(() => openEditModal(), 0);
+                }
 
                 // Load and display progress stats
                 await loadProgressStats();

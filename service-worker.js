@@ -1,5 +1,5 @@
 ﻿/* RaushanSYNC Learning Platform PWA Service Worker */
-const CACHE_VERSION = 'app-v1.0.2.7';  // Generic version for cross-site use
+const CACHE_VERSION = 'app-v1.0.2.8';  // Generic version for cross-site use
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline/';
@@ -36,6 +36,7 @@ const CORE_ASSETS = [
   '/manifest.json',
   '/assets/css/style.css',
   '/assets/js/script.js',
+  '/assets/js/homepage-hero.js',
   '/ai-chat.js',
   '/components/nav.html',
   '/components/footer.html',
@@ -52,6 +53,7 @@ const CORE_ASSETS = [
   '/class10/',
   '/class11/',
   '/class12/',
+  '/future-content/',
   '/video-lessons/class06/chapter01-the-wonderful-world-of-science/index.html',
   '/notes/class07/chapter01-nutrition-in-plants/',
   '/notes/class07/chapter01-nutrition-in-plants/index.html',
