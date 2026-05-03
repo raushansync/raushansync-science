@@ -1,86 +1,120 @@
 # RaushanSYNC Science
 
-Welcome to the **RaushanSYNC Science** platform — a high-performance, static-first web application built for educational purposes. It delivers an offline-capable, highly dynamic student experience using vanilla technologies and serverless edges.
+RaushanSYNC Science is a static-first science learning platform for students. It serves class-wise science content, concept notes, practice pages, progress tracking, dashboard tools, PWA/offline support, and an authenticated AI tutor using plain HTML, CSS, JavaScript, Supabase, and Cloudflare Workers.
 
-## ✨ Features
+Production site: https://science.raushansync.com
 
-- **Blazing Fast Performance**: Built using vanilla HTML5, CSS3, and JavaScript with zero heavy frameworks, ensuring instantaneous load times.
-- **Offline Capabilities**: Full PWA integration with Service Workers for offline studying.
-- **AI Tutor Integration**: Powered by Groq API via Cloudflare Workers for instant AI-assisted learning.
-- **Secure Authentication**: Complete student auth flow using Supabase (PostgreSQL + RLS).
-- **Progress Tracking**: Sophisticated local and remote syncing of learning progress.
-- **Responsive Design**: Beautiful CSS architecture tailored for all devices.
+## What This Codebase Contains
 
-## 🏗️ Tech Stack
+- Multi-page static frontend with no build step.
+- Class landing pages for Class 6 through Class 12.
+- Notes, video lesson, standard practice, advanced practice, and solution routes.
+- Supabase authentication with email/password, Google OAuth, password reset, profile sync, and protected routes.
+- Progress ticks and practice score persistence backed by Supabase tables with RLS.
+- Student dashboard with profile editing, completion stats, recent activity, AI support mode, and account deletion.
+- Cloudflare Worker API for authenticated AI tutor requests and account deletion.
+- PWA manifest, service worker caching, offline fallback, app icons, screenshots, sitemap, robots file, and Android app links.
 
-- **Frontend**: Vanilla HTML / CSS / JS (No Build Step needed)
-- **Database & Auth**: Supabase (PostgreSQL, Row Level Security)
-- **Edge Functions**: Cloudflare Workers (for wrapping AI/LLM API calls securely)
-- **Hosting & CDN**: GitHub Pages + Cloudflare Edge
+For the full technical map, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-## 🌐 Production
+## Tech Stack
 
-- **Website**: https://science.raushansync.com
-- **AI Worker**: https://quiz-ai-tutor.raushanguptaicloud.workers.dev/
+- Frontend: vanilla HTML, CSS, and JavaScript
+- Auth and database: Supabase Auth + Postgres + Row Level Security
+- Edge API: Cloudflare Workers
+- AI provider: Groq, called from the Worker
+- PWA: Web App Manifest + Service Worker
+- CI/smoke checks: Node.js scripts + GitHub Actions
 
-## 📖 Architecture
+## Key Files
 
-For the complete technical design, data flow contracts, security boundaries, and deployment runbook, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+- `index.html`: homepage and signed-in learning entry
+- `dashboard/index.html`: protected student dashboard
+- `assets/css/style.css`: global visual system
+- `assets/js/auth-config.js`: Supabase client and auth helper contract
+- `assets/js/script.js`: shared UI, components, theme, nav, PWA, progress bootstrap
+- `assets/js/progress-tracker.js`: progress and score persistence API
+- `assets/js/tick-manager.js`: completion tick UI
+- `assets/js/quiz-score-handler.js`: quiz score display and save flow
+- `ai-chat.js`: browser AI chat modal
+- `worker.js`: Cloudflare Worker for AI and account deletion
+- `service-worker.js`: PWA cache and offline routing
+- `database/schema.sql`: Supabase tables, RLS, indexes, and triggers
 
-## 🚀 Quick Start / Local Development
+## Local Development
 
-Since this project avoids heavy bundlers, getting started is extremely straightforward:
+Install dependencies:
 
-### 1. **Clone the repository:**
 ```bash
-git clone https://github.com/raushansync/raushansync-science.git
-cd raushansync-science
+npm install
 ```
 
-### 2. **Run a local web server:**
-You can use python, live-server, or any basic HTTP server to serve the root directory.
+Serve the static site from the repository root:
+
 ```bash
 npx live-server .
-# or
+```
+
+or:
+
+```bash
 python -m http.server 8000
 ```
 
-### 3. **Cloudflare Worker (AI Chat):**
-If you need to test the Groq AI integration locally, use Wrangler:
+Use an HTTP server instead of opening files directly. Auth redirects, service-worker behavior, and AI origin checks are designed around localhost/127.0.0.1 or production origins.
+
+## Worker Development
+
+Run the Cloudflare Worker locally:
+
 ```bash
-npm install
 npx wrangler dev
 ```
 
-Run smoke checks before deploy:
+Deploy the Worker:
+
+```bash
+npx wrangler deploy
+```
+
+Required Worker secrets:
+
+```bash
+npx wrangler secret put GROQ_API_KEY
+npx wrangler secret put SUPABASE_SECRET_KEY
+```
+
+Public Worker vars live in `wrangler.jsonc`:
+
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+
+## Checks
+
+Run smoke checks:
+
 ```bash
 npm test
 ```
 
-## 🔒 Environment Configuration
+This checks JavaScript syntax for `ai-chat.js` and `service-worker.js`, then validates that every `CORE_ASSETS` entry in the service worker exists on disk.
 
-Client-side Supabase uses the public project URL and publishable key. Never expose your Supabase secret key in the frontend.
+## Database
 
-For the AI feature, configure your **Groq API key** as a Cloudflare Worker secret:
-```bash
-npx wrangler secret put GROQ_API_KEY
-```
+The Supabase schema is in `database/schema.sql`.
 
-The worker validates Supabase access tokens before processing AI requests. Keep these worker variables in `wrangler.jsonc` under `vars`:
-- `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY`
+It defines:
 
-The publishable key is public and does not need to be stored as a secret.
+- `profiles`
+- `progress`
+- `practice_scores`
+- RLS policies for per-user ownership
+- updated-at triggers
+- auth-user profile bootstrap trigger
 
-For account-deletion admin operations, configure this worker secret:
-```bash
-npx wrangler secret put SUPABASE_SECRET_KEY
-```
+Apply it carefully to a fresh or intentionally migrated Supabase project.
 
-## 🗄️ Database Schema
+## Documentation
 
-The core Supabase schema (for Auth, Profiles, and Progress parsing) relies on standard Supabase Authentication and RLS (Row Level Security). Ensure your policies permit `SELECT`, `INSERT`, and `UPDATE` only where `auth.uid() = user_id`.
-
-## 📄 License
-
-See the [LICENSE](./LICENSE) file for more details.
+- [ARCHITECTURE.md](./ARCHITECTURE.md): full codebase architecture, route map, runtime contracts, data model, AI flow, service worker behavior, deployment notes, and known maintenance constraints.
+- [LICENSE](./LICENSE): license text.

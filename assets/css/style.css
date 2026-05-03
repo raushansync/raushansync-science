@@ -443,14 +443,20 @@ main {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  min-height: 7rem;
 }
 
 .welcome-section #auth-buttons-guest,
 .welcome-section #auth-buttons-user {
-  display: flex;
+  display: none;
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.welcome-section #auth-buttons-guest {
+  align-self: flex-start;
+  align-items: center;
 }
 
 .welcome-section #auth-buttons-user {
@@ -500,6 +506,20 @@ main {
   font-size: clamp(1.45rem, 2.4vw, 1.95rem);
 }
 
+.welcome-section #auth-buttons-user.home-learning-card h2.home-learning-title--typing::after {
+  content: '_';
+  display: inline-block;
+  margin-left: 0.08em;
+  color: currentColor;
+  animation: homeLearningCursorBlink 1s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-section #auth-buttons-user.home-learning-card h2.home-learning-title--typing::after {
+    animation: none;
+  }
+}
+
 .welcome-section #auth-buttons-user.home-learning-card p {
   width: 100%;
   max-width: none;
@@ -525,6 +545,18 @@ main {
 .welcome-section #auth-buttons-user.home-learning-card.home-learning-card--locked .home-learning-badge {
   background: rgba(239, 68, 68, 0.12);
   color: #b91c1c;
+}
+
+@keyframes homeLearningCursorBlink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .content-section {
@@ -692,6 +724,10 @@ main {
 @media (max-width: 768px) {
   .auth-buttons {
     display: none !important;
+  }
+
+  .welcome-section #auth-buttons-guest {
+    align-self: center;
   }
 }
 
@@ -867,6 +903,7 @@ main {
   .welcome-section .welcome-actions {
     flex-direction: column !important;
     align-items: center;
+    min-height: 10rem;
   }
 
   .welcome-section .welcome-actions .btn {
@@ -1359,7 +1396,16 @@ main {
 /* Reduce oversized hero padding/margins without touching other palettes */
 .home-page .welcome-section .hero-palette {
   padding: 1.55rem 1.75rem;
-  margin: 1.1rem 0 1.4rem;
+  margin: 0.75rem 0 1.1rem;
+}
+
+.home-page .welcome-section .welcome-actions {
+  margin: 1rem 0 1rem;
+  min-height: 4.5rem;
+}
+
+html.home-hero-reserved .home-page .welcome-section .welcome-actions {
+  min-height: 16rem;
 }
 
 /* Apply left alignment ONLY to non-hero palettes */
@@ -1516,6 +1562,10 @@ main {
   .profile-help-actions .btn {
     min-height: 52px;
     display: inline-flex;
+
+  html.home-hero-reserved .home-page .welcome-section .welcome-actions {
+    min-height: 20rem;
+  }
     align-items: center;
     justify-content: center;
   }
@@ -1572,8 +1622,22 @@ main {
     width: min(100%, 560px);
   }
 
+  .welcome-section #auth-buttons-user.home-learning-card {
+    align-items: center;
+    text-align: center;
+  }
+
+  .welcome-section #auth-buttons-user.home-learning-card p {
+    text-align: center;
+  }
+
   .welcome-section #auth-buttons-user.home-learning-card .home-learning-actions {
     grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .welcome-section #auth-buttons-user.home-learning-card .home-learning-actions .btn {
+    max-width: 280px;
   }
 
   .profile-help-actions {

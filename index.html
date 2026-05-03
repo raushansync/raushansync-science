@@ -48,7 +48,74 @@
 
     <!-- Stylesheet -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function initHomepageHeroReservation() {
+            if (!document.documentElement.classList) {
+                return;
+            }
+
+            const authStorageKeyPattern = /^(supabase\.auth\.token|sb-.*-auth-token(?:-code-verifier)?)$/;
+
+            const storageHasAuthKey = (storage) => {
+                if (!storage) {
+                    return false;
+                }
+
+                for (let index = 0; index < storage.length; index += 1) {
+                    const key = storage.key(index);
+                    if (typeof key === 'string' && authStorageKeyPattern.test(key)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
+            try {
+                if (storageHasAuthKey(window.localStorage) || storageHasAuthKey(window.sessionStorage)) {
+                    document.documentElement.classList.add('home-hero-reserved');
+                }
+            } catch (error) {
+                return;
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="/assets/css/style.css">
+
+    <style>
+        .home-page .welcome-section .welcome-actions {
+            margin: 1rem 0 1rem;
+            min-height: 4.5rem;
+        }
+
+        html.home-hero-reserved .home-page .welcome-section .welcome-actions {
+            min-height: 16rem;
+        }
+
+        .welcome-section #auth-buttons-guest {
+            align-self: flex-start;
+            align-items: center;
+        }
+
+        .welcome-section #auth-buttons-guest,
+        .welcome-section #auth-buttons-user {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .home-page .welcome-section .welcome-actions {
+                min-height: 8rem;
+            }
+
+            html.home-hero-reserved .home-page .welcome-section .welcome-actions {
+                min-height: 20rem;
+            }
+
+            .welcome-section #auth-buttons-guest {
+                align-self: center;
+            }
+        }
+    </style>
 
 
     <meta property="og:image" content="https://science.raushansync.com/assets/og/og-image.jpg">

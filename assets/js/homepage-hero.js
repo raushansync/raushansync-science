@@ -10,64 +10,95 @@
     };
 
     const ADVANCED_LEVEL_PATH = '/future-content/';
+    const QUOTE_ROTATION_INTERVAL_MS = 10000;
+    const TYPEWRITER_DEFAULT_DELAY_MS = 38;
+    const TYPEWRITER_PUNCTUATION_DELAY_MS = 110;
 
     const SCHOOL_QUOTES = [
-        'Curiosity first.',
-        'Think from first principles.',
-        'Ask better questions.',
-        'Observe, then reason.',
-        'Wonder leads learning.',
-        'Clarity beats memorizing.',
-        'Small questions matter.',
-        'Understand, don\'t rush.',
-        'Science starts with why.',
-        'Reason opens worlds.',
-        'Learn deeply.',
-        'Discover step by step.',
-        'Patience grows insight.',
-        'Let evidence guide you.',
-        'Make every fact count.',
-        'Stay curious.',
-        'Build understanding.',
-        'Truth needs thought.',
-        'Notice. Test. Learn.',
-        'Questions are doors.'
+        'Curiosity first',
+        'Think from first principles',
+        'Ask better questions',
+        'Observe, then reason',
+        'Wonder leads learning',
+        'Clarity beats memorizing',
+        'Small questions matter',
+        'Understand, don\'t rush',
+        'Science starts with why',
+        'Reason opens worlds',
+        'Learn deeply',
+        'Discover step by step',
+        'Patience grows insight',
+        'Let evidence guide you',
+        'Make every fact count',
+        'Stay curious',
+        'Build understanding',
+        'Truth needs thought',
+        'Notice, test, learn',
+        'Questions are doors',
+        'Evidence over assumption',
+        'Meaning grows from method',
+        'Learn the why, not only the what',
+        'Patience unlocks patterns',
+        'Every observation teaches',
+        'Reason before reply',
+        'Clarity comes from practice',
+        'Keep asking, keep thinking'
     ];
 
     const ADVANCED_QUOTES = [
-        'Depth is a discipline.',
-        'Go beyond the surface.',
-        'Think farther.',
-        'Insight takes patience.',
-        'Model, test, refine.',
-        'Clarity grows slowly.',
-        'Mastery loves repetition.',
-        'Keep digging deeper.',
-        'Big ideas need calm.',
-        'Reason before reach.',
-        'The next layer matters.',
-        'Study with purpose.',
-        'Understand the pattern.',
-        'Go where questions lead.'
+        'Depth is a discipline',
+        'Go beyond the surface',
+        'Think farther',
+        'Insight takes patience',
+        'Model, test, refine',
+        'Clarity grows slowly',
+        'Mastery loves repetition',
+        'Keep digging deeper',
+        'Big ideas need calm',
+        'Reason before reach',
+        'The next layer matters',
+        'Study with purpose',
+        'Understand the pattern',
+        'Go where questions lead',
+        'Build rigor, then range',
+        'Systems reward careful thought',
+        'Complexity becomes visible with patience',
+        'Good models stay humble',
+        'Proof grows from process',
+        'Keep refining the frame',
+        'Learn the structure beneath the result',
+        'Strong ideas welcome scrutiny',
+        'Depth and discipline travel together'
     ];
 
     const LOCKED_QUOTES = [
-        'Begin where you are.',
-        'Set the direction.',
-        'Build the foundation.',
-        'Prepare the next step.',
-        'Start with clarity.',
-        'Align the path first.',
-        'Every journey begins.',
-        'Structure creates freedom.',
-        'Make the map.',
-        'The climb starts here.'
+        'Begin where you are',
+        'Set the direction',
+        'Build the foundation',
+        'Prepare the next step',
+        'Start with clarity',
+        'Align the path first',
+        'Every journey begins',
+        'Structure creates freedom',
+        'Make the map',
+        'The climb starts here',
+        'Order makes progress visible',
+        'Small steps still move forward',
+        'A clear path helps courage grow',
+        'Foundation first, momentum next',
+        'Readiness is built, not borrowed',
+        'Choose the next right step'
     ];
 
     const state = {
         profile: null,
         educationLevel: '',
-        trackType: 'guest'
+        trackType: 'guest',
+        currentQuote: '',
+        quoteRotationTimerId: null,
+        quoteRotationToken: 0,
+        quoteTypingTimerId: null,
+        quoteTypingToken: 0
     };
 
     const elements = {};
@@ -115,6 +146,54 @@
         return 'locked';
     }
 
+    function getQuotesForTrack(trackType) {
+        if (trackType === 'school') {
+            return SCHOOL_QUOTES;
+        }
+
+        if (trackType === 'advanced') {
+            return ADVANCED_QUOTES;
+        }
+
+        return LOCKED_QUOTES;
+    }
+
+    function shouldReduceMotion() {
+        return typeof window.matchMedia === 'function'
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function getTypingDelay(character) {
+        if (!character || character === ' ') {
+            return TYPEWRITER_DEFAULT_DELAY_MS * 0.75;
+        }
+
+        if (/[.,!?;:]/.test(character)) {
+            return TYPEWRITER_PUNCTUATION_DELAY_MS;
+        }
+
+        return TYPEWRITER_DEFAULT_DELAY_MS;
+    }
+
+    function clearQuoteTimers() {
+        state.quoteRotationToken += 1;
+        state.quoteTypingToken += 1;
+
+        if (state.quoteRotationTimerId !== null) {
+            window.clearTimeout(state.quoteRotationTimerId);
+            state.quoteRotationTimerId = null;
+        }
+
+        if (state.quoteTypingTimerId !== null) {
+            window.clearTimeout(state.quoteTypingTimerId);
+            state.quoteTypingTimerId = null;
+        }
+
+        if (elements.title) {
+            elements.title.classList.remove('home-learning-title--typing');
+        }
+    }
+
     function getLearningPath(level) {
         if (SCHOOL_LEVEL_PATHS[level]) {
             return SCHOOL_LEVEL_PATHS[level];
@@ -127,30 +206,121 @@
         return '';
     }
 
-    function pickRandomQuote(quotes) {
+    function pickRandomQuote(quotes, previousQuote = '') {
         if (!Array.isArray(quotes) || !quotes.length) {
-            return 'Keep learning.';
+            return 'Keep learning';
         }
 
-        if (window.crypto && typeof window.crypto.getRandomValues === 'function' && quotes.length > 1) {
+        const availableQuotes = previousQuote && quotes.length > 1
+            ? quotes.filter((quote) => quote !== previousQuote)
+            : quotes;
+
+        const pool = availableQuotes.length ? availableQuotes : quotes;
+
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function' && pool.length > 1) {
             const randomValues = new Uint32Array(1);
             window.crypto.getRandomValues(randomValues);
-            return quotes[randomValues[0] % quotes.length];
+            return pool[randomValues[0] % pool.length];
         }
 
-        return quotes[Math.floor(Math.random() * quotes.length)] || quotes[0];
+        return pool[Math.floor(Math.random() * pool.length)] || pool[0];
     }
 
-    function getQuoteForTrack(trackType) {
-        if (trackType === 'school') {
-            return pickRandomQuote(SCHOOL_QUOTES);
+    function getQuoteForTrack(trackType, previousQuote = '') {
+        return pickRandomQuote(getQuotesForTrack(trackType), previousQuote);
+    }
+
+    function animateQuoteTitle(text) {
+        if (!elements.title) {
+            return;
         }
 
-        if (trackType === 'advanced') {
-            return pickRandomQuote(ADVANCED_QUOTES);
+        const quoteText = typeof text === 'string' ? text : '';
+        const typingToken = ++state.quoteTypingToken;
+
+        if (state.quoteTypingTimerId !== null) {
+            window.clearTimeout(state.quoteTypingTimerId);
+            state.quoteTypingTimerId = null;
         }
 
-        return pickRandomQuote(LOCKED_QUOTES);
+        elements.title.classList.add('home-learning-title--typing');
+
+        if (shouldReduceMotion()) {
+            elements.title.textContent = quoteText;
+            return;
+        }
+
+        const characters = Array.from(quoteText);
+
+        if (!characters.length) {
+            elements.title.textContent = '';
+            return;
+        }
+
+        const typeNextCharacter = (index) => {
+            if (state.quoteTypingToken !== typingToken) {
+                return;
+            }
+
+            elements.title.textContent = characters.slice(0, index + 1).join('');
+
+            if (index + 1 >= characters.length) {
+                state.quoteTypingTimerId = null;
+                return;
+            }
+
+            state.quoteTypingTimerId = window.setTimeout(() => {
+                typeNextCharacter(index + 1);
+            }, getTypingDelay(characters[index]));
+        };
+
+        elements.title.textContent = characters[0];
+
+        if (characters.length === 1) {
+            state.quoteTypingTimerId = null;
+            return;
+        }
+
+        state.quoteTypingTimerId = window.setTimeout(() => {
+            typeNextCharacter(1);
+        }, getTypingDelay(characters[0]));
+    }
+
+    function startQuoteRotation(trackType, initialQuote) {
+        const quotes = getQuotesForTrack(trackType);
+
+        clearQuoteTimers();
+
+        if (!elements.title || !quotes.length) {
+            state.currentQuote = typeof initialQuote === 'string' ? initialQuote : '';
+
+            if (elements.title) {
+                elements.title.textContent = state.currentQuote;
+            }
+
+            return;
+        }
+
+        const rotationToken = state.quoteRotationToken;
+
+        const renderNextQuote = (forcedQuote) => {
+            if (state.quoteRotationToken !== rotationToken) {
+                return;
+            }
+
+            const nextQuote = typeof forcedQuote === 'string' && forcedQuote
+                ? forcedQuote
+                : getQuoteForTrack(trackType, state.currentQuote);
+
+            state.currentQuote = nextQuote;
+            animateQuoteTitle(nextQuote);
+
+            state.quoteRotationTimerId = window.setTimeout(() => {
+                renderNextQuote();
+            }, QUOTE_ROTATION_INTERVAL_MS);
+        };
+
+        renderNextQuote(initialQuote || getQuoteForTrack(trackType, state.currentQuote));
     }
 
     function buildCardCopy(level, trackType) {
@@ -158,7 +328,7 @@
             const label = formatLevelLabel(level);
             return {
                 badge: label,
-                title: getQuoteForTrack(trackType),
+                title: getQuoteForTrack(trackType, state.currentQuote),
                 copy: 'Continue from your selected class, open your dashboard, or ask RaushanSYNC AI for guidance.'
             };
         }
@@ -167,14 +337,14 @@
             const label = formatLevelLabel(level);
             return {
                 badge: label,
-                title: getQuoteForTrack(trackType),
+                title: getQuoteForTrack(trackType, state.currentQuote),
                 copy: 'Your preferred content opens a roadmap preview while the dashboard and AI support stay available.'
             };
         }
 
         return {
             badge: 'Profile incomplete',
-            title: getQuoteForTrack(trackType),
+            title: getQuoteForTrack(trackType, state.currentQuote),
             copy: 'Choose your class or study track in the dashboard first. That unlocks Start Learning, Dashboard access, and AI support.'
         };
     }
@@ -291,6 +461,12 @@
     }
 
     function renderGuestState() {
+        clearQuoteTimers();
+
+        if (document.documentElement.classList) {
+            document.documentElement.classList.remove('home-hero-reserved');
+        }
+
         if (elements.guestButtons) {
             elements.guestButtons.style.display = 'flex';
         }
@@ -304,6 +480,10 @@
         const educationLevel = normalizeEducationLevel(profile?.education_level || '');
         const trackType = getTrackType(educationLevel);
         const cardCopy = buildCardCopy(educationLevel, trackType);
+
+        if (document.documentElement.classList) {
+            document.documentElement.classList.add('home-hero-reserved');
+        }
 
         state.profile = profile;
         state.educationLevel = educationLevel;
@@ -322,9 +502,7 @@
             elements.badge.textContent = cardCopy.badge;
         }
 
-        if (elements.title) {
-            elements.title.textContent = cardCopy.title;
-        }
+        startQuoteRotation(trackType, cardCopy.title);
 
         if (elements.copy) {
             elements.copy.textContent = cardCopy.copy;

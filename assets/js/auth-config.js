@@ -7,10 +7,23 @@
  *   <script src="/assets/js/auth-config.js"></script>
  */
 
-// Initialize auth-pending state immediately to prevent page flash before auth check
-// This hides all content until auth status is verified
+// Initialize auth-pending only on sensitive routes so public pages can render immediately.
 (function initAuthPending() {
-    if (document.documentElement.classList) {
+    if (!document.documentElement.classList) {
+        return;
+    }
+
+    const pathname = window.location.pathname || '/';
+    const normalizedPathname = pathname.length > 1 && pathname.endsWith('/')
+        ? pathname.slice(0, -1)
+        : pathname;
+    const shouldHideDuringAuth =
+        normalizedPathname === '/login' ||
+        normalizedPathname === '/signup' ||
+        normalizedPathname === '/dashboard' ||
+        (normalizedPathname.includes('/practice') && !normalizedPathname.includes('/practice-solution'));
+
+    if (shouldHideDuringAuth) {
         document.documentElement.classList.add('auth-pending');
     }
 })();
