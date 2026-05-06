@@ -1904,22 +1904,107 @@
             }).join(' - ');
         }
 
+        const progressPathValidationCache = new Map();
+
+        function getProgressUrl(itemPath) {
+            if (!itemPath || typeof itemPath !== 'string') {
+                return null;
+            }
+
+            try {
+                const url = new URL(itemPath, window.location.origin);
+                return url.origin === window.location.origin ? url : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function isTrackableSciencePath(url) {
+            if (!url) return false;
+
+            const pathname = url.pathname || '/';
+            return [
+                '/notes/',
+                '/practice/',
+                '/practice-advanced/',
+                '/practice-solution/',
+                '/video-lessons/'
+            ].some(prefix => pathname === prefix.slice(0, -1) || pathname.startsWith(prefix));
+        }
+
+        function getSafeProgressHref(itemPath) {
+            const url = getProgressUrl(itemPath);
+            if (!url || !isTrackableSciencePath(url)) {
+                return '';
+            }
+
+            return url.pathname + url.search + url.hash;
+        }
+
+        function isSciencePathFallback(url) {
+            return /^\/(?:notes|practice|practice-advanced|practice-solution|video-lessons)\/class\d{2}\/chapter\d+/i.test(url.pathname || '');
+        }
+
+        async function pathExistsOnScienceSite(itemPath) {
+            const url = getProgressUrl(itemPath);
+            if (!url || !isTrackableSciencePath(url)) {
+                return false;
+            }
+
+            url.hash = '';
+            const cacheKey = url.pathname.replace(/\/index\.html$/, '/').replace(/\/$/, '') + url.search;
+            if (progressPathValidationCache.has(cacheKey)) {
+                return progressPathValidationCache.get(cacheKey);
+            }
+
+            try {
+                const response = await fetch(url.href, {
+                    method: 'HEAD',
+                    cache: 'no-store',
+                    credentials: 'same-origin'
+                });
+                const exists = response.ok;
+                progressPathValidationCache.set(cacheKey, exists);
+                return exists;
+            } catch (error) {
+                const exists = isSciencePathFallback(url);
+                progressPathValidationCache.set(cacheKey, exists);
+                return exists;
+            }
+        }
+
+        async function filterScienceRecentProgress(rows, limit) {
+            const filtered = [];
+
+            for (const item of rows || []) {
+                if (filtered.length >= limit) break;
+
+                if (await pathExistsOnScienceSite(item.item_path)) {
+                    const safeHref = getSafeProgressHref(item.item_path);
+                    if (safeHref) {
+                        filtered.push({ ...item, item_path: safeHref });
+                    }
+                }
+            }
+
+            return filtered;
+        }
+
         async function fetchRecentProgress(itemType, limit = 3) {
             if (!window.supabaseClient || !currentUser) return [];
             try {
-                const site = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+                const queryLimit = Math.max(limit * 25, 75);
                 const { data, error } = await window.supabaseClient
                     .from('progress')
-                    .select('item_path, updated_at')
+                    .select('item_path, updated_at, site')
                     .eq('user_id', currentUser.id)
-                    .eq('site', site)
                     .eq('item_type', itemType)
                     .eq('completed', true)
                     .order('updated_at', { ascending: false })
-                    .limit(limit);
+                    .limit(queryLimit);
 
                 if (error) throw error;
-                return data || [];
+                return await filterScienceRecentProgress(data, limit);
             } catch (err) {
                 console.error("Error fetching recent " + itemType + ":", err);
                 return [];
