@@ -11,8 +11,6 @@
 
     const ADVANCED_LEVEL_PATH = '/future-content/';
     const QUOTE_ROTATION_INTERVAL_MS = 10000;
-    const TYPEWRITER_DEFAULT_DELAY_MS = 38;
-    const TYPEWRITER_PUNCTUATION_DELAY_MS = 110;
 
     const SCHOOL_QUOTES = [
         'Curiosity first',
@@ -163,18 +161,6 @@
             && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
-    function getTypingDelay(character) {
-        if (!character || character === ' ') {
-            return TYPEWRITER_DEFAULT_DELAY_MS * 0.75;
-        }
-
-        if (/[.,!?;:]/.test(character)) {
-            return TYPEWRITER_PUNCTUATION_DELAY_MS;
-        }
-
-        return TYPEWRITER_DEFAULT_DELAY_MS;
-    }
-
     function clearQuoteTimers() {
         state.quoteRotationToken += 1;
         state.quoteTypingToken += 1;
@@ -190,7 +176,8 @@
         }
 
         if (elements.title) {
-            elements.title.classList.remove('home-learning-title--typing');
+            elements.title.classList.remove('home-learning-title--fading');
+            elements.title.style.opacity = '';
         }
     }
 
@@ -236,54 +223,32 @@
         }
 
         const quoteText = typeof text === 'string' ? text : '';
-        const typingToken = ++state.quoteTypingToken;
+        const fadeToken = ++state.quoteTypingToken;
 
         if (state.quoteTypingTimerId !== null) {
             window.clearTimeout(state.quoteTypingTimerId);
             state.quoteTypingTimerId = null;
         }
 
-        elements.title.classList.add('home-learning-title--typing');
+        elements.title.classList.add('home-learning-title--fading');
 
         if (shouldReduceMotion()) {
             elements.title.textContent = quoteText;
+            elements.title.style.opacity = '1';
             return;
         }
 
-        const characters = Array.from(quoteText);
-
-        if (!characters.length) {
-            elements.title.textContent = '';
-            return;
-        }
-
-        const typeNextCharacter = (index) => {
-            if (state.quoteTypingToken !== typingToken) {
-                return;
-            }
-
-            elements.title.textContent = characters.slice(0, index + 1).join('');
-
-            if (index + 1 >= characters.length) {
-                state.quoteTypingTimerId = null;
-                return;
-            }
-
-            state.quoteTypingTimerId = window.setTimeout(() => {
-                typeNextCharacter(index + 1);
-            }, getTypingDelay(characters[index]));
-        };
-
-        elements.title.textContent = characters[0];
-
-        if (characters.length === 1) {
-            state.quoteTypingTimerId = null;
-            return;
-        }
+        elements.title.style.opacity = '0';
 
         state.quoteTypingTimerId = window.setTimeout(() => {
-            typeNextCharacter(1);
-        }, getTypingDelay(characters[0]));
+            if (state.quoteTypingToken !== fadeToken) {
+                return;
+            }
+
+            elements.title.textContent = quoteText;
+            elements.title.style.opacity = '1';
+            state.quoteTypingTimerId = null;
+        }, 240);
     }
 
     function startQuoteRotation(trackType, initialQuote) {
