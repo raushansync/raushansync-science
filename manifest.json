@@ -5,7 +5,6 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "any",
   "lang": "en",
   "dir": "ltr",
   "background_color": "#111827",
@@ -36,39 +35,39 @@
   ],
   "screenshots": [
     {
-      "src": "/assets/screenshots/screenshot-portrait-1-540x1170.jpeg",
-      "sizes": "540x1170",
-      "type": "image/jpeg",
+      "src": "/assets/screenshots/1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-2-540x1170.jpeg",
-      "sizes": "540x1170",
-      "type": "image/jpeg",
+      "src": "/assets/screenshots/2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-3-540x1170.jpeg",
-      "sizes": "540x1170",
-      "type": "image/jpeg",
+      "src": "/assets/screenshots/3.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-4-540x1170.jpeg",
-      "sizes": "540x1170",
-      "type": "image/jpeg",
+      "src": "/assets/screenshots/4.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-5-540x1170.jpeg",
-      "sizes": "540x1170",
-      "type": "image/jpeg",
+      "src": "/assets/screenshots/5.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/assets/screenshots/screenshot-portrait-6-540x1170.jpeg",
-      "sizes": "540x1170",
-      "type": "image/jpeg",
+      "src": "/assets/screenshots/6.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
       "form_factor": "narrow"
     },
     {
