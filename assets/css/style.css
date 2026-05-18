@@ -613,6 +613,29 @@ main {
   color: var(--primary-color);
 }
 
+.card-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.card-header-flex .status {
+  margin-bottom: 0;
+}
+
+.card-tick-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.card-tick-container .item-tick {
+  margin-right: 0;
+}
+
 @keyframes class-card-gradient {
   0% {
     background-position: 0% 50%;
