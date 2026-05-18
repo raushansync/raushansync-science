@@ -246,10 +246,7 @@ window.TickManager = (() => {
         async initializePageTicks() {
             try {
                 const tickContainers = document.querySelectorAll('[data-tick-container]');
-                if (tickContainers.length === 0) {
-                    return;
-                }
-
+                
                 for (const container of tickContainers) {
                     // Skip containers we've already initialized (idempotent)
                     if (container.dataset.tickInitialized === 'true') {
@@ -283,6 +280,77 @@ window.TickManager = (() => {
                     await this.initTick(container.id, options);
                     // Mark container as initialized so future calls are no-ops
                     container.dataset.tickInitialized = 'true';
+                }
+
+                // NEW: Dynamically process article/practice "cards" across the hub pages
+                const cards = document.querySelectorAll('article.card');
+                let cardCounter = 0;
+
+                for (const card of cards) {
+                    if (card.dataset.tickInitialized === 'true') continue;
+
+                    const btn = card.querySelector('.btn-row a.btn');
+                    const statusEl = card.querySelector('.status');
+                    
+                    if (!btn || !statusEl) continue;
+                    
+                    const href = btn.getAttribute('href');
+                    if (!href) continue;
+
+                    // Resolve the absolute path of the destination linked in the card
+                    const a = document.createElement('a');
+                    a.href = href; 
+                    const itemPath = a.pathname;
+
+                    // Determine if it represents a practice or article based on URL
+                    const itemType = window.ProgressTracker 
+                        ? window.ProgressTracker.detectItemType(itemPath) 
+                        : (itemPath.includes('/practice/') ? 'practice' : 'article');
+
+                    // Look for existing tick container if re-running
+                    let container = card.querySelector('.card-tick-container');
+                    
+                    if (!container) {
+                        container = document.createElement('div');
+                        container.className = 'card-tick-container';
+                        
+                        // Generate a pseudo-unique ID required by initTick logic
+                        container.id = 'card-tick-' + Date.now().toString(36) + '-' + (cardCounter++);
+                        
+                        container.dataset.tickSite = window.getCurrentSite ? window.getCurrentSite() : window.location.hostname;
+                        container.dataset.tickPath = itemPath;
+                        container.dataset.tickType = itemType;
+                        container.dataset.tickPosition = 'item';
+                        // Provide the data-tick-container attribute so CSS/Logic treats it normally
+                        container.setAttribute('data-tick-container', 'true');
+
+                        // Create a unified Flex layout for status + tick to live on same row
+                        const flexWrap = document.createElement('div');
+                        flexWrap.className = 'card-header-flex';
+                        flexWrap.style.display = 'flex';
+                        flexWrap.style.justifyContent = 'space-between';
+                        flexWrap.style.alignItems = 'center';
+                        flexWrap.style.marginBottom = '0.4rem';
+                        
+                        card.insertBefore(flexWrap, statusEl);
+                        flexWrap.appendChild(statusEl);
+                        
+                        // Append tick directly into flexWrap next to status
+                        flexWrap.appendChild(container);
+                        
+                        // Nullify previous margin on status string to perfect alignment
+                        statusEl.style.marginBottom = '0';
+                    }
+
+                    // Spin up the tick component
+                    await this.initTick(container.id, {
+                        site: container.dataset.tickSite,
+                        itemPath: container.dataset.tickPath,
+                        itemType: container.dataset.tickType,
+                        position: 'item' // uses item-tick class which has small margins mapping
+                    });
+
+                    card.dataset.tickInitialized = 'true';
                 }
 
                 window.logEvent('Page ticks initialized');
