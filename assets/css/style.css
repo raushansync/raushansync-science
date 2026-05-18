@@ -3079,3 +3079,49 @@ body.ai-chat-open main {
     border-color: #3b82f6;
     color: #3b82f6;
 }
+
+/* =========================================================
+   PRACTICE CARD LINK (Visual Differentiation)
+   ========================================================= */
+
+.card-grid > .card.practice-card-link {
+  background: rgba(59, 130, 246, 0.03);
+  border: 1.5px dashed rgba(59, 130, 246, 0.4);
+  box-shadow: none;
+  animation: none;
+}
+
+.card-grid > .card.practice-card-link:hover {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.card.practice-card-link .status {
+  color: #059669; /* distinctive color for practice */
+}
+
+.card.practice-card-link .btn {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1.5px solid var(--primary-color);
+}
+
+.card.practice-card-link .btn:hover {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.dark-mode .card-grid > .card.practice-card-link {
+  background: rgba(96, 165, 250, 0.04);
+  border: 1.5px dashed rgba(96, 165, 250, 0.3);
+}
+
+.dark-mode .card-grid > .card.practice-card-link:hover {
+  background: rgba(96, 165, 250, 0.08);
+  border-color: rgba(96, 165, 250, 0.6);
+}
+
+.dark-mode .card.practice-card-link .status {
+  color: #10b981;
+}
