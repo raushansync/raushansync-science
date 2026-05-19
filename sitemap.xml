@@ -81,6 +81,14 @@
 
   <!-- Class 6 Chapter 1 Content Pages -->
 
+  <!-- Video Lessons Detail -->
+  <url>
+    <loc>https://science.raushansync.com/video-lessons/class06/chapter01-the-wonderful-world-of-science/01-video-lesson-the-wonderful-world-of-science/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Notes Hub & Detail -->
   <url>
     <loc>https://science.raushansync.com/notes/class06/chapter01-the-wonderful-world-of-science/</loc>
     <changefreq>yearly</changefreq>
@@ -88,15 +96,42 @@
   </url>
 
   <url>
+    <loc>https://science.raushansync.com/notes/class06/chapter01-the-wonderful-world-of-science/01-complete-notes/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Practice Hub & Detail -->
+  <url>
     <loc>https://science.raushansync.com/practice/class06/chapter01-the-wonderful-world-of-science/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <url>
+    <loc>https://science.raushansync.com/practice/class06/chapter01-the-wonderful-world-of-science/01-practice-the-wonderful-world-of-science/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.83</priority>
+  </url>
+
+  <!-- Practice Solution Hub -->
+  <url>
+    <loc>https://science.raushansync.com/practice-solution/class06/chapter01-the-wonderful-world-of-science/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.79</priority>
+  </url>
+
+  <!-- Advanced Practice Hub & Detail -->
+  <url>
     <loc>https://science.raushansync.com/practice-advanced/class06/chapter01-the-wonderful-world-of-science/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://science.raushansync.com/practice-advanced/class06/chapter01-the-wonderful-world-of-science/01-advanced-practice-the-wonderful-world-of-science/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.78</priority>
   </url>
 
 <!-- Notes: Class 07 - Chapter 1 (Nutrition in Plants) -->
