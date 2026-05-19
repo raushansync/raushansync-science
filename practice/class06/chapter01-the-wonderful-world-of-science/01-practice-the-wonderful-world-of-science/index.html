@@ -468,7 +468,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             if (!window.supabaseClient) {
-                window.location.replace('/login');
+                const targetPath = window.location.pathname + window.location.search + window.location.hash;
+                if (typeof window.redirectToLogin === 'function') {
+                    window.redirectToLogin(targetPath);
+                } else {
+                    window.location.replace('/login?redirect=' + encodeURIComponent(targetPath));
+                }
                 return;
             }
 
