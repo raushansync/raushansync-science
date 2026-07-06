@@ -142,6 +142,11 @@
     <priority>0.88</priority>
   </url>
 
+  <url>
+    <loc>https://science.raushansync.com/video-lessons/class07/chapter01-nutrition-in-plants/02-video-lesson-nutrition-in-plants-core-concept-1/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.88</priority>
+  </url>
 <!-- Notes: Class 07 - Chapter 1 (Nutrition in Plants) -->
   <url>
     <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/</loc>
