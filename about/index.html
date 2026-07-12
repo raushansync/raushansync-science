@@ -59,10 +59,44 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        body.about-page {
+            position: relative;
+            background: linear-gradient(145deg, #eaf2ff 0%, #f8fbff 44%, #e6f0ff 100%);
+        }
+
+        .dark-mode body.about-page {
+            background: linear-gradient(145deg, #020c1b 0%, #030e22 50%, #020a17 100%);
+        }
+
+        body.about-page::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(37, 99, 235, 0.055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, 0.055) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dark-mode body.about-page::after {
+            background-image:
+                linear-gradient(rgba(96, 165, 250, 0.11) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(96, 165, 250, 0.11) 1px, transparent 1px);
+        }
+
+        body.about-page main,
+        body.about-page #footer {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </head>
 
 
-<body>
+<body class="about-page">
 
     <header class="header">
         <div class="container header-container">
@@ -81,7 +115,7 @@
                             d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                     </svg>
                 </button>
-</div>
+            </div>
         </div>
     </header>
 
