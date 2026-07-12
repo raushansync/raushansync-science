@@ -156,7 +156,7 @@
             <section class="video-lesson">
                 <h2>Nutrition in Plants - Overview</h2>
 
-                <div class="video-embed">
+                <!-- <div class="video-embed">
                     <iframe
                         src="https://www.youtube.com/embed/oLtnKR7Cf6A?si=lzRJWD53aSy0PW5q"
                         title="Class 7 Science Chapter 1 - Nutrition in Plants - Overview"
@@ -165,10 +165,11 @@
                         allowfullscreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
                     </iframe>
-                </div>
+                </div> -->
 
                 <div class="video-description">
-                    <p>
+                    <p>Video Lesson is coming soon.</p>
+                    <!-- <p>
                         Learn Class 7 Science Chapter 1 – <strong>Nutrition in Plants - Overview</strong>
                         through this short concept-first lesson focused on how plants make food and why
                         that process matters for life on Earth.
@@ -181,20 +182,10 @@
 
                     <p>
                         For questions, discussion, and study support, join the community through the Discord link provided in the footer.
-                    </p>
+                    </p> -->
                 </div>
-
+<!-- 
                 <div class="pdf-download-section">
-                    <button type="button" id="openVideoAI" class="ask-ai-btn" aria-label="Ask RaushanSYNC AI">
-                        <span class="ai-btn-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                                <path d="M12 3.75l1.26 2.91 2.99 1.26-2.99 1.26L12 12.09l-1.26-2.91-2.99-1.26 2.99-1.26L12 3.75Z" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M18.5 11.25l.72 1.67 1.66.72-1.66.72-.72 1.67-.72-1.67-1.66-.72 1.66-.72.72-1.67Z" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M6 13.5l.94 2.18 2.18.94-2.18.94L6 19.74l-.94-2.18-2.18-.94 2.18-.94L6 13.5Z" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                        <span>Ask RaushanSYNC AI</span>
-                    </button>
                     <a href="https://drive.google.com/uc?export=download&id=159OACcyNsQ26UcfkdsSdblmGPnTqeDOl" 
                        class="pdf-download-btn"
                        download>
@@ -203,7 +194,7 @@
                         </svg>
                         <span>Download Slides (PDF)</span>
                     </a>
-                </div>
+                </div> -->
             </section>
 
         </div>
@@ -218,26 +209,7 @@
 
     <div id="footer"></div>
 
-    <div id="ai-chat-modal" class="ai-chat-modal" hidden aria-hidden="true" role="dialog" aria-modal="true"
-        aria-labelledby="ai-chat-title">
-        <div class="ai-chat-overlay" data-ai-chat-close></div>
-        <section class="ai-chat-panel">
-            <header class="ai-chat-header">
-                <div class="ai-chat-header-copy">
-                    <h2 id="ai-chat-title">RaushanSYNC AI Assistant</h2>
-                    <p id="ai-chat-subtitle" class="ai-chat-subtitle">Ask questions about this video lesson.</p>
-                </div>
-                <button id="ai-chat-close" class="ai-chat-close" type="button" aria-label="Close AI chat">×</button>
-            </header>
-            <div id="ai-chat-context" class="ai-chat-context" aria-live="polite"></div>
-            <div id="ai-chat-history" class="ai-chat-history" aria-live="polite"></div>
-            <form id="ai-chat-form" class="ai-chat-input-row">
-                <label for="ai-chat-input" class="ai-chat-label">Ask RaushanSYNC AI</label>
-                <textarea id="ai-chat-input" rows="2" placeholder="Ask a question about this video lesson..."></textarea>
-                <button id="ai-chat-send" type="submit">Send</button>
-            </form>
-        </section>
-    </div>
+
 
     <!-- Supabase & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
@@ -248,37 +220,6 @@
     <script src="/assets/js/progress-tracker.js"></script>
     <script src="/assets/js/tick-manager.js"></script>
     <script src="/assets/js/script.js"></script>
-    <script src="/ai-chat.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const openAIBtn = document.getElementById('openVideoAI');
-            if (openAIBtn) {
-                openAIBtn.addEventListener('click', function () {
-                    if (typeof window.initAIChat !== 'function') {
-                        alert('AI assistant is not available right now. Please refresh and try again.');
-                        return;
-                    }
-
-                    window.initAIChat({
-                        practiceTitle: 'Chapter 1: Nutrition in Plants - Overview',
-                        questionText: 'Plant nutrition, food making, and the role of plants',
-                        userAnswer: 'Student',
-                        correctAnswer: 'Not applicable',
-                        explanation: 'Ask questions about the concepts covered in this video lesson about Nutrition in Plants.',
-                        pageUrl: window.location.href
-                    }, {
-                        mode: 'student-support',
-                        title: 'RaushanSYNC AI Assistant',
-                        subtitle: 'Ask questions about Nutrition in Plants - Overview.',
-                        assistantGreeting: 'Hi! I am RaushanSYNC AI Assistant. How can I help you understand Nutrition in Plants better?',
-                        inputPlaceholder: 'Ask a question about Nutrition in Plants...',
-                        showContext: true
-                    });
-                });
-            }
-        });
-    </script>
 
 </body>
 
