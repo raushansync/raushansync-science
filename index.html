@@ -117,7 +117,6 @@
          All selectors are additive; nothing destructive to existing JS hooks
          ============================================================ -->
     <style>
-
         /* ── Body atmosphere ─────────────────────────────────────── */
         body.home-page {
             position: relative;
@@ -194,12 +193,23 @@
         }
 
         @keyframes heroFadeUp {
-            from { opacity: 0; transform: translateY(22px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ── Hero Eyebrow Badge ──────────────────────────────────── */
-        .hero-eyebrow { display: flex; align-items: center; gap: 0.75rem; }
+        .hero-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
         .hero-badge {
             display: inline-flex;
@@ -239,8 +249,17 @@
         }
 
         @keyframes dotPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.5; transform: scale(0.75); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.75);
+            }
         }
 
         /* ── Hero H1 ─────────────────────────────────────────────── */
@@ -347,32 +366,58 @@
             border-color: rgba(37, 99, 235, 0.34);
             color: #1d4ed8;
         }
+
         .hero-domain-pill.chemistry {
             border-color: rgba(8, 145, 178, 0.34);
             color: #0e7490;
         }
+
         .hero-domain-pill.biology {
             border-color: rgba(5, 150, 105, 0.34);
             color: #047857;
         }
+
         .hero-domain-pill.enviro {
             border-color: rgba(101, 163, 13, 0.34);
             color: #3f6212;
         }
 
-        .hero-domain-pill.chemistry .hero-domain-icon { background: rgba(6, 182, 212, 0.12); }
-        .hero-domain-pill.biology .hero-domain-icon { background: rgba(16, 185, 129, 0.12); }
-        .hero-domain-pill.enviro .hero-domain-icon { background: rgba(132, 204, 22, 0.14); }
+        .hero-domain-pill.chemistry .hero-domain-icon {
+            background: rgba(6, 182, 212, 0.12);
+        }
+
+        .hero-domain-pill.biology .hero-domain-icon {
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .hero-domain-pill.enviro .hero-domain-icon {
+            background: rgba(132, 204, 22, 0.14);
+        }
 
         .dark-mode .hero-domain-pill {
             background: rgba(8, 20, 42, 0.62);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
-        .dark-mode .hero-domain-pill.physics  { border-color: rgba(96,165,250,0.18); color: #93c5fd; }
-        .dark-mode .hero-domain-pill.chemistry { border-color: rgba(34,211,238,0.18); color: #67e8f9; }
-        .dark-mode .hero-domain-pill.biology   { border-color: rgba(52,211,153,0.18); color: #6ee7b7; }
-        .dark-mode .hero-domain-pill.enviro    { border-color: rgba(163,230,53,0.18); color: #bef264; }
+        .dark-mode .hero-domain-pill.physics {
+            border-color: rgba(96, 165, 250, 0.18);
+            color: #93c5fd;
+        }
+
+        .dark-mode .hero-domain-pill.chemistry {
+            border-color: rgba(34, 211, 238, 0.18);
+            color: #67e8f9;
+        }
+
+        .dark-mode .hero-domain-pill.biology {
+            border-color: rgba(52, 211, 153, 0.18);
+            color: #6ee7b7;
+        }
+
+        .dark-mode .hero-domain-pill.enviro {
+            border-color: rgba(163, 230, 53, 0.18);
+            color: #bef264;
+        }
 
         /* ── Welcome actions alignment inside hero-left ──────────── */
         .hero-left .welcome-actions {
@@ -425,18 +470,41 @@
                 0 4px 8px rgba(59, 130, 246, 0.24);
         }
 
-        .hero-left .btn-primary:active { transform: translateY(0); }
+        .hero-left .btn-primary:active {
+            transform: translateY(0);
+        }
 
         @keyframes btnFlow {
-            0%   { background-position: 0% 50%; }
-            50%  { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         @keyframes btnSweep {
-            0%, 38%  { opacity: 0; transform: translateX(-280%) rotate(18deg); }
-            52%      { opacity: 0.55; }
-            72%, 100%{ opacity: 0; transform: translateX(420%) rotate(18deg); }
+
+            0%,
+            38% {
+                opacity: 0;
+                transform: translateX(-280%) rotate(18deg);
+            }
+
+            52% {
+                opacity: 0.55;
+            }
+
+            72%,
+            100% {
+                opacity: 0;
+                transform: translateX(420%) rotate(18deg);
+            }
         }
 
         /* ── Hero Secondary Button ───────────────────────────────── */
@@ -512,7 +580,7 @@
             -webkit-backdrop-filter: blur(14px) !important;
             border: 1px solid rgba(37, 99, 235, 0.24) !important;
             border-radius: 16px !important;
-            box-shadow: 0 12px 34px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255,255,255,0.96) !important;
+            box-shadow: 0 12px 34px rgba(37, 99, 235, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
         }
 
         .dark-mode .welcome-section #auth-buttons-user.home-learning-card {
@@ -554,8 +622,15 @@
         }
 
         @keyframes portraitFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-9px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-9px);
+            }
         }
 
         .dark-mode .hero-profile {
@@ -615,13 +690,34 @@
                 text-align: center;
             }
 
-            .hero-left h1 { text-align: center !important; }
-            .hero-left .welcome-actions { justify-content: center !important; max-width: 680px; }
-            .hero-left #auth-buttons-guest { justify-content: center !important; }
-            .hero-subtitle { text-align: center; max-width: none; }
-            .hero-domains { justify-content: center; }
+            .hero-left h1 {
+                text-align: center !important;
+            }
 
-            .hero-right { justify-content: center; width: 100%; padding-top: 0.35rem; top: 0; }
+            .hero-left .welcome-actions {
+                justify-content: center !important;
+                max-width: 680px;
+            }
+
+            .hero-left #auth-buttons-guest {
+                justify-content: center !important;
+            }
+
+            .hero-subtitle {
+                text-align: center;
+                max-width: none;
+            }
+
+            .hero-domains {
+                justify-content: center;
+            }
+
+            .hero-right {
+                justify-content: center;
+                width: 100%;
+                padding-top: 0.35rem;
+                top: 0;
+            }
         }
 
         @media (max-width: 1120px) {
@@ -630,8 +726,17 @@
                 justify-items: center;
             }
 
-            .hero-right { justify-content: center; width: 100%; padding-top: 0.35rem; top: 0; }
-            .hero-profile-motion { width: 250px; height: 250px; }
+            .hero-right {
+                justify-content: center;
+                width: 100%;
+                padding-top: 0.35rem;
+                top: 0;
+            }
+
+            .hero-profile-motion {
+                width: 250px;
+                height: 250px;
+            }
 
             .hero-left {
                 align-items: center;
@@ -658,26 +763,38 @@
         }
 
         @media (max-width: 768px) {
-            .hero-split { padding: 1.15rem 0 1.05rem; gap: 1.25rem; }
-            .hero-profile-motion { width: 195px; height: 195px; }
+            .hero-split {
+                padding: 1.15rem 0 1.05rem;
+                gap: 1.25rem;
+            }
+
+            .hero-profile-motion {
+                width: 195px;
+                height: 195px;
+            }
+
             .hero-left h1 {
                 font-size: 1.9rem !important;
                 line-height: 1.16 !important;
                 margin-bottom: 0.2rem !important;
             }
+
             .hero-science-span {
                 margin-top: 0.18em;
                 letter-spacing: 0.08em;
             }
+
             .hero-badge {
                 font-size: 0.76rem;
                 font-weight: 600;
             }
+
             .hero-subtitle {
                 line-height: 1.72 !important;
                 margin-top: 0.15rem !important;
                 text-align: center !important;
             }
+
             .hero-domains {
                 display: none;
             }
@@ -696,20 +813,34 @@
         }
 
         @media (max-width: 480px) {
-            .hero-split { padding: 1.35rem 0 1.15rem; gap: 1.35rem; }
-            .hero-profile-motion { width: 195px; height: 195px; }
+            .hero-split {
+                padding: 1.35rem 0 1.15rem;
+                gap: 1.35rem;
+            }
+
+            .hero-profile-motion {
+                width: 195px;
+                height: 195px;
+            }
+
             .hero-left {
                 gap: 1rem;
             }
+
             .hero-badge {
                 font-size: 0.74rem;
                 font-weight: 600;
             }
+
             .hero-left h1 {
                 font-size: 1.86rem !important;
                 line-height: 1.18 !important;
             }
-            .hero-title-line { white-space: normal; }
+
+            .hero-title-line {
+                white-space: normal;
+            }
+
             .hero-subtitle {
                 font-size: 0.9rem !important;
                 line-height: 1.75 !important;
@@ -719,6 +850,7 @@
 
         /* ── Reduced motion ──────────────────────────────────────── */
         @media (prefers-reduced-motion: reduce) {
+
             .hero-left,
             .hero-right,
             .home-page .welcome-section .palette.hero-palette,
@@ -730,7 +862,6 @@
                 transform: none !important;
             }
         }
-
     </style>
 
     <meta property="og:image" content="https://science.raushansync.com/assets/og/og-image.jpg">
@@ -783,14 +914,20 @@
                         </div>
 
                         <!-- H1 — PRESERVED TEXT, enhanced markup -->
-                        <h1><span class="hero-title-line">Welcome to <span class="hero-brand-span">RaushanSYNC</span></span>
+                        <h1><span class="hero-title-line">Welcome to <span
+                                    class="hero-brand-span">RaushanSYNC</span></span>
                             <span class="hero-science-span">Science Platform</span>
                         </h1>
 
                         <!-- Short mission line -->
                         <p class="hero-subtitle">
-                            Deep understanding of Physics, Chemistry, Biology &amp; Environmental Science —
-                            through observation, reasoning, and first principles.
+                            Hello! I’m Raushan.
+                        </p>
+                        <p class="hero-subtitle">
+                            On this website, I teach Science from first principles. Here you’ll discover carefully
+                            designed articles, hands-on labs, and video lessons that help you understand concepts deeply
+                            instead of simply memorizing them. My goal is to help you develop the ability to think
+                            scientifically-through observation, reasoning, experimentation, and curiosity.
                         </p>
 
                         <!-- Domain pills (decorative, aria-hidden) -->
@@ -852,11 +989,8 @@
                     <div class="hero-right">
                         <div class="hero-profile-motion">
                             <figure class="hero-profile">
-                                <img src="/Raushan_Hero_Image.webp"
-                                     width="1200"
-                                     height="1200"
-                                     loading="lazy"
-                                     alt="Portrait of Raushan, founder of RaushanSYNC Science">
+                                <img src="/Raushan_Hero_Image.webp" width="1200" height="1200" loading="lazy"
+                                    alt="Portrait of Raushan, founder of RaushanSYNC Science">
                             </figure>
                         </div>
                     </div>
@@ -868,27 +1002,23 @@
                 <!-- ═══ HERO PALETTE — PRESERVED CONTENT ════════ -->
                 <div class="palette important hero-palette">
                     <p>
-                        <strong>RaushanSYNC Science</strong> is a learning-focused platform built to help students
-                        understand science as a way of thinking — not just a collection of facts, formulas,
-                        or exam-oriented answers.
+                        I created this platform because I believe
+                        science should be understood from first principles, not memorized for examinations.
+                        My goal is to help you build intuition by asking questions, making observations,
+                        and understanding <em>why</em> things happen.
                     </p>
 
                     <p>
-                        From Class 6 curiosity to Class 12 scientific depth and
-                        beyond,
-                        concepts across <strong>Physics</strong>, <strong>Chemistry</strong>, <strong>Biology</strong>,
-                        and <strong>Environmental Science</strong> are explored
-                        from first principles, through observation, reasoning, experimentation, and
-                        explanation.
+                        Whether you're beginning with Class 6 science or exploring more advanced topics,
+                        we'll study <strong>Physics</strong>, <strong>Chemistry</strong>,
+                        <strong>Biology</strong>, and <strong>Environmental Science</strong> through
+                        reasoning, experimentation, and real-world examples - not by memorizing definitions
+                        and formulas.
                     </p>
 
                     <blockquote class="hero-attribution">
-                        Part of the <strong>
-                            <a href="https://www.raushansync.com/" target="_blank" rel="noopener noreferrer">
-                                RaushanSYNC Learning Network
-                            </a>
-                        </strong>, this platform connects science naturally with mathematics and computer science,
-                        encouraging curiosity, critical thinking, and deep understanding across disciplines.
+                        I hope this website helps you become curious, ask better questions,
+                        and develop the ability to think scientifically long after you've finished a lesson.
                     </blockquote>
                 </div>
                 <!-- ═══ END HERO PALETTE ══════════════════════ -->
@@ -909,7 +1039,8 @@
                             and AI support.
                         </p>
                     </div>
-                    <button id="profile-help-close" class="ai-chat-close" type="button" aria-label="Close profile reminder">
+                    <button id="profile-help-close" class="ai-chat-close" type="button"
+                        aria-label="Close profile reminder">
                         ×
                     </button>
                 </header>
@@ -924,7 +1055,8 @@
                 </div>
 
                 <div class="profile-help-actions">
-                    <a id="profile-help-dashboard-link" href="/dashboard?edit-profile=1#profileSection" class="btn btn-primary">
+                    <a id="profile-help-dashboard-link" href="/dashboard?edit-profile=1#profileSection"
+                        class="btn btn-primary">
                         Open Dashboard Profile Editor
                     </a>
                     <button type="button" id="profile-help-dismiss" class="btn btn-secondary">
@@ -935,14 +1067,15 @@
         </div>
 
         <!-- ── PRESERVED: AI Chat Modal — EXACT COPY ─────────────── -->
-        <div id="ai-chat-modal" class="ai-chat-modal" hidden aria-hidden="true" role="dialog"
-            aria-modal="true" aria-labelledby="ai-chat-title">
+        <div id="ai-chat-modal" class="ai-chat-modal" hidden aria-hidden="true" role="dialog" aria-modal="true"
+            aria-labelledby="ai-chat-title">
             <div class="ai-chat-overlay" data-ai-chat-close></div>
             <section class="ai-chat-panel">
                 <header class="ai-chat-header">
                     <div class="ai-chat-header-copy">
                         <h2 id="ai-chat-title">RaushanSYNC AI Assistant</h2>
-                        <p id="ai-chat-subtitle" class="ai-chat-subtitle">Ask academic or non-academic questions anytime.</p>
+                        <p id="ai-chat-subtitle" class="ai-chat-subtitle">Ask academic or non-academic questions
+                            anytime.</p>
                     </div>
                     <button id="ai-chat-close" class="ai-chat-close" type="button" aria-label="Close AI chat">×</button>
                 </header>
