@@ -1330,6 +1330,11 @@ main {
   margin: 2rem 0;
 }
 
+.notes-diagram--compact {
+  max-width: 520px;
+  margin: 1.5rem auto;
+}
+
 .notes-diagram img {
   max-width: 100%;
   height: auto;

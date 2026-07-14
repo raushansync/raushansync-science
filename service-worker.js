@@ -1,5 +1,5 @@
 ﻿/* RaushanSYNC Learning Platform PWA Service Worker */
-const CACHE_VERSION = 'app-v1.1.2.4.5.8.2';  // Generic version for cross-site use
+const CACHE_VERSION = 'app-v1.1.2.4.5.8.3';  // Generic version for cross-site use
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline/';
@@ -55,18 +55,6 @@ const CORE_ASSETS = [
   '/class12/',
   '/future-content/',
   '/notes/class06/chapter01-the-wonderful-world-of-science/',
-  '/notes/class07/chapter01-nutrition-in-plants/',
-  '/notes/class07/chapter01-nutrition-in-plants/index.html',
-  '/notes/class07/chapter01-nutrition-in-plants/01-big-picture-overview/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-1/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-2/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-3/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-4/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-5/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-6/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-7/',
-  '/notes/class07/chapter01-nutrition-in-plants/core-concept-8/',
-  '/notes/class07/chapter01-nutrition-in-plants/mental-model/'
 ];
 
 self.addEventListener('install', (event) => {
