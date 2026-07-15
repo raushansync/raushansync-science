@@ -82,11 +82,11 @@
   <!-- Class 6 Chapter 1 Content Pages -->
 
   <!-- Video Lessons Detail -->
-  <url>
+  <!-- <url>
     <loc>https://science.raushansync.com/video-lessons/class06/chapter01-the-wonderful-world-of-science/01-video-lesson-the-wonderful-world-of-science/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.88</priority>
-  </url>
+  </url> -->
 
   <!-- Notes Hub & Detail -->
   <url>
@@ -103,12 +103,6 @@
 
   <!-- Practice Hub & Detail -->
   <url>
-    <loc>https://science.raushansync.com/practice/class06/chapter01-the-wonderful-world-of-science/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-
-  <url>
     <loc>https://science.raushansync.com/practice/class06/chapter01-the-wonderful-world-of-science/01-practice-the-wonderful-world-of-science/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.83</priority>
@@ -119,134 +113,6 @@
     <loc>https://science.raushansync.com/practice-solution/class06/chapter01-the-wonderful-world-of-science/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.79</priority>
-  </url>
-
-  <!-- Advanced Practice Hub & Detail -->
-  <url>
-    <loc>https://science.raushansync.com/practice-advanced/class06/chapter01-the-wonderful-world-of-science/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/practice-advanced/class06/chapter01-the-wonderful-world-of-science/01-advanced-practice-the-wonderful-world-of-science/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.78</priority>
-  </url>
-
-<!-- Video Lessons: Class 07 - Chapter 1 (Nutrition in Plants) -->
-
-  <url>
-    <loc>https://science.raushansync.com/video-lessons/class07/chapter01-nutrition-in-plants/01-video-lesson-nutrition-in-plants-overview/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.88</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/video-lessons/class07/chapter01-nutrition-in-plants/02-video-lesson-nutrition-in-plants-core-concept-1/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.88</priority>
-  </url>
-<!-- Notes: Class 07 - Chapter 1 (Nutrition in Plants) -->
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/congratulations/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
-  <!-- Core concepts and quizzes -->
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-1/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-1/practice1/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-2/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-2/practice2/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-3/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-3/practice3/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-4/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-4/practice4/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-5/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-5/practice5/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-6/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-6/practice6/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-7/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-7/practice7/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-8/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://science.raushansync.com/notes/class07/chapter01-nutrition-in-plants/core-concept-8/practice8/</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
   </url>
 
 </urlset>

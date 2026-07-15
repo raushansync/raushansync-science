@@ -1,5 +1,5 @@
 ﻿/* RaushanSYNC Learning Platform PWA Service Worker */
-const CACHE_VERSION = 'app-v1.1.2.4.5.8.3';  // Generic version for cross-site use
+const CACHE_VERSION = 'app-v1.1.2.4.5.8.4';  // Generic version for cross-site use
 const CORE_CACHE = 'rs-core-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'rs-runtime-' + CACHE_VERSION;
 const OFFLINE_URL = '/offline/';
@@ -37,7 +37,6 @@ const CORE_ASSETS = [
   '/assets/css/style.css',
   '/assets/js/script.js',
   '/assets/js/homepage-hero.js',
-  '/ai-chat.js',
   '/components/nav.html',
   '/components/footer.html',
   '/components/support-cta.html',
