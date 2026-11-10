@@ -35,3 +35,7 @@ yarn-error.log*
 # Local dependencies and Cloudflare build state
 node_modules/
 .wrangler/
+
+
+# CURRENTLY REMOVED
+.CURRENTLY_REMOVED
